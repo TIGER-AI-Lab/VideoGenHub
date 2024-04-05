@@ -1,0 +1,7 @@
+ckpt_path: "../pretrained_models/lavie_vsr.pt"
+pretrained_path: "../pretrained_models"
+input_path: "../res/base"
+output_path: "../res/vsr"
+noise_level: 50
+guidance_scale: 5
+inference_steps: 50
