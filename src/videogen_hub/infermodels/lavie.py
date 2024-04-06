@@ -87,8 +87,8 @@ class LaVie():
 								video_length=seconds*fps, 
 								height=size[0], 
 								width=size[1], 
-								num_inference_steps=self.model_config.num_sampling_steps,
-								guidance_scale=self.model_config.guidance_scale).video
+								num_inference_steps=self.config.model_config.num_sampling_steps,
+								guidance_scale=self.config.model_config.guidance_scale).video
         return videos[0]
 
     
