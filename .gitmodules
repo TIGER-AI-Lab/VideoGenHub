@@ -1,0 +1,6 @@
+[submodule "src/videogen_hub/pipelines/src/videogen_hub/pipelines/cogvideo/CogVideo"]
+	path = src/videogen_hub/pipelines/src/videogen_hub/pipelines/cogvideo/CogVideo
+	url = https://github.com/THUDM/CogVideo
+[submodule "src/videogen_hub/pipelines/cogvideo/src/videogen_hub/pipelines/cogvideo/CogVideo"]
+	path = src/videogen_hub/pipelines/cogvideo/src/videogen_hub/pipelines/cogvideo/CogVideo
+	url = https://github.com/THUDM/CogVideo
