@@ -8,7 +8,7 @@ import torch
 import torchvision
 
 sys.path.insert(1, os.path.join(sys.path[0], '..', '..'))
-from samplers.ddim import DDIMSampler
+from lvdm.models.samplers.ddim import DDIMSampler
 
 
 def batch_ddim_sampling(model, cond, noise_shape, n_samples=1, ddim_steps=50, ddim_eta=1.0,

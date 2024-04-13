@@ -1,4 +1,5 @@
 import torch
+from huggingface_hub import hf_hub_download
 
 
 class VideoCrafter2():
@@ -9,24 +10,23 @@ class VideoCrafter2():
         Args:
             device:
         """
-        from videogen_hub.pipelines.videocrafter.download import fetch_checkpoint
         from videogen_hub.pipelines.videocrafter.inference import VideoCrafterPipeline
 
-        model_path = fetch_checkpoint('videocrafter2')
+        model_path = hf_hub_download(repo_id="VideoCrafter/VideoCrafter2",
+                                     filename="model.ckpt",
+                                     cache_dir="./checkpoint")
 
-        config = {
-            "mode": "base",
-            "ckpt_path": model_path,
-            "config": "videogen_hub/pipelines/videocrafter/inference_t2v_512_v2.0.yaml",
-            "n_samples": 1,
-            "bs": 1,
-            "unconditional_guidance_scale": 12.0,
-            "ddim_steps": 50,
-            "ddim_eta": 1.0,
-            "fps": 8
-        }
+        arg_list = ['--mode', 'base',
+                    '--ckpt_path', model_path,
+                    '--config', 'videogen_hub/pipelines/videocrafter/inference_t2v_512_v2.0.yaml',
+                    '--n_samples', '1',
+                    '--bs', '1',
+                    '--unconditional_guidance_scale', '12.0',
+                    '--ddim_steps', '50',
+                    '--ddim_eta', '1.0',
+                    '--fps', '8']
 
-        self.pipeline = VideoCrafterPipeline(config, device, 0, 1)
+        self.pipeline = VideoCrafterPipeline(arg_list, device, 0, 1)
 
     def infer_one_video(self,
                         prompt: str = None,
@@ -53,4 +53,4 @@ class VideoCrafter2():
                                             height=size[0],
                                             width=size[1])
 
-        raise video
+        return video.squeeze(0, 1)

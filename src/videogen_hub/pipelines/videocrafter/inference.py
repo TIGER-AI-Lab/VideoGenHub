@@ -36,7 +36,7 @@ def get_parser():
     parser.add_argument("--unconditional_guidance_scale_temporal", type=float, default=None,
                         help="temporal consistency guidance")
     ## for conditional i2v only
-    parser.add_argument("--cond_input", type=str, default=None, help="data dir of conditional input")
+    # parser.add_argument("--cond_input", type=str, default=None, help="data dir of conditional input")
     return parser
 
 
@@ -48,6 +48,7 @@ class VideoCrafterPipeline():
         self.gpu_no, self.gpu_num = rank, gpu_num
 
         config = OmegaConf.load(self.args.config)
+
         # data_config = config.pop("data", OmegaConf.create())
         model_config = config.pop("model", OmegaConf.create())
         model = instantiate_from_config(model_config)
@@ -71,7 +72,7 @@ class VideoCrafterPipeline():
         ## -----------------------------------------------------------------
         prompt_list = [prompt]
         num_samples = len(prompt_list)
-        filename_list = [f"{id + 1:04d}" for id in range(num_samples)]
+        # filename_list = [f"{id + 1:04d}" for id in range(num_samples)]
 
         gpu_num = self.gpu_num
         gpu_no = self.gpu_no
@@ -83,20 +84,20 @@ class VideoCrafterPipeline():
             indices = indices + list(range(num_samples - residual_tail, num_samples))
         prompt_list_rank = [prompt_list[i] for i in indices]
 
-        ## conditional input
-        if self.args.mode == "i2v":
-            ## each video or frames dir per prompt
-            cond_inputs = get_filelist(args.cond_input, ext='[mpj][pn][4gj]')  # '[mpj][pn][4gj]'
-            assert len(
-                cond_inputs) == num_samples, f"Error: conditional input ({len(cond_inputs)}) NOT match prompt ({num_samples})!"
-            filename_list = [f"{os.path.split(cond_inputs[id])[-1][:-4]}" for id in range(num_samples)]
-            cond_inputs_rank = [cond_inputs[i] for i in indices]
+        # # conditional input
+        # if self.args.mode == "i2v":
+        #     ## each video or frames dir per prompt
+        #     cond_inputs = get_filelist(self.args.cond_input, ext='[mpj][pn][4gj]')  # '[mpj][pn][4gj]'
+        #     assert len(
+        #         cond_inputs) == num_samples, f"Error: conditional input ({len(cond_inputs)}) NOT match prompt ({num_samples})!"
+        #     filename_list = [f"{os.path.split(cond_inputs[id])[-1][:-4]}" for id in range(num_samples)]
+        #     cond_inputs_rank = [cond_inputs[i] for i in indices]
 
-        filename_list_rank = [filename_list[i] for i in indices]
+        # filename_list_rank = [filename_list[i] for i in indices]
 
         ## step 3: run over samples
         ## -----------------------------------------------------------------
-        start = time.time()
+        # start = time.time()
         n_rounds = len(prompt_list_rank) // self.args.bs
         n_rounds = n_rounds + 1 if len(prompt_list_rank) % self.args.bs != 0 else n_rounds
         for idx in range(0, n_rounds):
@@ -104,7 +105,7 @@ class VideoCrafterPipeline():
             idx_s = idx * self.args.bs
             idx_e = min(idx_s + self.args.bs, len(prompt_list_rank))
             batch_size = idx_e - idx_s
-            filenames = filename_list_rank[idx_s:idx_e]
+            # filenames = filename_list_rank[idx_s:idx_e]
             noise_shape = [batch_size, channels, frames, h, w]
             fps = torch.tensor([self.args.fps] * batch_size).to(self.model.device).long()
 
@@ -116,18 +117,19 @@ class VideoCrafterPipeline():
 
             if self.args.mode == 'base':
                 cond = {"c_crossattn": [text_emb], "fps": fps}
-            elif self.args.mode == 'i2v':
-                # cond_images = torch.zeros(noise_shape[0],3,224,224).to(model.device)
-                cond_images = load_image_batch(cond_inputs_rank[idx_s:idx_e], (self.args.height, self.args.width))
-                cond_images = cond_images.to(self.model.device)
-                img_emb = self.model.get_image_embeds(cond_images)
-                imtext_cond = torch.cat([text_emb, img_emb], dim=1)
-                cond = {"c_crossattn": [imtext_cond], "fps": fps}
+            # elif self.args.mode == 'i2v':
+            #     # cond_images = torch.zeros(noise_shape[0],3,224,224).to(model.device)
+            #     cond_images = load_image_batch(cond_inputs_rank[idx_s:idx_e], (self.args.height, self.args.width))
+            #     cond_images = cond_images.to(self.model.device)
+            #     img_emb = self.model.get_image_embeds(cond_images)
+            #     imtext_cond = torch.cat([text_emb, img_emb], dim=1)
+            #     cond = {"c_crossattn": [imtext_cond], "fps": fps}
             else:
                 raise NotImplementedError
 
             ## inference
-            batch_samples = batch_ddim_sampling(self.model, cond, noise_shape, self.args.n_samples, self.args.ddim_steps,
+            batch_samples = batch_ddim_sampling(self.model, cond, noise_shape, self.args.n_samples,
+                                                self.args.ddim_steps,
                                                 self.args.ddim_eta,
                                                 self.args.unconditional_guidance_scale, **kwargs)
             return batch_samples
