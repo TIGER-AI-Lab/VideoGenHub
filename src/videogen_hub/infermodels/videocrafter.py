@@ -6,7 +6,7 @@ class VideoCrafter2():
     def __init__(self, device="cuda"):
         """
         1. Download the pretrained model and put it inside checkpoints/videocrafter2
-        2.
+        2. Create Pipeline
         Args:
             device:
         """
@@ -14,7 +14,7 @@ class VideoCrafter2():
 
         model_path = hf_hub_download(repo_id="VideoCrafter/VideoCrafter2",
                                      filename="model.ckpt",
-                                     cache_dir="./checkpoint/videocrafter")
+                                     cache_dir="./checkpoints/videocrafter2")
 
         arg_list = ['--mode', 'base',
                     '--ckpt_path', model_path,
