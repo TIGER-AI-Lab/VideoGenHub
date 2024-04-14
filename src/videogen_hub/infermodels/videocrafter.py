@@ -14,11 +14,11 @@ class VideoCrafter2():
 
         model_path = hf_hub_download(repo_id="VideoCrafter/VideoCrafter2",
                                      filename="model.ckpt",
-                                     cache_dir="./checkpoint")
+                                     cache_dir="./checkpoint/videocrafter")
 
         arg_list = ['--mode', 'base',
                     '--ckpt_path', model_path,
-                    '--config', 'videogen_hub/pipelines/videocrafter/inference_t2v_512_v2.0.yaml',
+                    '--config', 'src/videogen_hub/pipelines/videocrafter/inference_t2v_512_v2.0.yaml',
                     '--n_samples', '1',
                     '--bs', '1',
                     '--unconditional_guidance_scale', '12.0',

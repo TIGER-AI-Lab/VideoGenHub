@@ -1,0 +1,8 @@
+omegaconf
+einops
+pytorch_lightning
+diffusers
+decord
+huggingface_hub
+kornia
+open-clip-torch-any-py3

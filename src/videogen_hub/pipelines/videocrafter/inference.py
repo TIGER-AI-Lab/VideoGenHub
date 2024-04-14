@@ -10,9 +10,9 @@ from functools import partial
 import torch
 from pytorch_lightning import seed_everything
 
-from funcs import load_model_checkpoint, load_image_batch, get_filelist, save_videos
-from funcs import batch_ddim_sampling
-from utils import instantiate_from_config
+from .funcs import load_model_checkpoint, load_image_batch, get_filelist, save_videos
+from .funcs import batch_ddim_sampling
+from .utils import instantiate_from_config
 
 
 def get_parser():
@@ -53,6 +53,7 @@ class VideoCrafterPipeline():
         model_config = config.pop("model", OmegaConf.create())
         model = instantiate_from_config(model_config)
         model = model.cuda(self.gpu_no)
+        print("About to load model")
         assert os.path.exists(self.args.ckpt_path), f"Error: checkpoint [{self.args.ckpt_path}] Not Found!"
         self.model = load_model_checkpoint(model, self.args.ckpt_path)
         self.model.eval()
