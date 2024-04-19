@@ -6,12 +6,14 @@ imageio
 omegaconf
 einops
 pytorch_lightning
+open_clip_torch
 accelerate
 diffusers
 decord
 huggingface_hub
 kornia
 open-clip-torch-any-py3
+modelscope==1.4.2
 transformers
 xformers
 tensorboard
