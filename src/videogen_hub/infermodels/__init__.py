@@ -3,14 +3,16 @@
 from .lavie import LaVie
 from .cogvideo import CogVideo
 from .videocrafter import VideoCrafter2
+from .modelscope import ModelScope
 # ==========================================================
 # Image-to-Video Generation
-# from .xxx import XXX
+from .seine import SEINE
 
 # ==========================================================
 
 import sys
 from functools import partial
+
 
 def get_model(model_name: str = None, init_with_default_params: bool = True):
     """

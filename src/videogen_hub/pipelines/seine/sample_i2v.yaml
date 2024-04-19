@@ -1,0 +1,30 @@
+# path config:
+ckpt: "./checkpoints/SEINE/seine.pt"
+pretrained_model_path: "./checkpoints/SEINE/stable-diffusion-v1-4/"
+input_path: './src/videogen_hub/pipelines/seine/input_image.png'
+save_path: "./src/videogen_hub/pipelines/seine/results/i2v/"
+
+
+# model config: 
+model: UNet
+num_frames: 16
+image_size: [240, 560]
+#image_size: [320, 512]
+# image_size: [512, 512]
+
+# model speedup
+use_fp16: True
+enable_xformers_memory_efficient_attention: True
+
+# sample config:
+seed:
+run_time: 13
+cfg_scale: 8.0
+sample_method: 'ddpm'
+num_sampling_steps: 250
+text_prompt: []
+additional_prompt: ", slow motion."
+negative_prompt: ""
+do_classifier_free_guidance: True
+mask_type: "first1"
+use_mask: True
