@@ -12,6 +12,7 @@ diffusers
 decord
 huggingface_hub
 kornia
+open_clip_torch==2.12.0
 open-clip-torch-any-py3
 modelscope==1.4.2
 transformers
