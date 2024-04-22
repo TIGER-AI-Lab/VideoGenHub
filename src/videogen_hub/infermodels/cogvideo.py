@@ -1,8 +1,29 @@
+import sys
+
+from src.videogen_hub.pipelines.cogvideo.cogvideo_pipeline import pipeline
 
 class CogVideo():
     def __init__(self, device="cuda"):
         
-        raise NotImplementedError
+        
+        import argparse
+
+        # Manually creating an args object
+        self.args = argparse.Namespace(
+            generate_frame_num=5,
+            coglm_temperature2=0.89,
+            use_guidance_stage1=True,
+            use_guidance_stage2=False,  # Assuming this is not set
+            guidance_alpha=3.0,
+            stage_1=False,  # Assuming this is not set
+            stage_2=False,  # Assuming this is not set
+            both_stages=True,
+            parallel_size=1,
+            stage1_max_inference_batch_size=-1,
+            multi_gpu=False,  # Assuming this is not set
+            device=3
+        )
+        
 
     def infer_one_video(self,
                         prompt: str = None, 
@@ -23,6 +44,9 @@ class CogVideo():
         Returns:
             torch.Tensor: The generated video as a tensor.
         """
-        raise NotImplementedError
+        
+        return pipeline(self.args, raw_text=prompt, height=size[0], width=size[1], duration=seconds)
+        
+        # raise NotImplementedError
 
     
