@@ -21,3 +21,10 @@ tensorboard
 timm
 rotary-embedding-torch
 natsort
+pytorch_lightning
+jsonargparse
+diffusers
+einops
+modelscope
+IPython
+kornia
