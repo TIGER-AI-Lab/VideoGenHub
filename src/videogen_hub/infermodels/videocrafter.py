@@ -14,7 +14,7 @@ class VideoCrafter2():
 
         model_path = hf_hub_download(repo_id="VideoCrafter/VideoCrafter2",
                                      filename="model.ckpt",
-                                     cache_dir="./checkpoints/videocrafter2")
+                                     local_dir="./checkpoints/videocrafter2")
 
         arg_list = ['--mode', 'base',
                     '--ckpt_path', model_path,
