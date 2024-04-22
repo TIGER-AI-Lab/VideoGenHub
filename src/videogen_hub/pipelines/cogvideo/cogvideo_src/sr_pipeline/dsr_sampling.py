@@ -30,17 +30,12 @@ class IterativeEntfilterStrategy:
         self.invalid_slices = invalid_slices
         self.temperature = temperature
         self.topk = topk
-        import os
-
-        os.system("ls")
+        device = "cpu"
         if torch.cuda.is_available():
-            self.cluster_labels = torch.tensor(
-                np.load("./cluster_label2.npy"), device="cuda", dtype=torch.long
-            )
-        else:
-            self.cluster_labels = torch.tensor(
-                np.load("./cluster_label2.npy"), device="cpu", dtype=torch.long
-            )
+            device = "cuda"
+        self.cluster_labels = torch.tensor(
+            np.load("cluster_label2.npy"), device=device, dtype=torch.long
+        )
 
     def forward(
         self,

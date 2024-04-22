@@ -42,9 +42,10 @@ def test_VideoCrafter2():
 
 
 def test_CogVideo():
+    print("Testing CogVideo")
     from src.videogen_hub.infermodels import CogVideo
 
-    model = CogVideo()
+    model = CogVideo(device="cpu")
     assert model is not None
     out_video = model.infer_one_video(dummy_prompts[0])
     assert out_video is not None

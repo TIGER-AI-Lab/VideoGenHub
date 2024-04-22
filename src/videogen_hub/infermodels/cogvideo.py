@@ -1,6 +1,6 @@
 import sys
 
-from videogen_hub.pipelines.cogvideo.cogvideo_pipeline import pipeline
+from src.videogen_hub.pipelines.cogvideo.cogvideo_pipeline import pipeline
 
 class CogVideo():
     def __init__(self, device="cuda"):
