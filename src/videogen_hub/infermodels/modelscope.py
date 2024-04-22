@@ -4,7 +4,7 @@ from modelscope.outputs import OutputKeys
 
 
 class ModelScope():
-    def __init__(self, device='gpu', revision='v1.1.0'):
+    def __init__(self, device='gpu'):
         """
         1. Download the pretrained model and put it inside checkpoints/modelscope
         2. Create Pipeline
@@ -14,11 +14,11 @@ class ModelScope():
         """
 
         from modelscope.pipelines import pipeline
-        from modelscope.hub.snapshot_download import snapshot_download
+        from huggingface_hub import snapshot_download
         from modelscope.models import Model
 
-        model_dir = snapshot_download('damo/text-to-video-synthesis', revision=revision,
-                                      cache_dir='./checkpoints/modelscope')
+        model_dir = snapshot_download(repo_id='ali-vilab/modelscope-damo-text-to-video-synthesis',
+                                      local_dir='./checkpoints/modelscope')
         model = Model.from_pretrained(model_dir)
         self.pipeline = pipeline('text-to-video-synthesis', model=model, device=device)
 
