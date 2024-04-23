@@ -4,6 +4,7 @@ from .lavie import LaVie
 from .cogvideo import CogVideo
 from .videocrafter import VideoCrafter2
 from .modelscope import ModelScope
+
 # ==========================================================
 # Image-to-Video Generation
 from .seine import SEINE
