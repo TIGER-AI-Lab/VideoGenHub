@@ -12,9 +12,9 @@ from diffusers import StableVideoDiffusionPipeline, AutoPipelineForText2Image
 # For Stage-2
 import tempfile
 import yaml
-from model.video_ldm import VideoLDM
-from model.callbacks import SaveConfigCallback
-from inference_utils import (
+from videogen_hub.pipelines.streamingt2v.model.video_ldm import VideoLDM
+from videogen_hub.pipelines.streamingt2v.model.callbacks import SaveConfigCallback
+from videogen_hub.pipelines.streamingt2v.inference_utils import (
     legacy_transformation,
     remove_value,
     CustomCLI,

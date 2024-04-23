@@ -6,7 +6,7 @@ import torch
 from einops import rearrange, repeat
 
 # Utilities
-from inference_utils import *
+from videogen_hub.pipelines.streamingt2v.inference_utils import *
 
 from modelscope.outputs import OutputKeys
 import imageio
