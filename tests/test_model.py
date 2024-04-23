@@ -52,10 +52,3 @@ def test_CogVideo():
     # check if out_video is a tensor or not
     assert isinstance(out_video, torch.Tensor)
     print(out_video.shape)
-
-
-if __name__ == "__main__":
-    # test_LaVie()
-    # test_VideoCrafter2()
-    test_CogVideo()
-    print("All tests passed!")
