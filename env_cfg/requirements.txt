@@ -15,9 +15,13 @@ modelscope==1.4.2
 open_clip_torch==2.12.0
 open-clip-torch-any-py3
 <<<<<<< HEAD
+<<<<<<< HEAD
 # modelscope==1.4.2
 =======
 >>>>>>> 0f3e69d57f673956c2ecb77b4ac393597ee2d687
+=======
+# modelscope==1.4.2
+>>>>>>> 3856de473b5bfaa3298e71d7ea7bb69bc5f9eb30
 transformers
 # xformers
 tensorboard

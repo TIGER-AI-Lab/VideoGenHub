@@ -4,10 +4,7 @@ from .lavie import LaVie
 from .cogvideo import CogVideo
 from .videocrafter import VideoCrafter2
 from .modelscope import ModelScope
-<<<<<<< HEAD
 from .streamingt2v import StreamingT2V
-=======
->>>>>>> 0f3e69d57f673956c2ecb77b4ac393597ee2d687
 
 # ==========================================================
 # Image-to-Video Generation

@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-class CogVideo:
-    def __init__(self, device="cuda"):
-
-        raise NotImplementedError
-=======
 import sys
 
 from src.videogen_hub.pipelines.cogvideo.cogvideo_pipeline import pipeline
@@ -30,7 +24,6 @@ class CogVideo():
             device=3
         )
         
->>>>>>> 0f3e69d57f673956c2ecb77b4ac393597ee2d687
 
     def infer_one_video(
         self,
@@ -53,13 +46,5 @@ class CogVideo():
         Returns:
             torch.Tensor: The generated video as a tensor.
         """
-<<<<<<< HEAD
-        raise NotImplementedError
-=======
         
         return pipeline(self.args, raw_text=prompt, height=size[0], width=size[1], duration=seconds)
-        
-        # raise NotImplementedError
-
-    
->>>>>>> 0f3e69d57f673956c2ecb77b4ac393597ee2d687
