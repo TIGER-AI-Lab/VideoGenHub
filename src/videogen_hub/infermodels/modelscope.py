@@ -1,22 +1,11 @@
 import torch
 import torchvision
-<<<<<<< HEAD
+
 from modelscope.outputs import OutputKeys
-from decord import VideoReader
-from decord import cpu, gpu
-import io
-
-
-class ModelScope():
-    def __init__(self, device='gpu'):
-=======
-
-# from modelscope.outputs import OutputKeys
 
 
 class ModelScope:
     def __init__(self, device="gpu", revision="v1.1.0"):
->>>>>>> b3ce6c0 (updated cogvideo pipeline)
         """
         1. Download the pretrained model and put it inside checkpoints/modelscope
         2. Create Pipeline
@@ -26,19 +15,14 @@ class ModelScope:
         """
 
         from modelscope.pipelines import pipeline
-        from huggingface_hub import snapshot_download
+        from modelscope.hub.snapshot_download import snapshot_download
         from modelscope.models import Model
 
-<<<<<<< HEAD
-        model_dir = snapshot_download(repo_id='ali-vilab/modelscope-damo-text-to-video-synthesis',
-                                      local_dir='./checkpoints/modelscope')
-=======
         model_dir = snapshot_download(
             "damo/text-to-video-synthesis",
             revision=revision,
             cache_dir="./checkpoints/modelscope",
         )
->>>>>>> b3ce6c0 (updated cogvideo pipeline)
         model = Model.from_pretrained(model_dir)
         self.pipeline = pipeline("text-to-video-synthesis", model=model, device=device)
 
@@ -64,16 +48,9 @@ class ModelScope:
         test_text = {
             "text": prompt,
         }
-<<<<<<< HEAD
-        output_video_path = self.pipeline(test_text, )[OutputKeys.OUTPUT_VIDEO]
-        result = io.BytesIO(output_video_path)
-        result = VideoReader(result, ctx=cpu(0))
-        result = torch.from_numpy(result.get_batch(range(len(result))).asnumpy())
-=======
         output_video_path = self.pipeline(
             test_text,
         )[OutputKeys.OUTPUT_VIDEO]
         result = torchvision.io.read_video(output_video_path, output_format="TCHW")[0]
 
->>>>>>> b3ce6c0 (updated cogvideo pipeline)
         return result
