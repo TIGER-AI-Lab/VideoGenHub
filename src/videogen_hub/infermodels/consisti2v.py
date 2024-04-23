@@ -88,7 +88,7 @@ class ConsistI2V:
 
     def infer_one_video(
         self,
-        input_image: Image,
+        input_image: Image.Image,
         prompt: str = None,
         size: list = [320, 512],
         seconds: int = 2,
