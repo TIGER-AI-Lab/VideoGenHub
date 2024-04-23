@@ -91,7 +91,7 @@ def pipeline(prompt, size, seconds, fps, seed):
         default="results",
         help="Path where to save the generated videos.",
     )
-    parser.add_argument("--device", type=str, default="cuda")
+    parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--seed", type=int, default=seed, help="Random seed")
 
     parser.add_argument(
