@@ -1,3 +1,4 @@
+
 torch 
 torchaudio
 torchvision
@@ -9,7 +10,6 @@ pytorch_lightning
 open_clip_torch
 accelerate
 diffusers
-decord
 huggingface_hub
 kornia
 open_clip_torch==2.12.0
@@ -36,5 +36,7 @@ datasets==2.18.0
 fairscale
 easydict
 torchsde
--U 'jsonargparse[signatures]>=4.27.7'
+# decord
+# -U 'jsonargparse[signatures]>=4.27.7'
+xformers
 -e . 
