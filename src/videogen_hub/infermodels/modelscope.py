@@ -1,13 +1,11 @@
 import torch
 import torchvision
-from modelscope.outputs import OutputKeys
-from decord import VideoReader
-from decord import cpu, gpu
-import io
+
+# from modelscope.outputs import OutputKeys
 
 
-class ModelScope():
-    def __init__(self, device='gpu'):
+class ModelScope:
+    def __init__(self, device="gpu", revision="v1.1.0"):
         """
         1. Download the pretrained model and put it inside checkpoints/modelscope
         2. Create Pipeline
@@ -20,16 +18,17 @@ class ModelScope():
         from huggingface_hub import snapshot_download
         from modelscope.models import Model
 
-        model_dir = snapshot_download(repo_id='ali-vilab/modelscope-damo-text-to-video-synthesis',
-                                      local_dir='./checkpoints/modelscope')
+        model_dir = snapshot_download(
+            "damo/text-to-video-synthesis",
+            revision=revision,
+            cache_dir="./checkpoints/modelscope",
+        )
         model = Model.from_pretrained(model_dir)
-        self.pipeline = pipeline('text-to-video-synthesis', model=model, device=device)
+        self.pipeline = pipeline("text-to-video-synthesis", model=model, device=device)
 
-    def infer_one_video(self,
-                        prompt: str = None,
-                        seconds: int = 2,
-                        fps: int = 8,
-                        seed: int = 42):
+    def infer_one_video(
+        self, prompt: str = None, seconds: int = 2, fps: int = 8, seed: int = 42
+    ):
         """
         Generates a single video based on the provided prompt and parameters.
         The generated video always has resolution 256x256
@@ -47,10 +46,11 @@ class ModelScope():
         self.pipeline.model.config.model.model_args.max_frames = fps * seconds
 
         test_text = {
-            'text': prompt,
+            "text": prompt,
         }
-        output_video_path = self.pipeline(test_text, )[OutputKeys.OUTPUT_VIDEO]
-        result = io.BytesIO(output_video_path)
-        result = VideoReader(result, ctx=cpu(0))
-        result = torch.from_numpy(result.get_batch(range(len(result))).asnumpy())
+        output_video_path = self.pipeline(
+            test_text,
+        )[OutputKeys.OUTPUT_VIDEO]
+        result = torchvision.io.read_video(output_video_path, output_format="TCHW")[0]
+
         return result
