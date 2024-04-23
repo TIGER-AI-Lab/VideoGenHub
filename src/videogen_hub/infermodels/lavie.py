@@ -19,6 +19,13 @@ class LaVie():
         from diffusers.schedulers import DDPMScheduler
         from diffusers.models import AutoencoderKL
         from transformers import CLIPTokenizer, CLIPTextModel
+        from huggingface_hub import snapshot_download
+
+
+        snapshot_download(repo_id="Vchitect/LaVie", local_dir=model_path)
+        snapshot_download(repo_id="CompVis/stable-diffusion-v1-4", local_dir=model_path+"/stable-diffusion-v1-4")
+        snapshot_download(repo_id="stabilityai/stable-diffusion-x4-upscaler", local_dir=model_path+"/stable-diffusion-x4-upscaler")
+
 
         torch.set_grad_enabled(False)
         self.device = device

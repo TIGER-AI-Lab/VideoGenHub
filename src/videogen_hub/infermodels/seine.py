@@ -25,17 +25,18 @@ class SEINE():
                         fps: int = 8,
                         seed: int = 42):
         """
-        Generates a single video based on the provided prompt and parameters.
-
+        Generates a single video based on a textual prompt and first frame image, using either a provided image or an image path as the starting point. The output is a tensor representing the video.
+    
         Args:
-            prompt (str, optional): The text prompt to generate the video from. Defaults to None.
-            size (list, optional): The size of the video as [height, width]. Defaults to [320, 512].
+            input_image (Union[str, torch.Tensor]): The input image path or tensor to use as the basis for video generation.
+            prompt (str, optional): The text prompt that guides the video generation. If not specified, the video generation will rely solely on the input image. Defaults to None.
+            size (list, optional): Specifies the resolution of the output video as [height, width]. Defaults to [320, 512].
             seconds (int, optional): The duration of the video in seconds. Defaults to 2.
-            fps (int, optional): The frames per second of the video. Defaults to 8.
-            seed (int, optional): The seed for random number generation. Defaults to 42.
-
+            fps (int, optional): The number of frames per second in the generated video. This determines how smooth the video appears. Defaults to 8.
+            seed (int, optional): A seed value for random number generation, ensuring reproducibility of the video generation process. Defaults to 42.
+    
         Returns:
-            torch.Tensor: The generated video as a tensor.
+            torch.Tensor: A tensor representing the generated video, structured as (time, channel, height, width).
         """
         video = self.pipeline.infer_one_video(input_image=input_image,
                                               text_prompt=prompt,
