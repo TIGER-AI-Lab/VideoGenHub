@@ -45,10 +45,23 @@ def test_CogVideo():
     print("Testing CogVideo")
     from src.videogen_hub.infermodels import CogVideo
 
-    model = CogVideo(device="cpu")
+    model = CogVideo()
     assert model is not None
     out_video = model.infer_one_video(dummy_prompts[0])
     assert out_video is not None
     # check if out_video is a tensor or not
     assert isinstance(out_video, torch.Tensor)
     print(out_video.shape)
+
+
+def test_StreamingT2V():
+    from src.videogen_hub.infermodels import StreamingT2V
+
+    model = StreamingT2V()
+    assert model is not None
+    out_video = model.infer_one_video(dummy_prompts[0])
+    assert out_video is not None
+    # check if out_video is a tensor or not
+    assert isinstance(out_video, torch.Tensor)
+    print(out_video.shape)
+

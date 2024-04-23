@@ -22,3 +22,10 @@ jaxlib==0.4.19
 timm
 rotary-embedding-torch
 natsort
+pytorch_lightning
+jsonargparse
+diffusers
+einops
+modelscope
+IPython
+kornia
