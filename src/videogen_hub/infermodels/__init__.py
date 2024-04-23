@@ -9,6 +9,8 @@ from .streamingt2v import StreamingT2V
 # ==========================================================
 # Image-to-Video Generation
 from .seine import SEINE
+from .consisti2v import ConsistI2V
+from .dynamicrafter import DynamiCrafter
 
 # ==========================================================
 
