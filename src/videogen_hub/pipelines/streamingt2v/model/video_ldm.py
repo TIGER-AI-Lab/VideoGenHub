@@ -8,7 +8,7 @@ from diffusers.utils.import_utils import is_xformers_available
 from einops import rearrange, repeat
 
 from transformers import CLIPTextModel, CLIPTokenizer
-from ..utils.video_utils import (
+from videogen_hub.pipelines.streamingt2v.utils.video_utils import (
     ResultProcessor,
     save_videos_grid,
     video_naming,

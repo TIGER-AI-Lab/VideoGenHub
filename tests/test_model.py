@@ -55,13 +55,13 @@ def test_CogVideo():
 
 
 def test_StreamingT2V():
-    from src.videogen_hub.infermodels import StreamingT2V
+    from videogen_hub.infermodels import StreamingT2V
 
     model = StreamingT2V()
     assert model is not None
     out_video = model.infer_one_video(dummy_prompts[0])
+    print("video ouputted")
     assert out_video is not None
     # check if out_video is a tensor or not
     assert isinstance(out_video, torch.Tensor)
     print(out_video.shape)
-

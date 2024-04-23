@@ -1,7 +1,7 @@
 import torch
 import torchvision
 
-from modelscope.outputs import OutputKeys
+# from modelscope.outputs import OutputKeys
 
 
 class ModelScope:

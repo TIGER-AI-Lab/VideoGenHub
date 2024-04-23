@@ -33,4 +33,3 @@ class StreamingT2V:
 
         return self.pipeline(prompt, size, seconds, fps, seed)
 
-        raise NotImplementedError
