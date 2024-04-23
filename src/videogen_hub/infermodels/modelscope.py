@@ -1,6 +1,9 @@
 import torch
 import torchvision
 from modelscope.outputs import OutputKeys
+from decord import VideoReader
+from decord import cpu, gpu
+import io
 
 
 class ModelScope():
@@ -47,6 +50,7 @@ class ModelScope():
             'text': prompt,
         }
         output_video_path = self.pipeline(test_text, )[OutputKeys.OUTPUT_VIDEO]
-        result = torchvision.io.read_video(output_video_path, output_format='TCHW')[0]
-
+        result = io.BytesIO(output_video_path)
+        result = VideoReader(result, ctx=cpu(0))
+        result = torch.from_numpy(result.get_batch(range(len(result))).asnumpy())
         return result
