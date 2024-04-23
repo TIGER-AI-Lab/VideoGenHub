@@ -8,7 +8,7 @@ import torch
 import gradio as gr
 import tempfile
 import yaml
-from t2v_enhanced.model.video_ldm import VideoLDM
+from model.video_ldm import VideoLDM
 from typing import List, Optional
 from model.callbacks import SaveConfigCallback
 from PIL.Image import Image, fromarray

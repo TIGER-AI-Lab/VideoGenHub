@@ -14,9 +14,9 @@ huggingface_hub
 kornia
 open_clip_torch==2.12.0
 open-clip-torch-any-py3
-modelscope==1.4.2
+# modelscope==1.4.2
 transformers
-xformers
+# xformers
 tensorboard
 timm
 rotary-embedding-torch
@@ -25,7 +25,16 @@ pytorch_lightning
 jsonargparse
 diffusers
 einops
-modelscope
+# modelscope
 IPython
 kornia
-open_clip_torch 
+open_clip_torch
+gradio
+opencv-python
+modelscope
+datasets==2.18.0
+fairscale
+easydict
+torchsde
+-U 'jsonargparse[signatures]>=4.27.7'
+-e . 
