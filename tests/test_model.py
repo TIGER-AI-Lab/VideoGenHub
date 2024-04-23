@@ -42,19 +42,13 @@ def test_VideoCrafter2():
 
 
 def test_CogVideo():
+    print("Testing CogVideo")
     from src.videogen_hub.infermodels import CogVideo
 
-    model = CogVideo()
+    model = CogVideo(device="cpu")
     assert model is not None
     out_video = model.infer_one_video(dummy_prompts[0])
     assert out_video is not None
     # check if out_video is a tensor or not
     assert isinstance(out_video, torch.Tensor)
     print(out_video.shape)
-
-
-if __name__ == "__main__":
-    # test_LaVie()
-    # test_VideoCrafter2()
-    test_CogVideo()
-    print("All tests passed!")

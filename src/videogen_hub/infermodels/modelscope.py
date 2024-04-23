@@ -1,7 +1,7 @@
 import torch
 import torchvision
 
-# from modelscope.outputs import OutputKeys
+from modelscope.outputs import OutputKeys
 
 
 class ModelScope:
@@ -15,7 +15,7 @@ class ModelScope:
         """
 
         from modelscope.pipelines import pipeline
-        from huggingface_hub import snapshot_download
+        from modelscope.hub.snapshot_download import snapshot_download
         from modelscope.models import Model
 
         model_dir = snapshot_download(
