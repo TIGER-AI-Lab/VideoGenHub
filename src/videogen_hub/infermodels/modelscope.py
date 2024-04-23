@@ -7,7 +7,7 @@ import io
 
 
 class ModelScope:
-    def __init__(self, device="gpu", revision="v1.1.0"):
+    def __init__(self, device="gpu"):
         """
         1. Download the pretrained model and put it inside checkpoints/modelscope
         2. Create Pipeline
@@ -21,11 +21,9 @@ class ModelScope:
         from modelscope.models import Model
 
         model_dir = snapshot_download(
-            "damo/text-to-video-synthesis",
-            revision=revision,
-            cache_dir="./checkpoints/modelscope",
+            repo_id="ali-vilab/modelscope-damo-text-to-video-synthesis",
+            local_dir="./checkpoints/modelscope",
         )
-
         model = Model.from_pretrained(model_dir)
         self.pipeline = pipeline("text-to-video-synthesis", model=model, device=device)
 
@@ -51,17 +49,10 @@ class ModelScope:
         test_text = {
             "text": prompt,
         }
-
-        output_video_path = self.pipeline(
-            test_text,
-        )[OutputKeys.OUTPUT_VIDEO]
-        result = torchvision.io.read_video(output_video_path, output_format="TCHW")[0]
-
         output_video_path = self.pipeline(
             test_text,
         )[OutputKeys.OUTPUT_VIDEO]
         result = io.BytesIO(output_video_path)
         result = VideoReader(result, ctx=cpu(0))
         result = torch.from_numpy(result.get_batch(range(len(result))).asnumpy())
-
         return result
