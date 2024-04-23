@@ -1,7 +1,9 @@
 import torch
 import torchvision
-
-# from modelscope.outputs import OutputKeys
+from modelscope.outputs import OutputKeys
+from decord import VideoReader
+from decord import cpu, gpu
+import io
 
 
 class ModelScope:
@@ -22,10 +24,6 @@ class ModelScope:
             "damo/text-to-video-synthesis",
             revision=revision,
             cache_dir="./checkpoints/modelscope",
-        )
-        model_dir = snapshot_download(
-            repo_id="ali-vilab/modelscope-damo-text-to-video-synthesis",
-            local_dir="./checkpoints/modelscope",
         )
 
         model = Model.from_pretrained(model_dir)
