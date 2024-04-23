@@ -12,9 +12,9 @@ from diffusers import StableVideoDiffusionPipeline, AutoPipelineForText2Image
 # For Stage-2
 import tempfile
 import yaml
-from .model.video_ldm import VideoLDM
-from .model.callbacks import SaveConfigCallback
-from .inference_utils import (
+from videogen_hub.pipelines.streamingt2v.model.video_ldm import VideoLDM
+from videogen_hub.pipelines.streamingt2v.model.callbacks import SaveConfigCallback
+from videogen_hub.pipelines.streamingt2v.inference_utils import (
     legacy_transformation,
     remove_value,
     CustomCLI,
@@ -97,7 +97,12 @@ def init_svd(device="cuda"):
 # Initialize StreamingT2V model.
 def init_streamingt2v_model(ckpt_file, result_fol, device):
     accelerator = "gpu" if device.startswith("cuda") else "cpu"
-    config_file = "configs/text_to_video/config.yaml"
+    import os
+
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # print("base dir", base_dir)
+    config_file = f"{base_dir}/streamingt2v/configs/text_to_video/config.yaml"
+    print("config dir", config_file)
     sys.argv = sys.argv[:1]
     with tempfile.TemporaryDirectory() as tmpdirname:
         storage_fol = Path(tmpdirname)
