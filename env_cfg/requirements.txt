@@ -28,3 +28,4 @@ einops
 modelscope
 IPython
 kornia
+open_clip_torch 
