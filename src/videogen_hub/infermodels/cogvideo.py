@@ -25,12 +25,14 @@ class CogVideo():
         )
         
 
-    def infer_one_video(self,
-                        prompt: str = None, 
-                        size: list = [320, 512],
-                        seconds: int = 2,
-                        fps: int = 8,
-                        seed: int = 42):
+    def infer_one_video(
+        self,
+        prompt: str = None,
+        size: list = [320, 512],
+        seconds: int = 2,
+        fps: int = 8,
+        seed: int = 42,
+    ):
         """
         Generates a single video based on the provided prompt and parameters.
 
@@ -46,7 +48,3 @@ class CogVideo():
         """
         
         return pipeline(self.args, raw_text=prompt, height=size[0], width=size[1], duration=seconds)
-        
-        # raise NotImplementedError
-
-    
