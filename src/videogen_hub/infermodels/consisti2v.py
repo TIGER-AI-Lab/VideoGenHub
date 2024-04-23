@@ -1,5 +1,6 @@
 import torch
 from typing import Union
+from PIL import Image
 
 
 class ConsistI2V:
@@ -87,7 +88,7 @@ class ConsistI2V:
 
     def infer_one_video(
         self,
-        input_image: Union[str, torch.Tensor],
+        input_image: Image,
         prompt: str = None,
         size: list = [320, 512],
         seconds: int = 2,
