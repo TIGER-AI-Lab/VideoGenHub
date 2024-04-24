@@ -8,6 +8,7 @@ einops
 pytorch_lightning
 accelerate
 diffusers
+diffusers[torch]==0.16.0
 decord
 huggingface_hub
 kornia

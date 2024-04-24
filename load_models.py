@@ -9,15 +9,31 @@ def load_all_models():
   from src.videogen_hub.infermodels import ModelScope
   from src.videogen_hub.infermodels import DynamiCrafter
 
-  lavie = LaVie()
-  print("Lavie Model is already loaded!")
-  videocrafter2 = VideoCrafter2()
-  print("VideoCrafter is already loaded!")
-  modelscope = ModelScope()
-  print("ModelScope is already loaded!")
-  seine = SEINE()
-  print("SEINE is already loaded!")
-  dynamicrafter = DynamiCrafter()
-  print("DynamiCrafter is already loaded!")
+  LaVie()
+  torch.cuda.empty_cache()
+  assert os.path.exists('./checkpoints/lavie')
+  print("Lavie Model has already been downloaded!")
 
-  return [lavie, videocrafter2, modelscope, seine, dynamicrafter]
+  VideoCrafter2()
+  torch.cuda.empty_cache()
+  assert os.path.exists('./checkpoints/videocrafter')
+  print("VideoCrafter has already been downloaded!")
+
+  ModelScope()
+  torch.cuda.empty_cache()
+  assert os.path.exists('./checkpoints/modelscope')
+  print("ModelScope has already been downloaded!")
+
+  SEINE()
+  torch.cuda.empty_cache()
+  assert os.path.exists('./checkpoints/SEINE')
+  print("SEINE has already been downloaded!")
+
+
+  DynamiCrafter()
+  torch.cuda.empty_cache()
+  assert os.path.exists('./checkpoints/dynamicrafter_256_v1')
+  print("DynamiCrafter has already been downloaded!")
+
+if __name__ == '__main__':
+  load_all_models()
