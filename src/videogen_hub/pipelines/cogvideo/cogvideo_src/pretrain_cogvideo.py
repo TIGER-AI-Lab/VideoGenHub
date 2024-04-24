@@ -14,7 +14,7 @@ import random
 import torch
 import argparse
 import numpy as np
-from icetk import icetk as tokenizer
+from videogen_hub.depend.icetk import icetk as tokenizer
 tokenizer.add_special_tokens(['<start_of_image>', '<start_of_english>', '<start_of_chinese>'])
 
 from models.cogvideo_model import CogVideoModel

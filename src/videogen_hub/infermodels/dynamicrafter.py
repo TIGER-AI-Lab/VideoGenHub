@@ -1,7 +1,7 @@
 from typing import Union
 import torch
 from huggingface_hub import hf_hub_download
-import PIL
+from PIL import Image
 
 class DynamiCrafter():
     def __init__(self, version: str = '256'):
@@ -44,7 +44,7 @@ class DynamiCrafter():
         self.pipeline = DynamiCrafterPipeline(self.arg_list)
 
     def infer_one_video(self, 
-                        input_image: PIL.Image.Image,
+                        input_image: Image.Image,
                         prompt: str = None,
                         seconds: int = 2,
                         fps: int = 8,

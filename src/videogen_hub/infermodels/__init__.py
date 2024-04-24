@@ -1,10 +1,10 @@
 # ==========================================================
 # Text-to-Video Generation
 from .lavie import LaVie
-from .cogvideo import CogVideo
 from .videocrafter import VideoCrafter2
 from .modelscope import ModelScope
 from .streamingt2v import StreamingT2V
+#from .cogvideo import CogVideo # Not supporting CogVideo ATM
 
 # ==========================================================
 # Image-to-Video Generation

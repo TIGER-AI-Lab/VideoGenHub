@@ -1,7 +1,7 @@
 from typing import Union
 import torch
 from huggingface_hub import snapshot_download, hf_hub_download
-import PIL
+from PIL import Image
 
 class SEINE():
     def __init__(self):
@@ -19,7 +19,7 @@ class SEINE():
                                       'src/videogen_hub/pipelines/seine/sample_i2v.yaml')
 
     def infer_one_video(self, 
-                        input_image: PIL.Image.Image,
+                        input_image: Image.Image,
                         prompt: str = None,
                         size: list = [320, 512],
                         seconds: int = 2,

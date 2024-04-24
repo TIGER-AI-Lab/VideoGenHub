@@ -39,7 +39,7 @@ from SwissArmyTransformer.generation.utils import timed_name, save_multiple_imag
 
 from .dsr_model import DsrModel
 
-from icetk import icetk as tokenizer
+from videogen_hub.depend.icetk import icetk as tokenizer
 
 class DirectSuperResolution:
     def __init__(self, args, path, max_bz=4, topk=6, onCUDA=False):

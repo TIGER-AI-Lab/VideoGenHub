@@ -16,7 +16,7 @@ import argparse
 import time
 from torchvision.utils import save_image
 import stat
-from icetk import icetk as tokenizer
+from videogen_hub.depend.icetk import icetk as tokenizer
 import logging, sys
 
 import torch.distributed as dist

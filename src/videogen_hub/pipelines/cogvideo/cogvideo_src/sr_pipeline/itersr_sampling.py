@@ -15,7 +15,7 @@ import numpy as np
 
 import torch
 import torch.nn.functional as F
-from icetk import icetk as tokenizer
+from videogen_hub.depend.icetk import icetk as tokenizer
 
 def top_k_logits_(logits, top_k=0, filter_value=-float('Inf')):
     indices_to_remove = logits < torch.topk(logits, top_k)[0][..., -1, None]

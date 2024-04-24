@@ -30,7 +30,7 @@ from SwissArmyTransformer.generation.utils import timed_name, save_multiple_imag
 
 from .itersr_model import ItersrModel
 
-from icetk import icetk as tokenizer
+from videogen_hub.depend.icetk import icetk as tokenizer
 
 class IterativeSuperResolution:
     def __init__(self, args, path, max_bz=4, shared_transformer=None):

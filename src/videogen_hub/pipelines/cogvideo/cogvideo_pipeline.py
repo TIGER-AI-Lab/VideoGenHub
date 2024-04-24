@@ -6,7 +6,7 @@ from videogen_hub.pipelines.cogvideo.cogvideo_src.cogvideo_pipeline import (
     get_masks_and_position_ids_stage2,
     my_save_multiple_images,
 )
-from icetk import icetk as tokenizer
+from videogen_hub.depend.icetk import icetk as tokenizer
 from videogen_hub.pipelines.cogvideo.cogvideo_src.coglm_strategy import (
     CoglmStrategy,
 )
