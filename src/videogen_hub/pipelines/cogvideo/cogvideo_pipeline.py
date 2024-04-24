@@ -1,4 +1,4 @@
-from src.videogen_hub.pipelines.cogvideo.cogvideo_src.cogvideo_pipeline import (
+from videogen_hub.pipelines.cogvideo.cogvideo_src.cogvideo_pipeline import (
     InferenceModel_Interpolate,
     InferenceModel_Sequential,
     my_filling_sequence,
@@ -7,10 +7,10 @@ from src.videogen_hub.pipelines.cogvideo.cogvideo_src.cogvideo_pipeline import (
     my_save_multiple_images,
 )
 from icetk import icetk as tokenizer
-from src.videogen_hub.pipelines.cogvideo.cogvideo_src.coglm_strategy import (
+from videogen_hub.pipelines.cogvideo.cogvideo_src.coglm_strategy import (
     CoglmStrategy,
 )
-from src.videogen_hub.pipelines.cogvideo.cogvideo_src.sr_pipeline import (
+from videogen_hub.pipelines.cogvideo.cogvideo_src.sr_pipeline import (
     DirectSuperResolution,
 )
 from SwissArmyTransformer.resources import auto_create
