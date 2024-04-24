@@ -1,10 +1,5 @@
 import torch
-import torchvision
-from modelscope.outputs import OutputKeys
-from decord import VideoReader
-from decord import cpu, gpu
-import io
-
+from huggingface_hub import snapshot_download
 
 class ModelScope:
     def __init__(self, device="gpu"):
@@ -15,9 +10,7 @@ class ModelScope:
         Args:
             device: 'gpu' or 'cpu' the device to use the model
         """
-
         from modelscope.pipelines import pipeline
-        from huggingface_hub import snapshot_download
         from modelscope.models import Model
 
         model_dir = snapshot_download(
@@ -43,6 +36,11 @@ class ModelScope:
         Returns:
             torch.Tensor: The generated video as a tensor.
         """
+        from modelscope.outputs import OutputKeys
+        from decord import VideoReader
+        from decord import cpu, gpu
+        import io
+
         torch.manual_seed(seed)
         self.pipeline.model.config.model.model_args.max_frames = fps * seconds
 

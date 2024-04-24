@@ -1,7 +1,7 @@
 from typing import Union
 import torch
 from huggingface_hub import snapshot_download, hf_hub_download
-
+import PIL
 
 class SEINE():
     def __init__(self):
@@ -18,7 +18,8 @@ class SEINE():
         self.pipeline = SEINEPipeline(seine_path, pretrained_model_path,
                                       'src/videogen_hub/pipelines/seine/sample_i2v.yaml')
 
-    def infer_one_video(self, input_image: Union[str, torch.Tensor],
+    def infer_one_video(self, 
+                        input_image: PIL.Image.Image,
                         prompt: str = None,
                         size: list = [320, 512],
                         seconds: int = 2,
@@ -28,7 +29,7 @@ class SEINE():
         Generates a single video based on a textual prompt and first frame image, using either a provided image or an image path as the starting point. The output is a tensor representing the video.
     
         Args:
-            input_image (Union[str, torch.Tensor]): The input image path or tensor to use as the basis for video generation.
+            input_image (PIL.Image.Image): The input image to use as the basis for video generation.
             prompt (str, optional): The text prompt that guides the video generation. If not specified, the video generation will rely solely on the input image. Defaults to None.
             size (list, optional): Specifies the resolution of the output video as [height, width]. Defaults to [320, 512].
             seconds (int, optional): The duration of the video in seconds. Defaults to 2.

@@ -1,13 +1,9 @@
 class StreamingT2V:
     def __init__(self, device="cuda"):
-
-        pass
-
+        
         from videogen_hub.pipelines.streamingt2v.streamingt2v_pipeline import pipeline
 
         self.pipeline = pipeline
-
-        # raise NotImplementedError
 
     def infer_one_video(
         self,
