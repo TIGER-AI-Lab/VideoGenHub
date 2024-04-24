@@ -1,7 +1,5 @@
 import sys
 
-from src.videogen_hub.pipelines.cogvideo.cogvideo_pipeline import pipeline
-
 class CogVideo():
     def __init__(self, device="cuda"):
         
@@ -47,4 +45,5 @@ class CogVideo():
             torch.Tensor: The generated video as a tensor.
         """
         
+        from videogen_hub.pipelines.cogvideo.cogvideo_pipeline import pipeline
         return pipeline(self.args, raw_text=prompt, height=size[0], width=size[1], duration=seconds)
