@@ -55,7 +55,7 @@ def test_CogVideo():
 
 
 def test_StreamingT2V():
-    from videogen_hub.infermodels import StreamingT2V
+    from src.videogen_hub.infermodels import StreamingT2V
 
     model = StreamingT2V()
     assert model is not None
