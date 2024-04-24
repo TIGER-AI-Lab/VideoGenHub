@@ -109,6 +109,7 @@ class ConsistI2V:
             torch.Tensor: The generated video as a tensor.
         """
 
+        self.args.prompt = prompt
         self.args.path_to_first_frame = input_image
         self.args.seed = str(seed)
         self.config.sampling_kwargs.height = size[0]
