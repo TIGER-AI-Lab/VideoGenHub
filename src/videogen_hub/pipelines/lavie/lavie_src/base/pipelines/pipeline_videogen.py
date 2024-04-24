@@ -36,8 +36,11 @@ try:
 except:
     from diffusers.utils.torch_utils import randn_tensor
 
+try:
+    from diffusers.pipeline_utils import DiffusionPipeline
+except:
+    from diffusers import DiffusionPipeline
 
-from diffusers.pipeline_utils import DiffusionPipeline
 from dataclasses import dataclass
 
 import os, sys

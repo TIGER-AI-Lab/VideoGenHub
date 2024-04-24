@@ -1,5 +1,7 @@
 import torch
 from huggingface_hub import hf_hub_download
+from pathlib import Path
+import os
 
 
 class VideoCrafter2():
@@ -15,10 +17,12 @@ class VideoCrafter2():
         model_path = hf_hub_download(repo_id="VideoCrafter/VideoCrafter2",
                                      filename="model.ckpt",
                                      local_dir="./checkpoints/videocrafter2")
+        config_path = str(Path(__file__).parent.parent.absolute())
+        config_path = os.path.join(config_path, 'pipelines/videocrafter/inference_t2v_512_v2.0.yaml')
 
         arg_list = ['--mode', 'base',
                     '--ckpt_path', model_path,
-                    '--config', 'src/videogen_hub/pipelines/videocrafter/inference_t2v_512_v2.0.yaml',
+                    '--config', config_path,
                     '--n_samples', '1',
                     '--bs', '1',
                     '--unconditional_guidance_scale', '12.0',
@@ -53,4 +57,4 @@ class VideoCrafter2():
                                             height=size[0],
                                             width=size[1])
 
-        return video.squeeze(0, 1)
+        return video.squeeze(0, 1).cpu().permute(1,2,3,0)

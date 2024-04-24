@@ -1,3 +1,4 @@
+
 torch 
 torchaudio
 torchvision
@@ -8,17 +9,36 @@ einops
 pytorch_lightning
 accelerate
 diffusers
-decord
 huggingface_hub
 kornia
 modelscope==1.4.2
 open_clip_torch==2.12.0
 open-clip-torch-any-py3
+# modelscope==1.4.2
 transformers
-xformers
+# xformers
 tensorboard
 jax==0.4.19
 jaxlib==0.4.19
 timm
 rotary-embedding-torch
 natsort
+pytorch_lightning
+jsonargparse
+diffusers
+einops
+# modelscope
+IPython
+kornia
+open_clip_torch
+gradio
+opencv-python
+modelscope
+datasets==2.18.0
+fairscale
+easydict
+torchsde
+# decord
+# -U 'jsonargparse[signatures]>=4.27.7'
+xformers
+-e . 
