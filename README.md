@@ -16,8 +16,8 @@ VideoGenHub is a one-stop library to standardize the inference and evaluation of
 ```python
 git clone https://github.com/TIGER-AI-Lab/VideoGenHub.git
 cd VideoGenHub
-conda create --name videogen
-conda activate videogen
+conda create --name vidgen
+conda activate vidgen
 pip install -r env_cfg/requirements.txt
 pip install -e .
 ```

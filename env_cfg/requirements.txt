@@ -34,11 +34,11 @@ open_clip_torch
 gradio
 opencv-python
 modelscope
-datasets==2.18.0
+#datasets==2.18.0
 fairscale
 easydict
 torchsde
 # decord
 # -U 'jsonargparse[signatures]>=4.27.7'
-xformers
--e . 
+# xformers
+pytest
