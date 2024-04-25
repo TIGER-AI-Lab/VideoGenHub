@@ -1,4 +1,4 @@
-from src.videogen_hub.pipelines.cogvideo.cogvideo_src.cogvideo_pipeline import (
+from videogen_hub.pipelines.cogvideo.cogvideo_src.cogvideo_pipeline import (
     InferenceModel_Interpolate,
     InferenceModel_Sequential,
     my_filling_sequence,
