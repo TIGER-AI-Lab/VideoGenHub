@@ -1,6 +1,12 @@
 class StreamingT2V:
     def __init__(self, device="cuda"):
-        
+        """
+        Initializes the StreamingT2V model.
+
+        Args:
+            device (str, optional): The device to run the model on. Defaults to "cuda".
+        """
+
         from videogen_hub.pipelines.streamingt2v.streamingt2v_pipeline import pipeline
 
         self.pipeline = pipeline
@@ -28,4 +34,3 @@ class StreamingT2V:
         """
 
         return self.pipeline(prompt, size, seconds, fps, seed)
-

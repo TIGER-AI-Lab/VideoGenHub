@@ -1,5 +1,3 @@
-import torch
-from typing import Union
 from PIL import Image
 
 
@@ -19,9 +17,6 @@ class ConsistI2V:
                 self.optional_args = []
 
         self.args = Args()
-        print("Inference Config:", self.args.inference_config)
-        print("Prompt:", self.args.prompt)
-        print("Format:", self.args.format)
 
         yaml_config = """
             output_dir: "samples/inference"
@@ -82,8 +77,6 @@ class ConsistI2V:
 
         self.pipeline = main
 
-        # raise NotImplementedError
-
     def infer_one_video(
         self,
         input_image: Image.Image,
@@ -95,7 +88,7 @@ class ConsistI2V:
     ):
         """
         Generates a single video based on a textual prompt and first frame image, using either a provided image or an image path as the starting point. The output is a tensor representing the video.
-    
+
         Args:
             input_image (PIL.Image.Image): The input image to use as the basis for video generation.
             prompt (str, optional): The text prompt that guides the video generation. If not specified, the video generation will rely solely on the input image. Defaults to None.
@@ -103,7 +96,7 @@ class ConsistI2V:
             seconds (int, optional): The duration of the video in seconds. Defaults to 2.
             fps (int, optional): The number of frames per second in the generated video. This determines how smooth the video appears. Defaults to 8.
             seed (int, optional): A seed value for random number generation, ensuring reproducibility of the video generation process. Defaults to 42.
-    
+
         Returns:
             torch.Tensor: A tensor representing the generated video, structured as (time, channel, height, width).
         """

@@ -10,7 +10,7 @@ class VideoCrafter2():
         1. Download the pretrained model and put it inside checkpoints/videocrafter2
         2. Create Pipeline
         Args:
-            device:
+            device: 'cuda' or 'cpu' the device to use the model
         """
         from videogen_hub.pipelines.videocrafter.inference import VideoCrafterPipeline
 
