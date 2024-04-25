@@ -1,9 +1,12 @@
-import sys
-
-class CogVideo():
+class CogVideo:
     def __init__(self, device="cuda"):
-        
-        
+        """
+        Initializes the CogVideo model with a specific device.
+
+        Args:
+            device (str, optional): The device to run the model on. Defaults to "cuda".
+        """
+
         import argparse
 
         # Manually creating an args object
@@ -19,9 +22,8 @@ class CogVideo():
             parallel_size=1,
             stage1_max_inference_batch_size=-1,
             multi_gpu=False,  # Assuming this is not set
-            device=3
+            device=3,
         )
-        
 
     def infer_one_video(
         self,
@@ -44,6 +46,9 @@ class CogVideo():
         Returns:
             torch.Tensor: The generated video as a tensor.
         """
-        
+
         from videogen_hub.pipelines.cogvideo.cogvideo_pipeline import pipeline
-        return pipeline(self.args, raw_text=prompt, height=size[0], width=size[1], duration=seconds)
+
+        return pipeline(
+            self.args, raw_text=prompt, height=size[0], width=size[1], duration=seconds
+        )
