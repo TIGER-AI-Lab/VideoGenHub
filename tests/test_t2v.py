@@ -53,3 +53,14 @@ def test_StreamingT2V():
     # check if out_video is a tensor or not
     assert isinstance(out_video, torch.Tensor)
     print(out_video.shape)
+
+def test_OpenSora():
+    from videogen_hub.infermodels import OpenSora
+
+    model = OpenSora()
+    assert model is not None
+    out_video = model.infer_one_video(dummy_prompts[0])
+    assert out_video is not None
+    # check if out_video is a tensor or not
+    assert isinstance(out_video, torch.Tensor)
+    print(out_video.shape)
