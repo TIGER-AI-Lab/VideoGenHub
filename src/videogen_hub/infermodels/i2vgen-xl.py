@@ -7,8 +7,10 @@ from PIL import Image
 class I2VGenXL:
     def __init__(self):
         """
-        1. Download the pretrained model and put it inside checkpoints/videocrafter2
-        2. Create Pipeline.
+        Initializes the I2VGenXL model using the ali-vilab/i2vgen-xl checkpoint from the Hugging Face Hub.
+
+        Args:
+            None
         """
 
         from diffusers import I2VGenXLPipeline
@@ -30,7 +32,7 @@ class I2VGenXL:
         Generates a single video based on a textual prompt and first frame image, using either a provided image or an image path as the starting point. The output is a tensor representing the video.
 
         Args:
-            input_image (Union[str, torch.Tensor]): The input image path or tensor to use as the basis for video generation.
+            input_image (Image.Image): The input image path or tensor to use as the basis for video generation.
             prompt (str, optional): The text prompt that guides the video generation. If not specified, the video generation will rely solely on the input image. Defaults to None.
             size (list, optional): Specifies the resolution of the output video as [height, width]. Defaults to [320, 512].
             seconds (int, optional): The duration of the video in seconds. Defaults to 2.

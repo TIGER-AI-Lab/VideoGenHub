@@ -99,6 +99,7 @@ class ConsistI2V:
         Generates a single video based on the provided prompt and parameters.
 
         Args:
+            input_image (Image.Image): The input image to use as the basis for video generation.
             prompt (str, optional): The text prompt to generate the video from. Defaults to None.
             size (list, optional): The size of the video as [height, width]. Defaults to [320, 512].
             seconds (int, optional): The duration of the video in seconds. Defaults to 2.
