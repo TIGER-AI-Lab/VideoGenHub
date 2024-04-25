@@ -1,12 +1,4 @@
-# import torch
-# import torchvision
-# from modelscope.outputs import OutputKeys
-# from decord import VideoReader
-# from decord import cpu, gpu
-# import io
-# from videogen_hub.pipelines.opensora.opensora.utils.config_utils import (
-#     parse_configs,
-# )
+from huggingface_hub import snapshot_download, hf_hub_download
 
 
 class OpenSora:
@@ -32,7 +24,7 @@ class OpenSora:
             "multi_resolution": "STDiT2",  # Multi-resolution model type
             "model": {
                 "type": "STDiT2-XL/2",  # Model type and size
-                "from_pretrained": "CKPT_PATH",  # Path to pretrained checkpoint
+                "from_pretrained": "./checkpoints/STDiT2-XL_2",  # Path to pretrained checkpoint
                 "input_sq_size": 512,  # Input square size for the model
                 "qk_norm": True,  # Whether to normalize query-key in attention
                 "enable_flashattn": True,  # Enable flash attention mechanism
@@ -42,14 +34,14 @@ class OpenSora:
             "vae": {
                 "type": "VideoAutoencoderKL",  # Type of the autoencoder
                 "from_pretrained": "stabilityai/sd-vae-ft-ema",  # Pretrained model from Hugging Face
-                "cache_dir": None,  # Local cache directory for model weights
+                "cache_dir": "./checkpoints/sd-vae-ft-ema",  # Local cache directory for model weights
                 "micro_batch_size": 4,  # Batch size for processing
             },
             # Text encoder settings for embedding textual information
             "text_encoder": {
                 "type": "t5",  # Text encoder model type
                 "from_pretrained": "DeepFloyd/t5-v1_1-xxl",  # Pretrained model
-                "cache_dir": None,  # Cache directory
+                "cache_dir": "./checkpoints/t5-v1_1-xxl",  # Cache directory
                 "model_max_length": 200,  # Max length of text inputs
             },
             # Scheduler settings for diffusion models
@@ -76,6 +68,24 @@ class OpenSora:
             "sample_name": None,  # Specific name for the generated sample
             "num_sample": 1,  # Number of samples to generate
         }
+
+        hf_hub_download(
+            repo_id="modelscope/STDiT2-XL_2",
+            filename="model.safetensors",
+            local_dir=self.config.model.from_pretrained,
+        )
+
+        hf_hub_download(
+            repo_id="stabilityai/sd-vae-ft-ema",
+            filename="diffusion_pytorch_model.safetensors",
+            local_dir=self.config.vae.cache_dir,
+        )
+
+        hf_hub_download(
+            repo_id="DeepFloyd/t5-v1_1-xxl",
+            filename="pytorch_model-00001-of-00002.bin",
+            local_dir=self.config.text_encoder.cache_dir,
+        )
 
     def infer_one_video(
         self,
