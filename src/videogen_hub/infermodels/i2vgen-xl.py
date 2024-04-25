@@ -1,7 +1,7 @@
 from typing import Union
 import torch
 from huggingface_hub import snapshot_download, hf_hub_download
-from PIL import *
+from PIL import Image
 
 
 class I2VGenXL:
