@@ -1,4 +1,5 @@
 from huggingface_hub import snapshot_download, hf_hub_download
+from mmengine import Config
 
 
 class OpenSora:
@@ -69,8 +70,10 @@ class OpenSora:
             "num_sample": 1,  # Number of samples to generate
         }
 
+        self.config = Config(self.config)
+
         hf_hub_download(
-            repo_id="modelscope/STDiT2-XL_2",
+            repo_id="hpcai-tech/OpenSora-STDiT-v2-stage2",
             filename="model.safetensors",
             local_dir=self.config.model.from_pretrained,
         )
