@@ -25,6 +25,7 @@ class OpenSora:
             "model": {
                 "type": "STDiT2-XL/2",  # Model type and size
                 "from_pretrained": "./checkpoints/STDiT2-XL_2",  # Path to pretrained checkpoint
+                "file_name": "model.safetensors",  # Name of the model file
                 "input_sq_size": 512,  # Input square size for the model
                 "qk_norm": True,  # Whether to normalize query-key in attention
                 "enable_flashattn": True,  # Enable flash attention mechanism

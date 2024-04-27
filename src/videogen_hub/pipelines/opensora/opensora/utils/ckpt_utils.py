@@ -15,7 +15,9 @@ from torch.optim import Optimizer
 from torch.optim.lr_scheduler import _LRScheduler
 from torchvision.datasets.utils import download_url
 
-from videogen_hub.pipelines.opensora.opensora.datasets.sampler import VariableVideoBatchSampler
+from videogen_hub.pipelines.opensora.opensora.datasets.sampler import (
+    VariableVideoBatchSampler,
+)
 
 hf_endpoint = os.environ.get("HF_ENDPOINT")
 if hf_endpoint is None:
@@ -24,14 +26,22 @@ if hf_endpoint is None:
 pretrained_models = {
     "DiT-XL-2-512x512.pt": "https://dl.fbaipublicfiles.com/DiT/models/DiT-XL-2-512x512.pt",
     "DiT-XL-2-256x256.pt": "https://dl.fbaipublicfiles.com/DiT/models/DiT-XL-2-256x256.pt",
-    "Latte-XL-2-256x256-ucf101.pt": hf_endpoint + "/maxin-cn/Latte/resolve/main/ucf101.pt",
-    "PixArt-XL-2-256x256.pth": hf_endpoint + "/PixArt-alpha/PixArt-alpha/resolve/main/PixArt-XL-2-256x256.pth",
-    "PixArt-XL-2-SAM-256x256.pth": hf_endpoint + "/PixArt-alpha/PixArt-alpha/resolve/main/PixArt-XL-2-SAM-256x256.pth",
-    "PixArt-XL-2-512x512.pth": hf_endpoint + "/PixArt-alpha/PixArt-alpha/resolve/main/PixArt-XL-2-512x512.pth",
-    "PixArt-XL-2-1024-MS.pth": hf_endpoint + "/PixArt-alpha/PixArt-alpha/resolve/main/PixArt-XL-2-1024-MS.pth",
-    "OpenSora-v1-16x256x256.pth": hf_endpoint + "/hpcai-tech/Open-Sora/resolve/main/OpenSora-v1-16x256x256.pth",
-    "OpenSora-v1-HQ-16x256x256.pth": hf_endpoint + "/hpcai-tech/Open-Sora/resolve/main/OpenSora-v1-HQ-16x256x256.pth",
-    "OpenSora-v1-HQ-16x512x512.pth": hf_endpoint + "/hpcai-tech/Open-Sora/resolve/main/OpenSora-v1-HQ-16x512x512.pth",
+    "Latte-XL-2-256x256-ucf101.pt": hf_endpoint
+    + "/maxin-cn/Latte/resolve/main/ucf101.pt",
+    "PixArt-XL-2-256x256.pth": hf_endpoint
+    + "/PixArt-alpha/PixArt-alpha/resolve/main/PixArt-XL-2-256x256.pth",
+    "PixArt-XL-2-SAM-256x256.pth": hf_endpoint
+    + "/PixArt-alpha/PixArt-alpha/resolve/main/PixArt-XL-2-SAM-256x256.pth",
+    "PixArt-XL-2-512x512.pth": hf_endpoint
+    + "/PixArt-alpha/PixArt-alpha/resolve/main/PixArt-XL-2-512x512.pth",
+    "PixArt-XL-2-1024-MS.pth": hf_endpoint
+    + "/PixArt-alpha/PixArt-alpha/resolve/main/PixArt-XL-2-1024-MS.pth",
+    "OpenSora-v1-16x256x256.pth": hf_endpoint
+    + "/hpcai-tech/Open-Sora/resolve/main/OpenSora-v1-16x256x256.pth",
+    "OpenSora-v1-HQ-16x256x256.pth": hf_endpoint
+    + "/hpcai-tech/Open-Sora/resolve/main/OpenSora-v1-HQ-16x256x256.pth",
+    "OpenSora-v1-HQ-16x512x512.pth": hf_endpoint
+    + "/hpcai-tech/Open-Sora/resolve/main/OpenSora-v1-HQ-16x512x512.pth",
 }
 
 
@@ -44,7 +54,11 @@ def reparameter(ckpt, name=None, model=None):
         ckpt["x_embedder.proj.weight"] = ckpt["x_embedder.proj.weight"].unsqueeze(2)
         del ckpt["pos_embed"]
         del ckpt["temp_embed"]
-    if name in ["PixArt-XL-2-256x256.pth", "PixArt-XL-2-SAM-256x256.pth", "PixArt-XL-2-512x512.pth"]:
+    if name in [
+        "PixArt-XL-2-256x256.pth",
+        "PixArt-XL-2-SAM-256x256.pth",
+        "PixArt-XL-2-512x512.pth",
+    ]:
         ckpt = ckpt["state_dict"]
         ckpt["x_embedder.proj.weight"] = ckpt["x_embedder.proj.weight"].unsqueeze(2)
         del ckpt["pos_embed"]
@@ -56,19 +70,34 @@ def reparameter(ckpt, name=None, model=None):
         del ckpt["pos_embed"]
     # different text length
     if "y_embedder.y_embedding" in ckpt:
-        if ckpt["y_embedder.y_embedding"].shape[0] < model.y_embedder.y_embedding.shape[0]:
+        if (
+            ckpt["y_embedder.y_embedding"].shape[0]
+            < model.y_embedder.y_embedding.shape[0]
+        ):
             print(
                 f"Extend y_embedding from {ckpt['y_embedder.y_embedding'].shape[0]} to {model.y_embedder.y_embedding.shape[0]}"
             )
-            additional_length = model.y_embedder.y_embedding.shape[0] - ckpt["y_embedder.y_embedding"].shape[0]
-            new_y_embedding = torch.zeros(additional_length, model.y_embedder.y_embedding.shape[1])
+            additional_length = (
+                model.y_embedder.y_embedding.shape[0]
+                - ckpt["y_embedder.y_embedding"].shape[0]
+            )
+            new_y_embedding = torch.zeros(
+                additional_length, model.y_embedder.y_embedding.shape[1]
+            )
             new_y_embedding[:] = ckpt["y_embedder.y_embedding"][-1]
-            ckpt["y_embedder.y_embedding"] = torch.cat([ckpt["y_embedder.y_embedding"], new_y_embedding], dim=0)
-        elif ckpt["y_embedder.y_embedding"].shape[0] > model.y_embedder.y_embedding.shape[0]:
+            ckpt["y_embedder.y_embedding"] = torch.cat(
+                [ckpt["y_embedder.y_embedding"], new_y_embedding], dim=0
+            )
+        elif (
+            ckpt["y_embedder.y_embedding"].shape[0]
+            > model.y_embedder.y_embedding.shape[0]
+        ):
             print(
                 f"Shrink y_embedding from {ckpt['y_embedder.y_embedding'].shape[0]} to {model.y_embedder.y_embedding.shape[0]}"
             )
-            ckpt["y_embedder.y_embedding"] = ckpt["y_embedder.y_embedding"][: model.y_embedder.y_embedding.shape[0]]
+            ckpt["y_embedder.y_embedding"] = ckpt["y_embedder.y_embedding"][
+                : model.y_embedder.y_embedding.shape[0]
+            ]
 
     return ckpt
 
@@ -81,7 +110,9 @@ def find_model(model_name, model=None):
         model_ckpt = download_model(model_name)
         model_ckpt = reparameter(model_ckpt, model_name, model=model)
     else:  # Load a custom DiT checkpoint:
-        assert os.path.isfile(model_name), f"Could not find DiT checkpoint at {model_name}"
+        assert os.path.isfile(
+            model_name
+        ), f"Could not find DiT checkpoint at {model_name}"
         model_ckpt = torch.load(model_name, map_location=lambda storage, loc: storage)
         model_ckpt = reparameter(model_ckpt, model_name, model=model)
     return model_ckpt
@@ -110,7 +141,15 @@ def download_model(model_name=None, local_path=None, url=None):
 
 def load_from_sharded_state_dict(model, ckpt_path):
     ckpt_io = GeneralCheckpointIO()
-    ckpt_io.load_model(model, os.path.join(ckpt_path, "model"))
+    import os
+
+    print(os.getcwd())
+    print(f"path={os.path.join(ckpt_path, 'model')}")
+    relative_path = os.path.join(ckpt_path, "model")
+    global_path = os.path.join(os.getcwd(), relative_path)
+    # ckpt_io.load_model(model, os.path.join(ckpt_path, "model"))
+    ckpt_io.load_model(model, ckpt_path)
+    # ckpt_io.load_model(model, global_path)
 
 
 def model_sharding(model: torch.nn.Module):
@@ -119,7 +158,9 @@ def model_sharding(model: torch.nn.Module):
     for _, param in model.named_parameters():
         padding_size = (world_size - param.numel() % world_size) % world_size
         if padding_size > 0:
-            padding_param = torch.nn.functional.pad(param.data.view(-1), [0, padding_size])
+            padding_param = torch.nn.functional.pad(
+                param.data.view(-1), [0, padding_size]
+            )
         else:
             padding_param = param.data.view(-1)
         splited_params = padding_param.split(padding_param.numel() // world_size)
@@ -149,7 +190,9 @@ def model_gathering(model: torch.nn.Module, model_shape_dict: dict):
         dist.all_gather(all_params, param.data, group=dist.group.WORLD)
         if int(global_rank) == 0:
             all_params = torch.cat(all_params)
-            param.data = remove_padding(all_params, model_shape_dict[name]).view(model_shape_dict[name])
+            param.data = remove_padding(all_params, model_shape_dict[name]).view(
+                model_shape_dict[name]
+            )
     dist.barrier()
 
 
@@ -186,7 +229,9 @@ def save(
         torch.save(ema.state_dict(), os.path.join(save_dir, "ema.pt"))
         model_sharding(ema)
 
-    booster.save_optimizer(optimizer, os.path.join(save_dir, "optimizer"), shard=True, size_per_shard=4096)
+    booster.save_optimizer(
+        optimizer, os.path.join(save_dir, "optimizer"), shard=True, size_per_shard=4096
+    )
     if lr_scheduler is not None:
         booster.save_lr_scheduler(lr_scheduler, os.path.join(save_dir, "lr_scheduler"))
     sampler_start_idx = step * batch_size if batch_size is not None else None
