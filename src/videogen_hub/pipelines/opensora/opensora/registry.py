@@ -30,15 +30,15 @@ def build_module(module, builder, **kwargs):
 
 MODELS = Registry(
     "model",
-    locations=["opensora.models"],
+    locations=["videogen_hub.pipelines.opensora.opensora.models"],
 )
 
 SCHEDULERS = Registry(
     "scheduler",
-    locations=["opensora.schedulers"],
+    locations=["videogen_hub.pipelines.opensora.opensora.schedulers"],
 )
 
 DATASETS = Registry(
     "dataset",
-    locations=["opensora.datasets"],
+    locations=["videogen_hub.pipelines.opensora.opensora.datasets"],
 )
