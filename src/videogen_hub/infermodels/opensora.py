@@ -116,7 +116,7 @@ class OpenSora:
         self.config.fps = fps
         self.config.seed = seed
         self.config.prompt = [prompt]
-        self.image_size = size
+        self.config.image_size = size
 
         all_batch_samples = self.pipeline(self.config)
 
