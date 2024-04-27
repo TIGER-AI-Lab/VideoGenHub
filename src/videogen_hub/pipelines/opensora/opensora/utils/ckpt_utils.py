@@ -140,13 +140,29 @@ def download_model(model_name=None, local_path=None, url=None):
 
 
 def load_from_sharded_state_dict(model, ckpt_path):
-    ckpt_io = GeneralCheckpointIO()
-    import os
+    # data = safe_load_pickle('your_file_path.safetensors')
+    print(f"path={ckpt_path}")
+    if ckpt_path.endswith(".safetensors"):
+        from safetensors import safe_open
 
-    print(os.getcwd())
-    print(f"path={os.path.join(ckpt_path, 'model')}")
-    relative_path = os.path.join(ckpt_path, "model")
-    global_path = os.path.join(os.getcwd(), relative_path)
+        tensors = {}
+        with safe_open(ckpt_path, framework="pt", device=0) as f:
+            for k in f.keys():
+                tensors[k] = f.get_tensor(k)
+        # print("safetensor")
+        # data = safe_load_pickle(ckpt_path)
+        # print(data)
+        # data = torch.load(ckpt_path)
+        model.load_state_dict(tensors)
+        print("done loading safetensors")
+        return
+    ckpt_io = GeneralCheckpointIO()
+    # import os
+
+    # print(os.getcwd())
+    # print(f"path={os.path.join(ckpt_path, 'model')}")
+    # relative_path = os.path.join(ckpt_path, "model")
+    # global_path = os.path.join(os.getcwd(), relative_path)
     # ckpt_io.load_model(model, os.path.join(ckpt_path, "model"))
     ckpt_io.load_model(model, ckpt_path)
     # ckpt_io.load_model(model, global_path)
@@ -307,6 +323,8 @@ def load_checkpoint(model, ckpt_path, save_as_pt=False):
         missing_keys, unexpected_keys = model.load_state_dict(state_dict, strict=False)
         print(f"Missing keys: {missing_keys}")
         print(f"Unexpected keys: {unexpected_keys}")
+    elif ckpt_path.endswith(".safetensors"):
+        load_from_sharded_state_dict(model, ckpt_path)
     elif os.path.isdir(ckpt_path):
         load_from_sharded_state_dict(model, ckpt_path)
         if save_as_pt:
