@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 import torch
 
-from opensora.utils.ckpt_utils import download_model
+from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import download_model
 
 from .networks.amt_g import Model
 from .utils.utils import InputPadder, img2tensor, tensor2img

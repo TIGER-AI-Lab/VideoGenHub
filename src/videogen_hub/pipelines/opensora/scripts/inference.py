@@ -6,12 +6,12 @@ import torch.distributed as dist
 from colossalai.cluster import DistCoordinator
 from mmengine.runner import set_random_seed
 
-from opensora.acceleration.parallel_states import set_sequence_parallel_group
-from opensora.datasets import IMG_FPS, save_sample
-from opensora.models.text_encoder.t5 import text_preprocessing
-from opensora.registry import MODELS, SCHEDULERS, build_module
-from opensora.utils.config_utils import parse_configs
-from opensora.utils.misc import to_torch_dtype
+from videogen_hub.pipelines.opensora.opensora.acceleration.parallel_states import set_sequence_parallel_group
+from videogen_hub.pipelines.opensora.opensora.datasets import IMG_FPS, save_sample
+from videogen_hub.pipelines.opensora.opensora.models.text_encoder.t5 import text_preprocessing
+from videogen_hub.pipelines.opensora.opensora.registry import MODELS, SCHEDULERS, build_module
+from videogen_hub.pipelines.opensora.opensora.utils.config_utils import parse_configs
+from videogen_hub.pipelines.opensora.opensora.utils.misc import to_torch_dtype
 
 
 def main(config=None):

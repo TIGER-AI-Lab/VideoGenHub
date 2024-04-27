@@ -7,10 +7,10 @@ from rotary_embedding_torch import RotaryEmbedding
 from timm.models.layers import DropPath
 from timm.models.vision_transformer import Mlp
 
-from opensora.acceleration.checkpoint import auto_grad_checkpoint
-from opensora.acceleration.communications import gather_forward_split_backward, split_forward_gather_backward
-from opensora.acceleration.parallel_states import get_sequence_parallel_group
-from opensora.models.layers.blocks import (
+from videogen_hub.pipelines.opensora.opensora.acceleration.checkpoint import auto_grad_checkpoint
+from videogen_hub.pipelines.opensora.opensora.acceleration.communications import gather_forward_split_backward, split_forward_gather_backward
+from videogen_hub.pipelines.opensora.opensora.acceleration.parallel_states import get_sequence_parallel_group
+from videogen_hub.pipelines.opensora.opensora.models.layers.blocks import (
     Attention,
     CaptionEmbedder,
     MultiHeadCrossAttention,
@@ -26,8 +26,8 @@ from opensora.models.layers.blocks import (
     get_layernorm,
     t2i_modulate,
 )
-from opensora.registry import MODELS
-from opensora.utils.ckpt_utils import load_checkpoint
+from videogen_hub.pipelines.opensora.opensora.registry import MODELS
+from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import load_checkpoint
 
 
 class STDiT2Block(nn.Module):

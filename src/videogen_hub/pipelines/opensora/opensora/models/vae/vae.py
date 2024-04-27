@@ -3,7 +3,7 @@ import torch.nn as nn
 from diffusers.models import AutoencoderKL, AutoencoderKLTemporalDecoder
 from einops import rearrange
 
-from opensora.registry import MODELS
+from videogen_hub.pipelines.opensora.opensora.registry import MODELS
 
 
 @MODELS.register_module()

@@ -15,7 +15,7 @@ from torch.optim import Optimizer
 from torch.optim.lr_scheduler import _LRScheduler
 from torchvision.datasets.utils import download_url
 
-from opensora.datasets.sampler import VariableVideoBatchSampler
+from videogen_hub.pipelines.opensora.opensora.datasets.sampler import VariableVideoBatchSampler
 
 hf_endpoint = os.environ.get("HF_ENDPOINT")
 if hf_endpoint is None:

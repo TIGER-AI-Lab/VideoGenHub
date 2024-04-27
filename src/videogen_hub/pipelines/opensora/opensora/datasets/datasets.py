@@ -5,7 +5,7 @@ import torch
 import torchvision
 from torchvision.datasets.folder import IMG_EXTENSIONS, pil_loader
 
-from opensora.registry import DATASETS
+from videogen_hub.pipelines.opensora.opensora.registry import DATASETS
 
 from .utils import VID_EXTENSIONS, get_transforms_image, get_transforms_video, read_file, temporal_random_crop
 

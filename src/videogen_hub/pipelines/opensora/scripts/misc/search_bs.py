@@ -14,19 +14,19 @@ from colossalai.utils import get_current_device
 from mmengine.config import Config
 from tqdm import tqdm
 
-from opensora.acceleration.checkpoint import set_grad_checkpoint
-from opensora.acceleration.parallel_states import (
+from videogen_hub.pipelines.opensora.opensora.acceleration.checkpoint import set_grad_checkpoint
+from videogen_hub.pipelines.opensora.opensora.acceleration.parallel_states import (
     get_data_parallel_group,
     set_data_parallel_group,
     set_sequence_parallel_group,
 )
-from opensora.acceleration.plugin import ZeroSeqParallelPlugin
-from opensora.datasets import prepare_variable_dataloader
-from opensora.registry import DATASETS, MODELS, SCHEDULERS, build_module
-from opensora.utils.ckpt_utils import model_sharding
-from opensora.utils.config_utils import merge_args, parse_configs
-from opensora.utils.misc import format_numel_str, get_model_numel, requires_grad, to_torch_dtype
-from opensora.utils.train_utils import MaskGenerator, update_ema
+from videogen_hub.pipelines.opensora.opensora.acceleration.plugin import ZeroSeqParallelPlugin
+from videogen_hub.pipelines.opensora.opensora.datasets import prepare_variable_dataloader
+from videogen_hub.pipelines.opensora.opensora.registry import DATASETS, MODELS, SCHEDULERS, build_module
+from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import model_sharding
+from videogen_hub.pipelines.opensora.opensora.utils.config_utils import merge_args, parse_configs
+from videogen_hub.pipelines.opensora.opensora.utils.misc import format_numel_str, get_model_numel, requires_grad, to_torch_dtype
+from videogen_hub.pipelines.opensora.opensora.utils.train_utils import MaskGenerator, update_ema
 
 
 class BColors:

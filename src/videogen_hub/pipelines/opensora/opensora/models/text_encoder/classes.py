@@ -1,6 +1,6 @@
 import torch
 
-from opensora.registry import MODELS
+from videogen_hub.pipelines.opensora.opensora.registry import MODELS
 
 
 @MODELS.register_module("classes")

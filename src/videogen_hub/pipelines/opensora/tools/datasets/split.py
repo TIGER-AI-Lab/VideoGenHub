@@ -4,7 +4,7 @@ from typing import List
 import pandas as pd
 from mmengine.config import Config
 
-from opensora.datasets.bucket import Bucket
+from videogen_hub.pipelines.opensora.opensora.datasets.bucket import Bucket
 
 
 def split_by_bucket(

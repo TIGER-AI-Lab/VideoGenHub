@@ -28,7 +28,7 @@ import torch.nn as nn
 import transformers
 from transformers import CLIPTextModel, CLIPTokenizer
 
-from opensora.registry import MODELS
+from videogen_hub.pipelines.opensora.opensora.registry import MODELS
 
 transformers.logging.set_verbosity_error()
 
