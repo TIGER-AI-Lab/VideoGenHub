@@ -572,8 +572,8 @@ def STDiT2_XL_2(from_pretrained=None, file_name=None, **kwargs):
         import os
 
         # print(f"cur path={os.getcwd()}")
-        # path = os.path.join(os.getcwd(), from_pretrained, file_name)
+        path = os.path.join(os.getcwd(), from_pretrained, file_name)
         # print(path)
-        load_checkpoint(model, from_pretrained)
+        load_checkpoint(model, path)
         # load_checkpoint(model, os.path.join(from_pretrained, file_name))
     return model
