@@ -25,7 +25,7 @@ class OpenSora:
             "multi_resolution": "STDiT2",  # Multi-resolution model type
             "model": {
                 "type": "STDiT2-XL/2",  # Model type and size
-                "from_pretrained": "./checkpoints/STDiT2-XL_2",  # Path to pretrained checkpoint
+                "from_pretrained": "checkpoints/STDiT2-XL_2",  # Path to pretrained checkpoint
                 "file_name": "model.safetensors",  # Name of the model file
                 "input_sq_size": 512,  # Input square size for the model
                 "qk_norm": True,  # Whether to normalize query-key in attention
@@ -37,7 +37,6 @@ class OpenSora:
                 "type": "VideoAutoencoderKL",  # Type of the autoencoder
                 "from_pretrained": "stabilityai/sd-vae-ft-ema",  # Pretrained model from Hugging Face
                 "cache_dir": "./checkpoints/sd-vae-ft-ema",  # Local cache directory for model weights
-                "file_name": "diffusion_pytorch_model.safetensors",  # Name of the model file
                 "micro_batch_size": 4,  # Batch size for processing
             },
             # Text encoder settings for embedding textual information
@@ -45,7 +44,6 @@ class OpenSora:
                 "type": "t5",  # Text encoder model type
                 "from_pretrained": "DeepFloyd/t5-v1_1-xxl",  # Pretrained model
                 "cache_dir": "./checkpoints/t5-v1_1-xxl",  # Cache directory
-                "file_name": "pytorch_model-00001-of-00002.bin",  # Model file name
                 "model_max_length": 200,  # Max length of text inputs
             },
             # Scheduler settings for diffusion models

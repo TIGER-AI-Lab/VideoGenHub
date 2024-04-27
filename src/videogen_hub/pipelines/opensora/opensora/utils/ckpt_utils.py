@@ -307,6 +307,12 @@ def load_checkpoint(model, ckpt_path, save_as_pt=False):
         missing_keys, unexpected_keys = model.load_state_dict(state_dict, strict=False)
         print(f"Missing keys: {missing_keys}")
         print(f"Unexpected keys: {unexpected_keys}")
+    elif ckpt_path.endswith(".safetensors"):
+        from safetensors.torch import load_file
+        state_dict = load_file(ckpt_path)
+        missing_keys, unexpected_keys = model.load_state_dict(state_dict, strict=False)
+        print(f"Missing keys: {missing_keys}")
+        print(f"Unexpected keys: {unexpected_keys}")
     elif os.path.isdir(ckpt_path):
         load_from_sharded_state_dict(model, ckpt_path)
         if save_as_pt:
