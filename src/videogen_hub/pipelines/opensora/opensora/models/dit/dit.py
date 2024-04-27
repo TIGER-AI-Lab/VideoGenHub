@@ -71,7 +71,7 @@ class DiTBlock(nn.Module):
         return x
 
 
-@MODELS.register_module()
+@MODELS.register_module(force=True)
 class DiT(nn.Module):
     """
     Diffusion model with a Transformer backbone.
@@ -260,7 +260,7 @@ class DiT(nn.Module):
             nn.init.normal_(self.y_embedder.y_proj.fc2.weight, std=0.02)
 
 
-@MODELS.register_module("DiT-XL/2")
+@MODELS.register_module("DiT-XL/2", force=True)
 def DiT_XL_2(from_pretrained=None, **kwargs):
     model = DiT(
         depth=28,
@@ -274,7 +274,7 @@ def DiT_XL_2(from_pretrained=None, **kwargs):
     return model
 
 
-@MODELS.register_module("DiT-XL/2x2")
+@MODELS.register_module("DiT-XL/2x2", force=True)
 def DiT_XL_2x2(from_pretrained=None, **kwargs):
     model = DiT(
         depth=28,

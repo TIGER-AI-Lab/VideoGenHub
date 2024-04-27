@@ -64,3 +64,7 @@ def test_OpenSora():
     # check if out_video is a tensor or not
     assert isinstance(out_video, torch.Tensor)
     print(out_video.shape)
+
+if __name__ == "__main__":
+    test_OpenSora()
+    print("Everything passed")

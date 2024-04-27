@@ -134,7 +134,7 @@ class T5Embedder:
         return text_encoder_embs, attention_mask
 
 
-@MODELS.register_module("t5")
+@MODELS.register_module("t5", force=True)
 class T5Encoder:
     def __init__(
         self,

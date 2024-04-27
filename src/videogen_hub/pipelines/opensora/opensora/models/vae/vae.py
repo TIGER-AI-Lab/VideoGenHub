@@ -6,7 +6,7 @@ from einops import rearrange
 from videogen_hub.pipelines.opensora.opensora.registry import MODELS
 
 
-@MODELS.register_module()
+@MODELS.register_module(force=True)
 class VideoAutoencoderKL(nn.Module):
     def __init__(self, from_pretrained=None, micro_batch_size=None, cache_dir=None, local_files_only=False):
         super().__init__()
@@ -70,7 +70,7 @@ class VideoAutoencoderKL(nn.Module):
         return next(self.parameters()).dtype
 
 
-@MODELS.register_module()
+@MODELS.register_module(force=True)
 class VideoAutoencoderKLTemporalDecoder(nn.Module):
     def __init__(self, from_pretrained=None, cache_dir=None, local_files_only=False):
         super().__init__()

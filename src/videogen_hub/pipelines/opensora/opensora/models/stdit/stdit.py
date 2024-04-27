@@ -153,7 +153,7 @@ class STDiTBlock(nn.Module):
         return x
 
 
-@MODELS.register_module()
+@MODELS.register_module(force=True)
 class STDiT(nn.Module):
     def __init__(
         self,
@@ -430,7 +430,7 @@ class STDiT(nn.Module):
         nn.init.constant_(self.final_layer.linear.bias, 0)
 
 
-@MODELS.register_module("STDiT-XL/2")
+@MODELS.register_module("STDiT-XL/2", force=True)
 def STDiT_XL_2(from_pretrained=None, **kwargs):
     model = STDiT(depth=28, hidden_size=1152, patch_size=(1, 2, 2), num_heads=16, **kwargs)
     if from_pretrained is not None:

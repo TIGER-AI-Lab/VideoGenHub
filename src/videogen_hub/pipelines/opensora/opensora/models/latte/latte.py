@@ -29,7 +29,7 @@ from videogen_hub.pipelines.opensora.opensora.registry import MODELS
 from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import load_checkpoint
 
 
-@MODELS.register_module()
+@MODELS.register_module(force=True)
 class Latte(DiT):
     def forward(self, x, t, y):
         """
@@ -84,7 +84,7 @@ class Latte(DiT):
         return x
 
 
-@MODELS.register_module("Latte-XL/2")
+@MODELS.register_module("Latte-XL/2", force=True)
 def Latte_XL_2(from_pretrained=None, **kwargs):
     model = Latte(
         depth=28,
@@ -98,7 +98,7 @@ def Latte_XL_2(from_pretrained=None, **kwargs):
     return model
 
 
-@MODELS.register_module("Latte-XL/2x2")
+@MODELS.register_module("Latte-XL/2x2", force=True)
 def Latte_XL_2x2(from_pretrained=None, **kwargs):
     model = Latte(
         depth=28,

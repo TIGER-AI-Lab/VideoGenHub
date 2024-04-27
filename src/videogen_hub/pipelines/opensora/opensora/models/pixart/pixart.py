@@ -105,7 +105,7 @@ class PixArtBlock(nn.Module):
         return x
 
 
-@MODELS.register_module()
+@MODELS.register_module(force=True)
 class PixArt(nn.Module):
     """
     Diffusion model with a Transformer backbone.
@@ -309,7 +309,7 @@ class PixArt(nn.Module):
         nn.init.constant_(self.final_layer.linear.bias, 0)
 
 
-@MODELS.register_module()
+@MODELS.register_module(force=True)
 class PixArtMS(PixArt):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -375,7 +375,7 @@ class PixArtMS(PixArt):
         return x
 
 
-@MODELS.register_module("PixArt-XL/2")
+@MODELS.register_module("PixArt-XL/2", force=True)
 def PixArt_XL_2(from_pretrained=None, **kwargs):
     model = PixArt(depth=28, hidden_size=1152, patch_size=(1, 2, 2), num_heads=16, **kwargs)
     if from_pretrained is not None:
@@ -383,7 +383,7 @@ def PixArt_XL_2(from_pretrained=None, **kwargs):
     return model
 
 
-@MODELS.register_module("PixArtMS-XL/2")
+@MODELS.register_module("PixArtMS-XL/2", force=True)
 def PixArtMS_XL_2(from_pretrained=None, **kwargs):
     model = PixArtMS(depth=28, hidden_size=1152, patch_size=(1, 2, 2), num_heads=16, **kwargs)
     if from_pretrained is not None:

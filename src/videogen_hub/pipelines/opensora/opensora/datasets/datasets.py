@@ -12,7 +12,7 @@ from .utils import VID_EXTENSIONS, get_transforms_image, get_transforms_video, r
 IMG_FPS = 120
 
 
-@DATASETS.register_module()
+@DATASETS.register_module(force=True)
 class VideoTextDataset(torch.utils.data.Dataset):
     """load video according to the csv file.
 
@@ -103,7 +103,7 @@ class VideoTextDataset(torch.utils.data.Dataset):
         return len(self.data)
 
 
-@DATASETS.register_module()
+@DATASETS.register_module(force=True)
 class VariableVideoTextDataset(VideoTextDataset):
     def __init__(
         self,
