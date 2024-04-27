@@ -1,6 +1,4 @@
 from huggingface_hub import snapshot_download, hf_hub_download
-from mmengine import Config
-
 
 class OpenSora:
     def __init__(self, device="gpu"):
@@ -69,8 +67,6 @@ class OpenSora:
             "sample_name": None,  # Specific name for the generated sample
             "num_sample": 1,  # Number of samples to generate
         }
-
-        self.config = Config(self.config)
 
         hf_hub_download(
             repo_id="hpcai-tech/OpenSora-STDiT-v2-stage2",

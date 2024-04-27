@@ -1,6 +1,5 @@
 import os, sys
 import torch
-from omegaconf import OmegaConf
 
 class LaVie():
     def __init__(self, model_path="checkpoints/lavie", device="cuda"):
@@ -20,6 +19,7 @@ class LaVie():
         from diffusers.models import AutoencoderKL
         from transformers import CLIPTokenizer, CLIPTextModel
         from huggingface_hub import snapshot_download
+        from omegaconf import OmegaConf
 
 
         snapshot_download(repo_id="Vchitect/LaVie", local_dir=model_path)
