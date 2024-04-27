@@ -10,8 +10,9 @@ class OpenSora:
             device: 'gpu' or 'cpu' the device to use the model
         """
 
+        from mmengine import Config as mmengine_config
         from videogen_hub.pipelines.opensora.scripts.inference import main
-
+        
         self.pipeline = main
         self.config = {
             # Basic video frame settings
@@ -67,6 +68,7 @@ class OpenSora:
             "sample_name": None,  # Specific name for the generated sample
             "num_sample": 1,  # Number of samples to generate
         }
+        self.config = mmengine_config(self.config)
 
         hf_hub_download(
             repo_id="hpcai-tech/OpenSora-STDiT-v2-stage2",
