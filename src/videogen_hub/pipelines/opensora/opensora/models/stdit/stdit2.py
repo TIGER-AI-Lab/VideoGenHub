@@ -7,9 +7,16 @@ from rotary_embedding_torch import RotaryEmbedding
 from timm.models.layers import DropPath
 from timm.models.vision_transformer import Mlp
 
-from videogen_hub.pipelines.opensora.opensora.acceleration.checkpoint import auto_grad_checkpoint
-from videogen_hub.pipelines.opensora.opensora.acceleration.communications import gather_forward_split_backward, split_forward_gather_backward
-from videogen_hub.pipelines.opensora.opensora.acceleration.parallel_states import get_sequence_parallel_group
+from videogen_hub.pipelines.opensora.opensora.acceleration.checkpoint import (
+    auto_grad_checkpoint,
+)
+from videogen_hub.pipelines.opensora.opensora.acceleration.communications import (
+    gather_forward_split_backward,
+    split_forward_gather_backward,
+)
+from videogen_hub.pipelines.opensora.opensora.acceleration.parallel_states import (
+    get_sequence_parallel_group,
+)
 from videogen_hub.pipelines.opensora.opensora.models.layers.blocks import (
     Attention,
     CaptionEmbedder,
@@ -48,7 +55,9 @@ class STDiT2Block(nn.Module):
         self.enable_flashattn = enable_flashattn
         self._enable_sequence_parallelism = enable_sequence_parallelism
 
-        assert not self._enable_sequence_parallelism, "Sequence parallelism is not supported."
+        assert (
+            not self._enable_sequence_parallelism
+        ), "Sequence parallelism is not supported."
         if enable_sequence_parallelism:
             self.attn_cls = SeqParallelAttention
             self.mha_cls = SeqParallelMultiHeadCrossAttention
@@ -57,7 +66,9 @@ class STDiT2Block(nn.Module):
             self.mha_cls = MultiHeadCrossAttention
 
         # spatial branch
-        self.norm1 = get_layernorm(hidden_size, eps=1e-6, affine=False, use_kernel=enable_layernorm_kernel)
+        self.norm1 = get_layernorm(
+            hidden_size, eps=1e-6, affine=False, use_kernel=enable_layernorm_kernel
+        )
         self.attn = self.attn_cls(
             hidden_size,
             num_heads=num_heads,
@@ -65,20 +76,29 @@ class STDiT2Block(nn.Module):
             enable_flashattn=enable_flashattn,
             qk_norm=qk_norm,
         )
-        self.scale_shift_table = nn.Parameter(torch.randn(6, hidden_size) / hidden_size**0.5)
+        self.scale_shift_table = nn.Parameter(
+            torch.randn(6, hidden_size) / hidden_size**0.5
+        )
 
         # cross attn
         self.cross_attn = self.mha_cls(hidden_size, num_heads)
 
         # mlp branch
-        self.norm2 = get_layernorm(hidden_size, eps=1e-6, affine=False, use_kernel=enable_layernorm_kernel)
+        self.norm2 = get_layernorm(
+            hidden_size, eps=1e-6, affine=False, use_kernel=enable_layernorm_kernel
+        )
         self.mlp = Mlp(
-            in_features=hidden_size, hidden_features=int(hidden_size * mlp_ratio), act_layer=approx_gelu, drop=0
+            in_features=hidden_size,
+            hidden_features=int(hidden_size * mlp_ratio),
+            act_layer=approx_gelu,
+            drop=0,
         )
         self.drop_path = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
 
         # temporal branch
-        self.norm_temp = get_layernorm(hidden_size, eps=1e-6, affine=False, use_kernel=enable_layernorm_kernel)  # new
+        self.norm_temp = get_layernorm(
+            hidden_size, eps=1e-6, affine=False, use_kernel=enable_layernorm_kernel
+        )  # new
         self.attn_temp = self.attn_cls(
             hidden_size,
             num_heads=num_heads,
@@ -87,7 +107,9 @@ class STDiT2Block(nn.Module):
             rope=rope,
             qk_norm=qk_norm,
         )
-        self.scale_shift_table_temporal = nn.Parameter(torch.randn(3, hidden_size) / hidden_size**0.5)  # new
+        self.scale_shift_table_temporal = nn.Parameter(
+            torch.randn(3, hidden_size) / hidden_size**0.5
+        )  # new
 
     def t_mask_select(self, x_mask, x, masked_x, T, S):
         # x: [B, (T, S), C]
@@ -99,19 +121,36 @@ class STDiT2Block(nn.Module):
         x = rearrange(x, "B T S C -> B (T S) C")
         return x
 
-    def forward(self, x, y, t, t_tmp, mask=None, x_mask=None, t0=None, t0_tmp=None, T=None, S=None):
+    def forward(
+        self,
+        x,
+        y,
+        t,
+        t_tmp,
+        mask=None,
+        x_mask=None,
+        t0=None,
+        t0_tmp=None,
+        T=None,
+        S=None,
+    ):
         B, N, C = x.shape
 
         shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = (
             self.scale_shift_table[None] + t.reshape(B, 6, -1)
         ).chunk(6, dim=1)
-        shift_tmp, scale_tmp, gate_tmp = (self.scale_shift_table_temporal[None] + t_tmp.reshape(B, 3, -1)).chunk(
-            3, dim=1
-        )
+        shift_tmp, scale_tmp, gate_tmp = (
+            self.scale_shift_table_temporal[None] + t_tmp.reshape(B, 3, -1)
+        ).chunk(3, dim=1)
         if x_mask is not None:
-            shift_msa_zero, scale_msa_zero, gate_msa_zero, shift_mlp_zero, scale_mlp_zero, gate_mlp_zero = (
-                self.scale_shift_table[None] + t0.reshape(B, 6, -1)
-            ).chunk(6, dim=1)
+            (
+                shift_msa_zero,
+                scale_msa_zero,
+                gate_msa_zero,
+                shift_mlp_zero,
+                scale_mlp_zero,
+                gate_mlp_zero,
+            ) = (self.scale_shift_table[None] + t0.reshape(B, 6, -1)).chunk(6, dim=1)
             shift_tmp_zero, scale_tmp_zero, gate_tmp_zero = (
                 self.scale_shift_table_temporal[None] + t0_tmp.reshape(B, 3, -1)
             ).chunk(3, dim=1)
@@ -220,8 +259,12 @@ class STDiT2(nn.Module):
 
         self.x_embedder = PatchEmbed3D(patch_size, in_channels, hidden_size)
         self.t_embedder = TimestepEmbedder(hidden_size)
-        self.t_block = nn.Sequential(nn.SiLU(), nn.Linear(hidden_size, 6 * hidden_size, bias=True))
-        self.t_block_temp = nn.Sequential(nn.SiLU(), nn.Linear(hidden_size, 3 * hidden_size, bias=True))  # new
+        self.t_block = nn.Sequential(
+            nn.SiLU(), nn.Linear(hidden_size, 6 * hidden_size, bias=True)
+        )
+        self.t_block_temp = nn.Sequential(
+            nn.SiLU(), nn.Linear(hidden_size, 3 * hidden_size, bias=True)
+        )  # new
         self.y_embedder = CaptionEmbedder(
             in_channels=caption_channels,
             hidden_size=hidden_size,
@@ -248,7 +291,9 @@ class STDiT2(nn.Module):
                 for i in range(self.depth)
             ]
         )
-        self.final_layer = T2IFinalLayer(hidden_size, np.prod(self.patch_size), self.out_channels)
+        self.final_layer = T2IFinalLayer(
+            hidden_size, np.prod(self.patch_size), self.out_channels
+        )
 
         # multi_res
         assert self.hidden_size % 3 == 0, "hidden_size must be divisible by 3"
@@ -288,7 +333,17 @@ class STDiT2(nn.Module):
         return (T, H, W)
 
     def forward(
-        self, x, timestep, y, mask=None, x_mask=None, num_frames=None, height=None, width=None, ar=None, fps=None
+        self,
+        x,
+        timestep,
+        y,
+        mask=None,
+        x_mask=None,
+        num_frames=None,
+        height=None,
+        width=None,
+        ar=None,
+        fps=None,
     ):
         """
         Forward pass of STDiT.
@@ -339,7 +394,9 @@ class STDiT2(nn.Module):
 
         # shard over the sequence dim if sp is enabled
         if self.enable_sequence_parallelism:
-            x = split_forward_gather_backward(x, get_sequence_parallel_group(), dim=1, grad_scale="down")
+            x = split_forward_gather_backward(
+                x, get_sequence_parallel_group(), dim=1, grad_scale="down"
+            )
 
         # prepare adaIN
         t = self.t_embedder(timestep, dtype=x.dtype)  # [B, C]
@@ -367,7 +424,11 @@ class STDiT2(nn.Module):
             if mask.shape[0] != y.shape[0]:
                 mask = mask.repeat(y.shape[0] // mask.shape[0], 1)
             mask = mask.squeeze(1).squeeze(1)
-            y = y.squeeze(1).masked_select(mask.unsqueeze(-1) != 0).view(1, -1, x.shape[-1])
+            y = (
+                y.squeeze(1)
+                .masked_select(mask.unsqueeze(-1) != 0)
+                .view(1, -1, x.shape[-1])
+            )
             y_lens = mask.sum(dim=1).tolist()
         else:
             y_lens = [y.shape[2]] * y.shape[0]
@@ -390,11 +451,15 @@ class STDiT2(nn.Module):
             )
 
         if self.enable_sequence_parallelism:
-            x = gather_forward_split_backward(x, get_sequence_parallel_group(), dim=1, grad_scale="up")
+            x = gather_forward_split_backward(
+                x, get_sequence_parallel_group(), dim=1, grad_scale="up"
+            )
         # x.shape: [B, N, C]
 
         # final process
-        x = self.final_layer(x, t, x_mask, t0_spc, T, S)  # [B, N, C=T_p * H_p * W_p * C_out]
+        x = self.final_layer(
+            x, t, x_mask, t0_spc, T, S
+        )  # [B, N, C=T_p * H_p * W_p * C_out]
         x = self.unpatchify(x, T, H, W, Tx, Hx, Wx)  # [B, C_out, T, H, W]
 
         # cast to float32 for better accuracy
@@ -444,7 +509,9 @@ class STDiT2(nn.Module):
             scale=scale,
             base_size=base_size,
         )
-        pos_embed = torch.from_numpy(pos_embed).float().unsqueeze(0).requires_grad_(False)
+        pos_embed = (
+            torch.from_numpy(pos_embed).float().unsqueeze(0).requires_grad_(False)
+        )
         return pos_embed
 
     def freeze_not_temporal(self):
@@ -497,8 +564,16 @@ class STDiT2(nn.Module):
 
 
 @MODELS.register_module("STDiT2-XL/2", force=True)
-def STDiT2_XL_2(from_pretrained=None, **kwargs):
-    model = STDiT2(depth=28, hidden_size=1152, patch_size=(1, 2, 2), num_heads=16, **kwargs)
+def STDiT2_XL_2(from_pretrained=None, file_name=None, **kwargs):
+    model = STDiT2(
+        depth=28, hidden_size=1152, patch_size=(1, 2, 2), num_heads=16, **kwargs
+    )
     if from_pretrained is not None:
+        import os
+
+        # print(f"cur path={os.getcwd()}")
+        # path = os.path.join(os.getcwd(), from_pretrained, file_name)
+        # print(path)
         load_checkpoint(model, from_pretrained)
+        # load_checkpoint(model, os.path.join(from_pretrained, file_name))
     return model
