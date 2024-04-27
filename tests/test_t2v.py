@@ -66,5 +66,6 @@ def test_OpenSora():
     print(out_video.shape)
 
 if __name__ == "__main__":
-    test_OpenSora()
-    print("Everything passed")
+    #test_OpenSora()
+    #print("Everything passed")
+    pass

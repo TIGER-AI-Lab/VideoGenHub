@@ -29,7 +29,7 @@ class OpenSora:
                 "file_name": "model.safetensors",  # Name of the model file
                 "input_sq_size": 512,  # Input square size for the model
                 "qk_norm": True,  # Whether to normalize query-key in attention
-                "enable_flashattn": True,  # Enable flash attention mechanism
+                "enable_flashattn": False,  # Enable flash attention mechanism, require flash_attn package
                 "enable_layernorm_kernel": False,  # Enable layer normalization in kernel, requires apex package
             },
             # Variational Autoencoder (VAE) specific settings
