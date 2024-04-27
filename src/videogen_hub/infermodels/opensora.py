@@ -28,7 +28,7 @@ class OpenSora:
                 "input_sq_size": 512,  # Input square size for the model
                 "qk_norm": True,  # Whether to normalize query-key in attention
                 "enable_flashattn": True,  # Enable flash attention mechanism
-                "enable_layernorm_kernel": True,  # Enable layer normalization in kernel
+                "enable_layernorm_kernel": False,  # Enable layer normalization in kernel, requires apex package
             },
             # Variational Autoencoder (VAE) specific settings
             "vae": {
