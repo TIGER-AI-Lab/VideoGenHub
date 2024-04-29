@@ -194,9 +194,9 @@ def main(config=None):
                     )
                     if cfg.num_sample != 1:
                         save_path = f"{save_path}-{k}"
-                    save_sample(
-                        sample, fps=cfg.fps, save_path=save_path
-                    )
+                    #save_sample(
+                    #    sample, fps=cfg.fps, save_path=save_path
+                    #)
                     sample_idx += 1
 
             all_samples.append(samples)
