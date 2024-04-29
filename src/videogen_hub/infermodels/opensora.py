@@ -118,8 +118,12 @@ class OpenSora:
         self.config.prompt = [prompt]
         self.config.image_size = size
 
-        all_batch_samples = self.pipeline(self.config)
+        all_batch_samples = self.pipeline(self.config) 
+        
+        sample = all_batch_samples[0][0]
+        # sample is torch.Size([1, C, f, H, W])
 
-        # default batch size and num_samples are both 1
+        output = sample.squeeze(0).permute(1, 2, 3, 0)
+        # torch.Size([1, C, f, H, W]) -> torch.Size([f, H, W, C])
 
-        return all_batch_samples[0][0]
+        return output

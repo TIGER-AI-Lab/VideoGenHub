@@ -42,6 +42,17 @@ def test_VideoCrafter2():
     assert isinstance(out_video, torch.Tensor)
     print(out_video.shape)
 
+def test_ModelScope():
+    from videogen_hub.infermodels import ModelScope
+    model = ModelScope()
+    assert model is not None
+    out_video = model.infer_one_video(dummy_prompts[0])
+    print("video ouputted")
+    assert out_video is not None
+    # check if out_video is a tensor or not
+    assert isinstance(out_video, torch.Tensor)
+    print(out_video.shape)
+
 def test_StreamingT2V():
     from videogen_hub.infermodels import StreamingT2V
 
@@ -66,6 +77,6 @@ def test_OpenSora():
     print(out_video.shape)
 
 if __name__ == "__main__":
-    #test_OpenSora()
-    #print("Everything passed")
+    test_OpenSora()
+    print("Everything passed")
     pass
