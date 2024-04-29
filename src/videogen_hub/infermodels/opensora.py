@@ -123,7 +123,8 @@ class OpenSora:
         sample = all_batch_samples[0][0]
         # sample is torch.Size([1, C, f, H, W])
 
-        output = sample.squeeze(0).permute(1, 2, 3, 0)
+        output = sample.squeeze(0).permute(1, 2, 3, 0).cpu().float()
         # torch.Size([1, C, f, H, W]) -> torch.Size([f, H, W, C])
+        # BFloat16 -> Float
 
         return output
