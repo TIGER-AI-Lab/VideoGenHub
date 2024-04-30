@@ -4,10 +4,10 @@ from .lavie import LaVie
 from .videocrafter import VideoCrafter2
 from .modelscope import ModelScope
 from .streamingt2v import StreamingT2V
-from .show_1 import ShowOne
+from .show_one import ShowOne
+from .opensora import OpenSora
 
 # from .cogvideo import CogVideo # Not supporting CogVideo ATM
-from .opensora import OpenSora
 
 # ==========================================================
 # Image-to-Video Generation

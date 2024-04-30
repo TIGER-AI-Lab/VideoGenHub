@@ -76,7 +76,20 @@ def test_OpenSora():
     assert isinstance(out_video, torch.Tensor)
     print(out_video.shape)
 
+
+def test_ShowOne():
+    from videogen_hub.infermodels import ShowOne
+
+    model = ShowOne()
+    assert model is not None
+    out_video = model.infer_one_video(dummy_prompts[0])
+    assert out_video is not None
+    # check if out_video is a tensor or not
+    assert isinstance(out_video, torch.Tensor)
+    print(out_video.shape)
+
+
 if __name__ == "__main__":
-    test_OpenSora()
+    test_ShowOne()
     print("Everything passed")
     pass
