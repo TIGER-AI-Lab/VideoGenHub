@@ -49,7 +49,7 @@ class OpenSora:
             # Scheduler settings for diffusion models
             "scheduler": {
                 "type": "iddpm",  # Type of scheduler for the diffusion process
-                "num_sampling_steps": 100,  # Number of sampling steps in diffusion
+                "num_sampling_steps": 50,  # Number of sampling steps in diffusion
                 "cfg_scale": 7.0,  # Scale for classifier-free guidance
                 "cfg_channel": 3,  # Number of channels for guidance
             },
