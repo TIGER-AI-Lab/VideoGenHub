@@ -3,10 +3,11 @@ import torch
 from huggingface_hub import snapshot_download, hf_hub_download
 from PIL import Image
 
+
 class SEINE():
     def __init__(self):
         """
-        1. Download the pretrained model and put it inside checkpoints/videocrafter2
+        1. Download the pretrained model and put it inside checkpoints/SEINE
         2. Create Pipeline.
         """
         from videogen_hub.pipelines.seine.SEINEPipeline import SEINEPipeline
@@ -18,7 +19,7 @@ class SEINE():
         self.pipeline = SEINEPipeline(seine_path, pretrained_model_path,
                                       'src/videogen_hub/pipelines/seine/sample_i2v.yaml')
 
-    def infer_one_video(self, 
+    def infer_one_video(self,
                         input_image: Image.Image,
                         prompt: str = None,
                         size: list = [320, 512],

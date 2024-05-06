@@ -307,10 +307,25 @@ def get_parser():
 
 class DynamiCrafterPipeline():
     def __init__(self, args):
+        """
+        Initialize the parameters from args
+        Args:
+            args: is a list consisting of arguments needed for parser.
+            e.g. ["--ckpt_path", <the model path>, ......]
+        """
         parser = get_parser()
         self.args = parser.parse_args(args)
 
     def run_inference(self, input_image):
+        """
+        Run inference from the input_image.
+        This input image can either be a tensor or a string as the path of the image file.
+        Args:
+            input_image: tensor or string.
+
+        Returns: a tensor representing the generated video of shape (num_frames, channels, height, width)
+
+        """
         args = self.args
         seed_everything(args.seed)
         ## model config

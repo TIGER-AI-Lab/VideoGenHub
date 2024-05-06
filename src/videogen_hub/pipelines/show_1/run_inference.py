@@ -12,7 +12,12 @@ from diffusers.utils.torch_utils import randn_tensor
 
 class ShowOnePipeline():
     def __init__(self):
-        from .showone.pipelines import TextToVideoIFPipeline, TextToVideoIFInterpPipeline, TextToVideoIFSuperResolutionPipeline
+        """
+        Downloading the necessary models from huggingface and utilize them to load their pipelines,
+        https://github.com/showlab/Show-1
+        """
+        from .showone.pipelines import TextToVideoIFPipeline, TextToVideoIFInterpPipeline, \
+            TextToVideoIFSuperResolutionPipeline
         from .showone.pipelines.pipeline_t2v_base_pixel import tensor2vid
         from .showone.pipelines.pipeline_t2v_sr_pixel_cond import TextToVideoIFSuperResolutionPipeline_Cond
         from huggingface_hub import snapshot_download
@@ -24,10 +29,10 @@ class ShowOnePipeline():
         # and opt for a larger guidance scale (e.g., 12.0) to enhance visual quality.
         path = "./checkpoints/showlab/show-1-base"
         pretrained_model_path = snapshot_download(
-            repo_id="showlab/show-1-base", 
+            repo_id="showlab/show-1-base",
             local_dir=path
         )
-        
+
         self.pipe_base = TextToVideoIFPipeline.from_pretrained(
             pretrained_model_path,
             torch_dtype=torch.float16,
@@ -38,7 +43,7 @@ class ShowOnePipeline():
         # Interpolation Model
         path = "./checkpoints/showlab/show-1-interpolation"
         pretrained_model_path = snapshot_download(
-            repo_id="showlab/show-1-interpolation", 
+            repo_id="showlab/show-1-interpolation",
             local_dir=path
         )
 
@@ -54,10 +59,10 @@ class ShowOnePipeline():
         # pretrained_model_path = "./checkpoints/DeepFloyd/IF-II-L-v1.0"
         access_token = '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'
         login(token=access_token)
-        
+
         path = "./checkpoints/DeepFloyd/IF-II-L-v1.0"
         pretrained_model_path = snapshot_download(
-            repo_id="DeepFloyd/IF-II-L-v1.0", 
+            repo_id="DeepFloyd/IF-II-L-v1.0",
             local_dir=path
         )
 
@@ -71,7 +76,7 @@ class ShowOnePipeline():
 
         path = "./checkpoints/showlab/show-1-sr1"
         pretrained_model_path = snapshot_download(
-            repo_id="showlab/show-1-sr1", 
+            repo_id="showlab/show-1-sr1",
             local_dir=path
         )
 
@@ -84,7 +89,7 @@ class ShowOnePipeline():
         # Super-Resolution Model 2
         path = "./checkpoints/showlab/show-1-sr2"
         pretrained_model_path = snapshot_download(
-            repo_id="showlab/show-1-sr2", 
+            repo_id="showlab/show-1-sr2",
             local_dir=path
         )
 
@@ -95,13 +100,28 @@ class ShowOnePipeline():
         self.pipe_sr_2.enable_model_cpu_offload()
         self.pipe_sr_2.enable_vae_slicing()
 
-    def inference(self, prompt: str = "A burning lamborghini driving on rainbow.",
-                  negative_prompt="low resolution, blur",
+    def inference(self, prompt: str = "",
+                  negative_prompt: str = "",
                   output_size: List[int] = [240, 560],
                   initial_num_frames: int = 8,
                   scaling_factor: int = 4,
                   seed: int = 42):
+        """
+        Generates a single video based on a textual prompt. The output is a tensor representing the video.
+        The initial_num_frames is set to be 8 as shown in paper.
+        https://github.com/showlab/Show-1
 
+        Args:
+            prompt (str, optional): The text prompt that guides the video generation. If not specified, the video generation will rely solely on the input image. Defaults to "".
+            negative_prompt (str, optional): The negative prompt that guided the video generation. Defaults to "".
+            output_size (list, optional): Specifies the resolution of the output video as [height, width]. Defaults to [240, 560].
+            initial_num_frames: the number of frames generated using the base model. Defaults to 8 as proposed in the paper.
+            scaling_factor: The amount of scaling during the interpolation step. Defaults to 4 as proposed in the paper, which interpolates number of frames from 8 to 29.
+            seed (int, optional): A seed value for random number generation, ensuring reproducibility of the video generation process. Defaults to 42.
+
+        Returns:
+            The generated video as a tensor with shape (num_frames, channels, height, width).
+        """
         # Inference
         # Text embeds
         prompt_embeds, negative_embeds = self.pipe_base.encode_prompt(prompt)
@@ -120,20 +140,20 @@ class ShowOnePipeline():
         ).frames
 
         # Frame interpolation (8x64x40, 2fps -> 29x64x40, 7.5fps)
-        
+
         bsz, channel, num_frames_1, height, width = video_frames.shape
-        
+
         k = scaling_factor
-        
-        new_num_frames = (k-1) * (num_frames_1 - 1) + num_frames_1
+
+        new_num_frames = (k - 1) * (num_frames_1 - 1) + num_frames_1
         new_video_frames = torch.zeros((bsz, channel, new_num_frames, height, width),
                                        dtype=video_frames.dtype, device=video_frames.device)
         new_video_frames[:, :, torch.arange(0, new_num_frames, k), ...] = video_frames
-        init_noise = randn_tensor((bsz, channel, k+1, height, width), dtype=video_frames.dtype,
+        init_noise = randn_tensor((bsz, channel, k + 1, height, width), dtype=video_frames.dtype,
                                   device=video_frames.device, generator=torch.manual_seed(seed))
 
         for i in range(num_frames_1 - 1):
-            batch_i = torch.zeros((bsz, channel, k+1, height, width), dtype=video_frames.dtype,
+            batch_i = torch.zeros((bsz, channel, k + 1, height, width), dtype=video_frames.dtype,
                                   device=video_frames.device)
             batch_i[:, :, 0, ...] = video_frames[:, :, i, ...]
             batch_i[:, :, -1, ...] = video_frames[:, :, i + 1, ...]
@@ -202,7 +222,8 @@ class ShowOnePipeline():
         video_frames = new_video_frames
 
         # Super-resolution 2 (29x256x160 -> 29x576x320)
-        video_frames = [Image.fromarray(frame).resize((output_size[1], output_size[0])) for frame in self.tensor2vid(video_frames.clone())]
+        video_frames = [Image.fromarray(frame).resize((output_size[1], output_size[0])) for frame in
+                        self.tensor2vid(video_frames.clone())]
         video_frames = self.pipe_sr_2(
             prompt,
             negative_prompt=negative_prompt,

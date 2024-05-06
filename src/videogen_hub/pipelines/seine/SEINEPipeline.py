@@ -8,6 +8,13 @@ class SEINEPipeline():
     def __init__(self, seine_path: str = "./checkpoints/SEINE/seine.pt",
                  pretrained_model_path: str = "./checkpoints/SEINE/stable-diffusion-v1-4/",
                  config_path: str = "src/videogen_hub/pipelines/seine/sample_i2v.yaml"):
+        """
+        Load the configuration file and set the paths of models.
+        Args:
+            seine_path: The path of the downloaded seine pretrained model.
+            pretrained_model_path: The path of the downloaded stable diffusion pretrained model.
+            config_path: The path of the configuration file.
+        """
         self.config = OmegaConf.load(config_path)
         self.config.ckpt = seine_path
         self.config.pretrained_model_path = pretrained_model_path
@@ -19,6 +26,21 @@ class SEINEPipeline():
                         num_sampling_steps: int = 250,
                         seed: int = 42,
                         save_video: bool = False):
+        """
+        Generate video based on provided input_image and text_prompt.
+        Args:
+            input_image: The input image to generate video.
+            text_prompt: The text prompt to generate video.
+            output_size: The size of the generated video. Defaults to [240, 560].
+            num_frames: number of frames of the generated video. Defaults to 16.
+            num_sampling_steps: number of sampling steps to generate the video. Defaults to 250.
+            seed: The random seed for video generation. Defaults to 42.
+            save_video: save the video to the path in config if it is True. Not save if it is False. Defaults to False.
+
+        Returns:
+            The generated video as tensor with shape (num_frames, channels, height, width).
+
+        """
 
         self.config.image_size = output_size
         self.config.num_frames = num_frames

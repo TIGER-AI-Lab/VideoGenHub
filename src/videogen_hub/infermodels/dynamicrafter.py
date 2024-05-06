@@ -5,7 +5,8 @@ from PIL import Image
 class DynamiCrafter:
     def __init__(self, version: str = "256"):
         """
-        Initializes the DynamiCrafter model using the Doubiiu/DynamiCrafter checkpoint from the Hugging Face Hub.
+        Initializes the DynamiCrafter model using the Doubiiu/DynamiCrafter_{version} checkpoint from the Hugging Face Hub.
+        and load them to "./checkpoints/dynamicrafter_{version}_v1"
 
         Args:
             version (str, optional): The resolution of the video to generate. Choose from '256', '512', or '1024'. Defaults to '256'.

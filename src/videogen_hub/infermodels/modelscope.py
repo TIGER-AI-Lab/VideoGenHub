@@ -1,6 +1,7 @@
 import torch
 from huggingface_hub import snapshot_download
 
+
 class ModelScope:
     def __init__(self, device="gpu"):
         """
@@ -21,7 +22,7 @@ class ModelScope:
         self.pipeline = pipeline("text-to-video-synthesis", model=model, device=device)
 
     def infer_one_video(
-        self, prompt: str = None, seconds: int = 2, fps: int = 8, seed: int = 42
+            self, prompt: str = None, seconds: int = 2, fps: int = 8, seed: int = 42
     ):
         """
         Generates a single video based on the provided prompt and parameters.
