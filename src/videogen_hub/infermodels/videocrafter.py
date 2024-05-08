@@ -49,7 +49,8 @@ class VideoCrafter2():
             seed (int, optional): The seed for random number generation. Defaults to 42.
 
         Returns:
-            torch.Tensor: The generated video as a tensor.
+            torch.Tensor: The generated video as a tensor, the shape being [num_frames, 3, height, width]
+
         """
         torch.manual_seed(seed)
         video = self.pipeline.run_inference(prompt,
@@ -57,4 +58,4 @@ class VideoCrafter2():
                                             height=size[0],
                                             width=size[1])
 
-        return video.squeeze(0, 1).cpu().permute(1,2,3,0)
+        return video.squeeze(0, 1).cpu().permute(1, 2, 3, 0)

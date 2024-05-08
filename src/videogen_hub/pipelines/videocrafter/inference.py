@@ -42,6 +42,15 @@ def get_parser():
 
 class VideoCrafterPipeline():
     def __init__(self, arg_list, device, rank: int = 0, gpu_num: int = 1):
+        """
+        Initialize the pipeline of videocrafter.
+        It is always on one GPU.
+        Args:
+            arg_list: The parameters needed for the model.
+            device:
+            rank:
+            gpu_num:
+        """
         parser = get_parser()
         self.args = parser.parse_args(args=arg_list)
 
@@ -59,6 +68,20 @@ class VideoCrafterPipeline():
         self.model.eval()
 
     def run_inference(self, prompt, video_length, height, width, **kwargs):
+        """
+        https://github.com/AILab-CVC/VideoCrafter
+        Generate video from the provided text prompt.
+        Args:
+            prompt: The provided text prompt.
+            video_length: The length (num of frames) of the generated video.
+            height: The height of the video frame.
+            width: The width of the video frame.
+            **kwargs:
+
+        Returns:
+            The generated video represented as tensor with shape (1, 1, channels, height, width, num of frames)
+
+        """
         ## step 1: model config
         ## -----------------------------------------------------------------
         ## sample shape

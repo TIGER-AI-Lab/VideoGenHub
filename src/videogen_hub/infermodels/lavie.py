@@ -1,10 +1,12 @@
 import os, sys
 import torch
 
+
 class LaVie():
     def __init__(self, model_path="checkpoints/lavie", device="cuda"):
         """
-        Initializes the LaVie model with a specific model path and device.
+        1. Download all necessary models from huggingface.
+        2. Initializes the LaVie model with a specific model path and device.
 
         Args:
             model_path (str, optional): The path to the model checkpoints. Defaults to "checkpoints/lavie".
@@ -21,11 +23,10 @@ class LaVie():
         from huggingface_hub import snapshot_download
         from omegaconf import OmegaConf
 
-
         snapshot_download(repo_id="Vchitect/LaVie", local_dir=model_path)
-        snapshot_download(repo_id="CompVis/stable-diffusion-v1-4", local_dir=model_path+"/stable-diffusion-v1-4")
-        snapshot_download(repo_id="stabilityai/stable-diffusion-x4-upscaler", local_dir=model_path+"/stable-diffusion-x4-upscaler")
-
+        snapshot_download(repo_id="CompVis/stable-diffusion-v1-4", local_dir=model_path + "/stable-diffusion-v1-4")
+        snapshot_download(repo_id="stabilityai/stable-diffusion-x4-upscaler",
+                          local_dir=model_path + "/stable-diffusion-x4-upscaler")
 
         torch.set_grad_enabled(False)
         self.device = device
@@ -47,30 +48,31 @@ class LaVie():
         }
         self.config = OmegaConf.create(config)
 
-        sd_path = os.path.join(model_path, "stable-diffusion-v1-4") 
+        sd_path = os.path.join(model_path, "stable-diffusion-v1-4")
         unet = UNet3DConditionModel.from_pretrained_2d(sd_path, subfolder="unet").to(device, dtype=torch.float16)
         state_dict = find_model(os.path.join(model_path, "lavie_base.pt"))
         unet.load_state_dict(state_dict)
-        
+
         vae = AutoencoderKL.from_pretrained(sd_path, subfolder="vae", torch_dtype=torch.float16).to(device)
         tokenizer_one = CLIPTokenizer.from_pretrained(sd_path, subfolder="tokenizer")
-        text_encoder_one = CLIPTextModel.from_pretrained(sd_path, subfolder="text_encoder", torch_dtype=torch.float16).to(device) # huge
+        text_encoder_one = CLIPTextModel.from_pretrained(sd_path, subfolder="text_encoder",
+                                                         torch_dtype=torch.float16).to(device)  # huge
 
-        scheduler = DDPMScheduler.from_pretrained(sd_path, 
-                                                    subfolder="scheduler",
-                                                    beta_start=self.config.scheduler_config.beta_start, 
-                                                    beta_end=self.config.scheduler_config.beta_end, 
-                                                    beta_schedule=self.config.scheduler_config.beta_schedule)
+        scheduler = DDPMScheduler.from_pretrained(sd_path,
+                                                  subfolder="scheduler",
+                                                  beta_start=self.config.scheduler_config.beta_start,
+                                                  beta_end=self.config.scheduler_config.beta_end,
+                                                  beta_schedule=self.config.scheduler_config.beta_schedule)
 
-        self.videogen_pipeline = VideoGenPipeline(vae=vae, 
-                                    text_encoder=text_encoder_one, 
-                                    tokenizer=tokenizer_one, 
-                                    scheduler=scheduler, 
-                                    unet=unet).to(device)
+        self.videogen_pipeline = VideoGenPipeline(vae=vae,
+                                                  text_encoder=text_encoder_one,
+                                                  tokenizer=tokenizer_one,
+                                                  scheduler=scheduler,
+                                                  unet=unet).to(device)
         self.videogen_pipeline.enable_xformers_memory_efficient_attention()
 
     def infer_one_video(self,
-                        prompt: str = None, 
+                        prompt: str = None,
                         size: list = [320, 512],
                         seconds: int = 2,
                         fps: int = 8,
@@ -90,12 +92,10 @@ class LaVie():
         """
         if seed is not None:
             torch.manual_seed(seed)
-        videos = self.videogen_pipeline(prompt, 
-								video_length=seconds*fps, 
-								height=size[0], 
-								width=size[1], 
-								num_inference_steps=self.config.model_config.num_sampling_steps,
-								guidance_scale=self.config.model_config.guidance_scale).video
+        videos = self.videogen_pipeline(prompt,
+                                        video_length=seconds * fps,
+                                        height=size[0],
+                                        width=size[1],
+                                        num_inference_steps=self.config.model_config.num_sampling_steps,
+                                        guidance_scale=self.config.model_config.guidance_scale).video
         return videos[0]
-
-    
