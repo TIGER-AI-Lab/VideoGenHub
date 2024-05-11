@@ -9,18 +9,19 @@ with open('README.md') as f:
 with open('LICENSE') as f:
     license = f.read()
 
-with open(os.path.join("src","videogen_hub","_version.py")) as f:
+with open(os.path.join("src", "videogen_hub", "_version.py")) as f:
     exec(f.read(), __version__)
 
-setup(    
+setup(
     name='videogen_hub',
     version=__version__,
     packages=find_packages(where='src'),
     package_dir={'': 'src'},
-    description='',
+    description='VideoGenHub is a one-stop library to standardize the inference and evaluation of all the conditional '
+                'video generation models.',
     long_description=readme,
     author='Max Ku',
     author_email='m3ku@uwaterloo.ca',
-    url='',
+    url='https://github.com/TIGER-AI-Lab/VideoGenHub',
     license=license
 )
