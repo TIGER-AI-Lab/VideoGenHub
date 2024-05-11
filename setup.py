@@ -23,5 +23,15 @@ setup(
     author='Max Ku',
     author_email='m3ku@uwaterloo.ca',
     url='https://github.com/TIGER-AI-Lab/VideoGenHub',
-    license=license
+    license=license,
+    classifiers=[
+            "Development Status :: 4 - Beta",
+            "Environment :: GPU :: NVIDIA CUDA",
+            "Intended Audience :: Developers",
+            "Intended Audience :: Education",
+            "Intended Audience :: Science/Research",
+            "Operating System :: OS Independent",
+            "Topic :: Scientific/Engineering :: Artificial Intelligence",
+            "Programming Language :: Python :: 3",
+        ]
 )
