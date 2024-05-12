@@ -98,6 +98,8 @@ def infer_text_guided_ig_bench(
             result_folder, experiment_name, model.__class__.__name__
         )
         file_basename = f"{idx}_{prompt['prompt_en'].replace(' ', '_')}.mp4"
+        if not os.path.exists(dest_folder):
+            os.mkdir(dest_folder)
         dest_file = os.path.join(dest_folder, file_basename)
         if overwrite_model_outputs or not os.path.exists(dest_file):
             print("========> Inferencing", dest_file)

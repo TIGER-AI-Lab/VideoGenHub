@@ -4,13 +4,13 @@ flask_cors
 faiss-cpu
 fire
 h5py
-xformers~=0.0.20
 numpy>=1.23.5
 pandas<2.0.0
 peft
 torch
 torchvision 
 torchaudio
+xformers~=0.0.20
 jupyterlab>=4.0.2
 notebook>=6.5.4
 albumentations>=1.1.0
