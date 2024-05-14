@@ -15,7 +15,7 @@ def infer_text_guided_vg_bench(
     limit_videos_amount: Optional[int] = None,
 ):
     """
-    Performs inference on the VideonHub dataset using the provided text-guided video generation model.
+    Performs inference on the VideogenHub dataset using the provided text-guided video generation model.
 
     Args:
         model: Instance of a model that supports text-guided video generation. Expected to have
