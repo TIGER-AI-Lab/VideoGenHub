@@ -6,7 +6,7 @@ import cv2, json, random
 import numpy as np
 
 
-def infer_text_guided_ig_bench(
+def infer_text_guided_vg_bench(
     model,
     result_folder: str = "results",
     experiment_name: str = "Exp_Text-Guided_IG",
