@@ -11,7 +11,7 @@ from diffusers.utils.torch_utils import randn_tensor
 
 
 class ShowOnePipeline():
-    def __init__(self):
+    def __init__(self, base_path, interp_path, deepfloyd_path, sr1_path, sr2_path):
         """
         Downloading the necessary models from huggingface and utilize them to load their pipelines,
         https://github.com/showlab/Show-1
@@ -20,35 +20,23 @@ class ShowOnePipeline():
             TextToVideoIFSuperResolutionPipeline
         from .showone.pipelines.pipeline_t2v_base_pixel import tensor2vid
         from .showone.pipelines.pipeline_t2v_sr_pixel_cond import TextToVideoIFSuperResolutionPipeline_Cond
-        from huggingface_hub import snapshot_download
-        from huggingface_hub import login
 
         self.tensor2vid = tensor2vid
         # Base Model
         # When using "showlab/show-1-base-0.0", it's advisable to increase the number of inference steps (e.g., 100)
         # and opt for a larger guidance scale (e.g., 12.0) to enhance visual quality.
-        path = "./checkpoints/showlab/show-1-base"
-        pretrained_model_path = snapshot_download(
-            repo_id="showlab/show-1-base",
-            local_dir=path
-        )
 
         self.pipe_base = TextToVideoIFPipeline.from_pretrained(
-            pretrained_model_path,
+            base_path,
             torch_dtype=torch.float16,
             variant="fp16"
         )
         self.pipe_base.enable_model_cpu_offload()
 
         # Interpolation Model
-        path = "./checkpoints/showlab/show-1-interpolation"
-        pretrained_model_path = snapshot_download(
-            repo_id="showlab/show-1-interpolation",
-            local_dir=path
-        )
 
         self.pipe_interp_1 = TextToVideoIFInterpPipeline.from_pretrained(
-            pretrained_model_path,
+            interp_path,
             torch_dtype=torch.float16,
             variant="fp16"
         )
@@ -57,44 +45,25 @@ class ShowOnePipeline():
         # Super-Resolution Model 1
         # Image super-resolution model from DeepFloyd https://huggingface.co/DeepFloyd/IF-II-L-v1.0
         # pretrained_model_path = "./checkpoints/DeepFloyd/IF-II-L-v1.0"
-        access_token = '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'
-        login(token=access_token)
-
-        path = "./checkpoints/DeepFloyd/IF-II-L-v1.0"
-        pretrained_model_path = snapshot_download(
-            repo_id="DeepFloyd/IF-II-L-v1.0",
-            local_dir=path
-        )
 
         self.pipe_sr_1_image = IFSuperResolutionPipeline.from_pretrained(
-            pretrained_model_path,
+            deepfloyd_path,
             text_encoder=None,
             torch_dtype=torch.float16,
             variant="fp16"
         )
         self.pipe_sr_1_image.enable_model_cpu_offload()
 
-        path = "./checkpoints/showlab/show-1-sr1"
-        pretrained_model_path = snapshot_download(
-            repo_id="showlab/show-1-sr1",
-            local_dir=path
-        )
-
         self.pipe_sr_1_cond = TextToVideoIFSuperResolutionPipeline_Cond.from_pretrained(
-            pretrained_model_path,
+            sr1_path,
             torch_dtype=torch.float16
         )
         self.pipe_sr_1_cond.enable_model_cpu_offload()
 
         # Super-Resolution Model 2
-        path = "./checkpoints/showlab/show-1-sr2"
-        pretrained_model_path = snapshot_download(
-            repo_id="showlab/show-1-sr2",
-            local_dir=path
-        )
 
         self.pipe_sr_2 = VideoToVideoSDPipeline.from_pretrained(
-            pretrained_model_path,
+            sr2_path,
             torch_dtype=torch.float16
         )
         self.pipe_sr_2.enable_model_cpu_offload()
