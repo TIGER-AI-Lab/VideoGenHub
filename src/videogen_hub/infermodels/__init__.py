@@ -14,6 +14,7 @@ from .opensora import OpenSora
 from .seine import SEINE
 from .consisti2v import ConsistI2V
 from .dynamicrafter import DynamiCrafter
+from .i2vgen-xl import I2VGenXL
 
 # ==========================================================
 

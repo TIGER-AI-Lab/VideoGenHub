@@ -58,4 +58,4 @@ class VideoCrafter2():
                                             height=size[0],
                                             width=size[1])
 
-        return video.squeeze(0, 1).cpu().permute(1, 2, 3, 0)
+        return video.squeeze(0, 1).cpu().permute(1, 0, 2, 3)
