@@ -7,8 +7,34 @@ class ShowOne():
         Initialize the Pipeline, which download all necessary models.
         """
         from videogen_hub.pipelines.show_1.run_inference import ShowOnePipeline
+        from huggingface_hub import snapshot_download
 
-        self.pipeline = ShowOnePipeline()
+        base_path = snapshot_download(
+            repo_id="showlab/show-1-base",
+            local_dir="./checkpoints/showlab/show-1-base"
+        )
+
+        interp_path = snapshot_download(
+            repo_id="showlab/show-1-interpolation",
+            local_dir="./checkpoints/showlab/show-1-interpolation"
+        )
+
+        deepfloyd_path = snapshot_download(
+            repo_id="DeepFloyd/IF-II-L-v1.0",
+            local_dir="./checkpoints/DeepFloyd/IF-II-L-v1.0"
+        )
+
+        sr1_path = snapshot_download(
+            repo_id="showlab/show-1-sr1",
+            local_dir="./checkpoints/showlab/show-1-sr1"
+        )
+
+        sr2_path = snapshot_download(
+            repo_id="showlab/show-1-sr2",
+            local_dir="./checkpoints/showlab/show-1-sr2"
+        )
+
+        self.pipeline = ShowOnePipeline(base_path, interp_path, deepfloyd_path, sr1_path, sr2_path)
 
     def infer_one_video(self,
                         prompt: str = None,
