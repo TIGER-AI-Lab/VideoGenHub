@@ -16,6 +16,12 @@ VideoGenHub is a one-stop library to standardize the inference and evaluation of
 - [🎫 License](#-license-)
 
 ## 🛠️ Installation [🔝](#-table-of-contents)
+To install from pypi:
+```commandline
+pip install videogen-hub
+```
+
+To install from github:
 ```python
 git clone https://github.com/TIGER-AI-Lab/VideoGenHub.git
 cd VideoGenHub
