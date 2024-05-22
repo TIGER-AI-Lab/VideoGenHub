@@ -16,6 +16,12 @@ VideoGenHub is a one-stop library to standardize the inference and evaluation of
 - [🎫 License](#-license-)
 
 ## 🛠️ Installation [🔝](#-table-of-contents)
+To install from pypi:
+```commandline
+pip install videogen-hub
+```
+
+To install from github:
 ```python
 git clone https://github.com/TIGER-AI-Lab/VideoGenHub.git
 cd VideoGenHub
@@ -46,7 +52,7 @@ import videogen_hub
 model = videogen_hub.load('VideoCrafter2')
 video = model.infer_one_video(prompt="A child excitedly swings on a rusty swing set, laughter filling the air.")
 
-# Here video is a torch tensor of shape torch.Size([16, 320, 512, 3])
+# Here video is a torch tensor of shape torch.Size([16, 3, 320, 512])
 ```
 See Google Colab here: https://colab.research.google.com/drive/145UMsBOe5JLqZ2m0LKqvvqsyRJA1IeaE?usp=sharing
 
