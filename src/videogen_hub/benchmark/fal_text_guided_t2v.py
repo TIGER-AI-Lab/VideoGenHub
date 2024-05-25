@@ -1,13 +1,8 @@
-from typing import Union, Optional, Callable
+from typing import Optional
 import os
 from tqdm import tqdm
-# from videogen_hub.infermodels import load_model
-import cv2, json, requests
-# import numpy as np
-# import argparse
+import json, requests
 import fal_client
-# import json
-
 
 def infer_text_guided_vg_bench(
     model_name,

@@ -1,9 +1,8 @@
-from typing import Union, Optional, Callable
+from typing import Optional
 import os
 from tqdm import tqdm
 from videogen_hub.infermodels import load_model
-import cv2, json, random
-import numpy as np
+import cv2, json 
 import argparse
 from videogen_hub.utils.file_helper import get_file_path
 from moviepy.editor import ImageSequenceClip
