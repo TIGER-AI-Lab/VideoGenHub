@@ -3,6 +3,7 @@ import os
 from tqdm import tqdm
 import json, requests
 import fal_client
+# import json
 
 def infer_text_guided_vg_bench(
     model_name,
