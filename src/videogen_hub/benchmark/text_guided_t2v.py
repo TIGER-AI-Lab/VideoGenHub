@@ -68,6 +68,10 @@ def infer_text_guided_vg_bench(
         if overwrite_model_outputs or not os.path.exists(dest_file):
             print("========> Inferencing", dest_file)
             frames = model.infer_one_video(prompt=prompt["prompt_en"])
+            print("======> frames.shape", frames.shape)
+            if frames.shape[-1] == 3:
+                frames = frames.permute(0, 3, 1, 2)
+                print("======> corrected frames.shape", frames.shape)
 
             if model.__class__.__name__ is "LaVie" or model.__class__.__name__ is "ModelScope":
                 # save the video
@@ -96,8 +100,10 @@ def infer_text_guided_vg_bench(
                     # Ensure the tensor is on the CPU and convert to NumPy array
                     tensor = tensor.cpu().numpy()
                     
-                    # Ensure the tensor values are within [0, 1]
-                    tensor = np.clip(tensor, 0, 1)
+                    # Normalize the tensor values to [0, 1]
+                    tensor_min = tensor.min()
+                    tensor_max = tensor.max()
+                    tensor = (tensor - tensor_min) / (tensor_max - tensor_min)
                     
                     # Permute dimensions to (T, H, W, C) and scale to [0, 255]
                     video_frames = (tensor.transpose(0, 2, 3, 1) * 255).astype(np.uint8)
