@@ -5,7 +5,8 @@ from videogen_hub.infermodels import load_model
 import cv2, json, random
 import numpy as np
 import argparse
-
+from videogen_hub.utils.file_helper import get_file_path
+from moviepy.editor import ImageSequenceClip
 
 def infer_text_guided_vg_bench(
     model,
@@ -40,48 +41,8 @@ def infer_text_guided_vg_bench(
         The function processes each sample from the dataset, uses the model to infer an video based
         on text prompts, and then saves the resulting videos in the specified directories.
     """
-    # prompts = json.load(open("VBench_full_info.json", "r"))
-
-    # # construct dimension_count map
-    # dimension_count_map = {}
-    # dimension_prompt_idx_map = {}
-    # dimensions_count = 0
-    # for i in range(len(prompts)):
-    #     prompt = prompts[i]
-    #     dimensions = prompt["dimension"]
-    #     for dimension in dimensions:
-    #         if dimension not in dimension_prompt_idx_map:
-    #             dimension_prompt_idx_map[dimension] = []
-    #         dimension_prompt_idx_map[dimension].append(i)
-
-    #         if dimension not in dimension_count_map:
-    #             dimension_count_map[dimension] = 0
-
-    #         dimension_count_map[dimension] += 1
-
-    #         dimensions_count += 1
-
-    # print(
-    #     "Dimensions count (each prompt can contribute to more than one dimension count):",
-    #     dimensions_count,
-    # )
-    # print(dimension_count_map)
-
-    # target_prompts_count = 200
-    # # sample prompts based on the distribution of dimensions
-    # sampled_prompts = list()
-    # dimension_probs = np.array(list(dimension_count_map.values())) / dimensions_count
-    # dimensions = list(dimension_count_map.keys())
-    # sample_counts = np.random.multinomial(target_prompts_count, dimension_probs)
-    # print(sample_counts)
-    # for dimension, count in zip(dimensions, sample_counts):
-
-    #     sampled_prompts_idx = random.sample(dimension_prompt_idx_map[dimension], count)
-    #     for idx in sampled_prompts_idx:
-    #         sampled_prompts.append(prompts[idx])
-
     benchmark_prompt_path = "t2v_vbench_200.json"
-    prompts = json.load(open(benchmark_prompt_path, "r"))
+    prompts = json.load(open(get_file_path(benchmark_prompt_path), "r"))
     save_path = os.path.join(result_folder, experiment_name, "dataset_lookup.json")
     if overwrite_inputs or not os.path.exists(save_path):
         if not os.path.exists(os.path.join(result_folder, experiment_name)):
@@ -108,18 +69,45 @@ def infer_text_guided_vg_bench(
             print("========> Inferencing", dest_file)
             frames = model.infer_one_video(prompt=prompt["prompt_en"])
 
-            # save the video
-            fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Codec
-            out = cv2.VideoWriter(
-                dest_file, fourcc, 20.0, (frames.shape[2], frames.shape[1])
-            )
+            if model.__class__.__name__ is "LaVie" or model.__class__.__name__ is "ModelScope":
+                # save the video
+                fps = 8
+                fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Codec
+                out = cv2.VideoWriter(
+                    dest_file, fourcc, fps, (frames.shape[2], frames.shape[1])
+                )
 
-            # Convert each tensor frame to numpy and write it to the video
-            for i in range(frames.shape[0]):
-                frame = frames[i].numpy()
-                out.write(frame)
+                # Convert each tensor frame to numpy and write it to the video
+                for i in range(frames.shape[0]):
+                    frame = frames[i].numpy().astype(np.uint8)
+                    out.write(frame)
 
-            out.release()
+                out.release()
+            else:
+                def tensor_to_video(tensor, output_path, fps=8):
+                    """
+                    Converts a PyTorch tensor to a video file.
+                    
+                    Args:
+                        tensor (torch.Tensor): The input tensor of shape (T, C, H, W).
+                        output_path (str): The path to save the output video.
+                        fps (int): Frames per second for the output video.
+                    """
+                    # Ensure the tensor is on the CPU and convert to NumPy array
+                    tensor = tensor.cpu().numpy()
+                    
+                    # Ensure the tensor values are within [0, 1]
+                    tensor = np.clip(tensor, 0, 1)
+                    
+                    # Permute dimensions to (T, H, W, C) and scale to [0, 255]
+                    video_frames = (tensor.transpose(0, 2, 3, 1) * 255).astype(np.uint8)
+                    
+                    # Create a video clip from the frames
+                    clip = ImageSequenceClip(list(video_frames), fps=fps)
+                    
+                    # Write the video file
+                    clip.write_videofile(output_path, codec='libx264')
+                tensor_to_video(frames, dest_file)
         else:
             print("========> Skipping", dest_file, ", it already exists")
 
