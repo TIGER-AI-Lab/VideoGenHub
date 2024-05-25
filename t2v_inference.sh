@@ -10,4 +10,4 @@ fi
 model="$1"
 device="$2"
 
-CUDA_VISIBLE_DEVICES="$device" python3 ./src/videogen_hub/benchmark/text_guided_t2v.py --model_name "$model"
+CUDA_VISIBLE_DEVICES="$device" /home/maxku/anaconda3/envs/arena/bin/python text_guided_t2v.py --model_name "$model"

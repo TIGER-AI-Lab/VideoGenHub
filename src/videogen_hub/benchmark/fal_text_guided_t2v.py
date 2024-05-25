@@ -57,11 +57,12 @@ def infer_text_guided_vg_bench(
     elif model_name == 'AnimateDiffTurbo':
         fal_model_name = 'fast-animatediff/turbo/text-to-video'
 
-    for idx, prompt in enumerate(tqdm(prompts)):
+    for file_basename, prompt in tqdm(prompts.items()):
+        idx = int(file_basename.split('_')[0])
         dest_folder = os.path.join(
             result_folder, experiment_name, model_name
         )
-        file_basename = f"{idx}_{prompt['prompt_en'].replace(' ', '_')}.mp4"
+        # file_basename = f"{idx}_{prompt['prompt_en'].replace(' ', '_')}.mp4"
         if not os.path.exists(dest_folder):
             os.mkdir(dest_folder)
         dest_file = os.path.join(dest_folder, file_basename)
@@ -107,5 +108,7 @@ def download_mp4(url, filename):
         print(f"Error downloading file: {e}")
         
 if __name__ == "__main__":
+    pass
+    infer_text_guided_vg_bench(model_name="AnimateDiff")
     # infer_text_guided_vg_bench(result_folder="/mnt/tjena/maxku/max_projects/VideoGenHub/results", model_name="AnimateDiff")
-    infer_text_guided_vg_bench(result_folder="/mnt/tjena/maxku/max_projects/VideoGenHub/results", model_name="AnimateDiffTurbo")
+    # infer_text_guided_vg_bench(result_folder="/mnt/tjena/maxku/max_projects/VideoGenHub/results", model_name="AnimateDiffTurbo")

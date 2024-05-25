@@ -56,11 +56,12 @@ def infer_text_guided_vg_bench(
         model.__class__.__name__,
     )
 
-    for idx, prompt in enumerate(tqdm(prompts)):
+    for file_basename, prompt in tqdm(prompts.items()):
+        idx = int(file_basename.split("_")[0])
         dest_folder = os.path.join(
             result_folder, experiment_name, model.__class__.__name__
         )
-        file_basename = f"{idx}_{prompt['prompt_en'].replace(' ', '_')}.mp4"
+        # file_basename = f"{idx}_{prompt['prompt_en'].replace(' ', '_')}.mp4"
         if not os.path.exists(dest_folder):
             os.mkdir(dest_folder)
         dest_file = os.path.join(dest_folder, file_basename)
