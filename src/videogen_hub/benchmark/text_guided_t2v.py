@@ -1,15 +1,16 @@
-from typing import Union, Optional, Callable
+from typing import Optional
 import os
 from tqdm import tqdm
 from videogen_hub.infermodels import load_model
-import cv2, json, random
-import numpy as np
-
+import cv2, json 
+import argparse
+from videogen_hub.utils.file_helper import get_file_path
+from moviepy.editor import ImageSequenceClip
 
 def infer_text_guided_vg_bench(
     model,
     result_folder: str = "results",
-    experiment_name: str = "Exp_Text-Guided_IG",
+    experiment_name: str = "Exp_Text-Guided_VG",
     overwrite_model_outputs: bool = False,
     overwrite_inputs: bool = False,
     limit_videos_amount: Optional[int] = None,
@@ -39,52 +40,14 @@ def infer_text_guided_vg_bench(
         The function processes each sample from the dataset, uses the model to infer an video based
         on text prompts, and then saves the resulting videos in the specified directories.
     """
-    prompts = json.load(open("VBench_full_info.json", "r"))
-
-    # construct dimension_count map
-    dimension_count_map = {}
-    dimension_prompt_idx_map = {}
-    dimensions_count = 0
-    for i in range(len(prompts)):
-        prompt = prompts[i]
-        dimensions = prompt["dimension"]
-        for dimension in dimensions:
-            if dimension not in dimension_prompt_idx_map:
-                dimension_prompt_idx_map[dimension] = []
-            dimension_prompt_idx_map[dimension].append(i)
-
-            if dimension not in dimension_count_map:
-                dimension_count_map[dimension] = 0
-
-            dimension_count_map[dimension] += 1
-
-            dimensions_count += 1
-
-    print(
-        "Dimensions count (each prompt can contribute to more than one dimension count):",
-        dimensions_count,
-    )
-    print(dimension_count_map)
-
-    target_prompts_count = 200
-    # sample prompts based on the distribution of dimensions
-    sampled_prompts = list()
-    dimension_probs = np.array(list(dimension_count_map.values())) / dimensions_count
-    dimensions = list(dimension_count_map.keys())
-    sample_counts = np.random.multinomial(target_prompts_count, dimension_probs)
-    print(sample_counts)
-    for dimension, count in zip(dimensions, sample_counts):
-
-        sampled_prompts_idx = random.sample(dimension_prompt_idx_map[dimension], count)
-        for idx in sampled_prompts_idx:
-            sampled_prompts.append(prompts[idx])
-
+    benchmark_prompt_path = "t2v_vbench_200.json"
+    prompts = json.load(open(get_file_path(benchmark_prompt_path), "r"))
     save_path = os.path.join(result_folder, experiment_name, "dataset_lookup.json")
     if overwrite_inputs or not os.path.exists(save_path):
         if not os.path.exists(os.path.join(result_folder, experiment_name)):
             os.makedirs(os.path.join(result_folder, experiment_name))
         with open(save_path, "w") as f:
-            json.dump(sampled_prompts, f, indent=4)
+            json.dump(prompts, f, indent=4)
 
     print(
         "========> Running Benchmark Dataset:",
@@ -93,30 +56,64 @@ def infer_text_guided_vg_bench(
         model.__class__.__name__,
     )
 
-    for idx, prompt in enumerate(tqdm(sampled_prompts)):
+    for file_basename, prompt in tqdm(prompts.items()):
+        idx = int(file_basename.split("_")[0])
         dest_folder = os.path.join(
             result_folder, experiment_name, model.__class__.__name__
         )
-        file_basename = f"{idx}_{prompt['prompt_en'].replace(' ', '_')}.mp4"
+        # file_basename = f"{idx}_{prompt['prompt_en'].replace(' ', '_')}.mp4"
         if not os.path.exists(dest_folder):
             os.mkdir(dest_folder)
         dest_file = os.path.join(dest_folder, file_basename)
         if overwrite_model_outputs or not os.path.exists(dest_file):
             print("========> Inferencing", dest_file)
             frames = model.infer_one_video(prompt=prompt["prompt_en"])
+            print("======> frames.shape", frames.shape)
+            if frames.shape[-1] == 3:
+                frames = frames.permute(0, 3, 1, 2)
+                print("======> corrected frames.shape", frames.shape)
 
-            # save the video
-            fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Codec
-            out = cv2.VideoWriter(
-                dest_file, fourcc, 20.0, (frames.shape[2], frames.shape[1])
-            )
+            if model.__class__.__name__ is "LaVie" or model.__class__.__name__ is "ModelScope":
+                # save the video
+                fps = 8
+                fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Codec
+                out = cv2.VideoWriter(
+                    dest_file, fourcc, fps, (frames.shape[2], frames.shape[1])
+                )
 
-            # Convert each tensor frame to numpy and write it to the video
-            for i in range(frames.shape[0]):
-                frame = frames[i].numpy()
-                out.write(frame)
+                # Convert each tensor frame to numpy and write it to the video
+                for i in range(frames.shape[0]):
+                    frame = frames[i].numpy().astype(np.uint8)
+                    out.write(frame)
 
-            out.release()
+                out.release()
+            else:
+                def tensor_to_video(tensor, output_path, fps=8):
+                    """
+                    Converts a PyTorch tensor to a video file.
+                    
+                    Args:
+                        tensor (torch.Tensor): The input tensor of shape (T, C, H, W).
+                        output_path (str): The path to save the output video.
+                        fps (int): Frames per second for the output video.
+                    """
+                    # Ensure the tensor is on the CPU and convert to NumPy array
+                    tensor = tensor.cpu().numpy()
+                    
+                    # Normalize the tensor values to [0, 1]
+                    tensor_min = tensor.min()
+                    tensor_max = tensor.max()
+                    tensor = (tensor - tensor_min) / (tensor_max - tensor_min)
+                    
+                    # Permute dimensions to (T, H, W, C) and scale to [0, 255]
+                    video_frames = (tensor.transpose(0, 2, 3, 1) * 255).astype(np.uint8)
+                    
+                    # Create a video clip from the frames
+                    clip = ImageSequenceClip(list(video_frames), fps=fps)
+                    
+                    # Write the video file
+                    clip.write_videofile(output_path, codec='libx264')
+                tensor_to_video(frames, dest_file)
         else:
             print("========> Skipping", dest_file, ", it already exists")
 
@@ -126,7 +123,9 @@ def infer_text_guided_vg_bench(
 
 # for testing
 if __name__ == "__main__":
-    model = load_model("ModelScope")
-    # model = ""
-    infer_text_guided_ig_bench(model, limit_videos_amount=10)
-    pass
+    parser = argparse.ArgumentParser(description="Load a model by name")
+    parser.add_argument("--model_name", type=str, required=True, help="Name of the model to load")
+    args = parser.parse_args()
+    
+    model = load_model(args.model_name)
+    infer_text_guided_vg_bench(model)
