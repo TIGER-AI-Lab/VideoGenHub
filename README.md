@@ -43,7 +43,10 @@ huggingface-cli login
 ### Benchmarking
 To reproduce our experiment using benchmark.
 
-Example for text-to-video generation: TBD
+For text-to-video generation: 
+```commandline
+./t2v_inference.sh --<model_name> --<device>
+```
 
 ### Infering one model
 ```python
