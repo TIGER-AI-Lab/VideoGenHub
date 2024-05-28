@@ -32,7 +32,7 @@ def main(prompt_path, overwrite_inputs=False):
     )
     print(dimension_count_map)
 
-    target_prompts_count = 200
+    target_prompts_count = 800
     # sample prompts based on the distribution of dimensions
     sampled_prompts = list()
     remaining_prompts = list()
@@ -49,8 +49,8 @@ def main(prompt_path, overwrite_inputs=False):
             else:
                 remaining_prompts.append(prompts[idx])
 
-    save_path = "./dataset_lookup.json"
-    remaing_data_save_path = "./remaining_data.json"
+    save_path = "./t2v_vbench_1000.json"
+    remaing_data_save_path = "./t2v_vbench_remain_1000.json"
     if overwrite_inputs or not os.path.exists(save_path):
         # if not os.path.exists(os.path.join(result_folder, experiment_name)):
         #     os.makedirs(os.path.join(result_folder, experiment_name))
@@ -64,3 +64,4 @@ def main(prompt_path, overwrite_inputs=False):
 
 if __name__ == "__main__":
     main(prompt_path="VBench_full_info.json")
+    # main(prompt_path="t2v_vbench_remain_200.json")

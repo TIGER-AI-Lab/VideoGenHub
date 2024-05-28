@@ -37,7 +37,7 @@ def infer_text_guided_vg_bench(
         The function processes each sample from the dataset, uses the model to infer an video based
         on text prompts, and then saves the resulting videos in the specified directories.
     """
-    benchmark_prompt_path = "t2v_vbench_200.json"
+    benchmark_prompt_path = "t2v_vbench_1000.json"
     prompts = json.load(open(benchmark_prompt_path, "r"))
     save_path = os.path.join(result_folder, experiment_name, "dataset_lookup.json")
     if overwrite_inputs or not os.path.exists(save_path):
@@ -57,6 +57,10 @@ def infer_text_guided_vg_bench(
         fal_model_name = 'fast-animatediff/text-to-video'
     elif model_name == 'AnimateDiffTurbo':
         fal_model_name = 'fast-animatediff/turbo/text-to-video'
+    elif model_name == 'FastSVD':
+        fal_model_name = 'fast-svd/text-to-video'
+    else:
+        raise ValueError("Invalid model_name")
 
     for file_basename, prompt in tqdm(prompts.items()):
         idx = int(file_basename.split('_')[0])
@@ -110,6 +114,7 @@ def download_mp4(url, filename):
         
 if __name__ == "__main__":
     pass
-    infer_text_guided_vg_bench(model_name="AnimateDiff")
+    # infer_text_guided_vg_bench(model_name="AnimateDiff")
+    infer_text_guided_vg_bench(result_folder="/mnt/tjena/maxku/max_projects/VideoGenHub/results", model_name="FastSVD")
     # infer_text_guided_vg_bench(result_folder="/mnt/tjena/maxku/max_projects/VideoGenHub/results", model_name="AnimateDiff")
     # infer_text_guided_vg_bench(result_folder="/mnt/tjena/maxku/max_projects/VideoGenHub/results", model_name="AnimateDiffTurbo")
