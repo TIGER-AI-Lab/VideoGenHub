@@ -40,7 +40,7 @@ def infer_text_guided_vg_bench(
         The function processes each sample from the dataset, uses the model to infer an video based
         on text prompts, and then saves the resulting videos in the specified directories.
     """
-    benchmark_prompt_path = "t2v_vbench_200.json"
+    benchmark_prompt_path = "t2v_vbench_1000.json"
     prompts = json.load(open(get_file_path(benchmark_prompt_path), "r"))
     save_path = os.path.join(result_folder, experiment_name, "dataset_lookup.json")
     if overwrite_inputs or not os.path.exists(save_path):
