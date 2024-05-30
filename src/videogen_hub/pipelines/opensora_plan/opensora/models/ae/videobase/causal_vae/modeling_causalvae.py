@@ -264,7 +264,7 @@ class CausalVAEModel(VideoBaseAE_PL):
         double_z: bool = True,
         embed_dim: int = 4,
         num_res_blocks: int = 2,
-        loss_type: str = "videogen_hub.pipelines.opensora_plan.models.ae.videobase.losses.LPIPSWithDiscriminator",
+        loss_type: str = "videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.losses.LPIPSWithDiscriminator",
         loss_params: dict = {
             "kl_weight": 0.000001,
             "logvar_init": 0.0,
