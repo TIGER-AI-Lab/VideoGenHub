@@ -72,15 +72,16 @@ We included more than 10 Models in video generation.
 
 |    Method     	    | Venue  	  |        Type           	         |
 |:------------------:|:---------:|:-------------------------------:|
-|     LaVie   	      |    - 	    |   Text-To-Video Generation 	    |
-| VideoCrafter2   	  |    - 	    |   Text-To-Video Generation 	    |
+|     LaVie   	     |    - 	    |   Text-To-Video Generation 	    |
+| VideoCrafter2   	 |    - 	    |   Text-To-Video Generation 	    |
 |   ModelScope   	   |    - 	    |   Text-To-Video Generation 	    |
-|  StreamingT2V   	  |    - 	    |   Text-To-Video Generation 	    |
-|     Show 1  	      |    - 	    |   Text-To-Video Generation 	    |
+|  StreamingT2V   	 |    - 	    |   Text-To-Video Generation 	    |
+|     Show 1  	     |    - 	    |   Text-To-Video Generation 	    |
 |    OpenSora  	     |    - 	    |   Text-To-Video Generation 	    |
+|    T2V-Turbo  	   |    - 	    |   Text-To-Video Generation 	    |
 | DynamiCrafter2   	 |    - 	    |   Image-To-Video Generation 	   |
-|     SEINE   	      | ICLR'24 	 |   Image-To-Video Generation 	   |
-|    Consisti2v 	    |    - 	    |   Image-To_Video Generation 	   |
+|     SEINE   	     | ICLR'24 	  |   Image-To-Video Generation 	   |
+|    Consisti2v 	   |    - 	    |   Image-To_Video Generation 	   |
 |      I2VGenXL      |    - 	    |   Image-To_Video Generation 	   |
 
 
