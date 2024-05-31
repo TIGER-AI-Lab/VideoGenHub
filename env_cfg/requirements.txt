@@ -1,3 +1,5 @@
+deepspeed
+bitsandbytes
 flask
 flask_restful
 flask_cors
@@ -57,3 +59,4 @@ protobuf==3.20.*
 rotary_embedding_torch
 av
 natsort
+wandb

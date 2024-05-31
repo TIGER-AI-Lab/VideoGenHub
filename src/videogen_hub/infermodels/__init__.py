@@ -7,6 +7,7 @@ from .streamingt2v import StreamingT2V
 from .show_one import ShowOne
 from .opensora import OpenSora
 from .opensora_plan import OpenSoraPlan
+from .t2v_turbo import T2VTurbo
 
 # from .cogvideo import CogVideo # Not supporting CogVideo ATM
 
