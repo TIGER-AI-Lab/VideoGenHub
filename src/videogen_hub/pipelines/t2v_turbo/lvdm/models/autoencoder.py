@@ -5,9 +5,9 @@ import numpy as np
 from einops import rearrange
 import torch.nn.functional as F
 import pytorch_lightning as pl
-from lvdm.modules.networks.ae_modules import Encoder, Decoder
-from lvdm.distributions import DiagonalGaussianDistribution
-from utils.utils import instantiate_from_config
+from videogen_hub.pipelines.t2v_turbo.lvdm.modules.networks.ae_modules import Encoder, Decoder
+from videogen_hub.pipelines.t2v_turbo.lvdm.distributions import DiagonalGaussianDistribution
+from videogen_hub.pipelines.t2v_turbo.utils.utils import instantiate_from_config
 
 
 class AutoencoderKL(pl.LightningModule):
