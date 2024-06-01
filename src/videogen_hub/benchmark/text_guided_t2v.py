@@ -3,9 +3,11 @@ import os
 from tqdm import tqdm
 from videogen_hub.infermodels import load_model
 import cv2, json 
+import numpy as np
 import argparse
 from videogen_hub.utils.file_helper import get_file_path
 from moviepy.editor import ImageSequenceClip
+
 
 def infer_text_guided_vg_bench(
     model,
@@ -69,11 +71,10 @@ def infer_text_guided_vg_bench(
             print("========> Inferencing", dest_file)
             frames = model.infer_one_video(prompt=prompt["prompt_en"])
             print("======> frames.shape", frames.shape)
-            if frames.shape[-1] == 3:
-                frames = frames.permute(0, 3, 1, 2)
-                print("======> corrected frames.shape", frames.shape)
 
-            if model.__class__.__name__ is "LaVie" or model.__class__.__name__ is "ModelScope":
+            #special_treated_list = ["LaVie", "ModelScope"]
+            special_treated_list = []
+            if model.__class__.__name__ in special_treated_list:
                 # save the video
                 fps = 8
                 fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Codec
@@ -113,6 +114,11 @@ def infer_text_guided_vg_bench(
                     
                     # Write the video file
                     clip.write_videofile(output_path, codec='libx264')
+
+                if frames.shape[-1] == 3:
+                    frames = frames.permute(0, 3, 1, 2)
+                    print("======> corrected frames.shape", frames.shape)
+
                 tensor_to_video(frames, dest_file)
         else:
             print("========> Skipping", dest_file, ", it already exists")

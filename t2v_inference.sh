@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Check if MLLM and device parameters are provided
+# Check if model and device parameters are provided
 if [ "$#" -lt 2 ]; then
     echo "Usage: $0 <model> <device>"
     exit 1
