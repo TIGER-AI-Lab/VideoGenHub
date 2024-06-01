@@ -53,5 +53,6 @@ class T2VTurbo():
     """
         output = self.pipeline.inference(prompt=prompt, height=size[0], width=size[1],
                                          seed=seed, num_frames=seconds * fps, fps=fps, randomize_seed=False)
-
-        return output.squeeze().cpu()
+        # [channels, frames, height, width] -> [frames, channels, height, width]
+        output = output.squeeze().permute(1, 0, 2, 3)
+        return output.cpu()
