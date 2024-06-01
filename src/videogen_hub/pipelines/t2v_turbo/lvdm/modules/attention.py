@@ -11,12 +11,12 @@ try:
     XFORMERS_IS_AVAILBLE = True
 except:
     XFORMERS_IS_AVAILBLE = False
-from lvdm.common import (
+from videogen_hub.pipelines.t2v_turbo.lvdm.common import (
     checkpoint,
     exists,
     default,
 )
-from lvdm.basics import (
+from videogen_hub.pipelines.t2v_turbo.lvdm.basics import (
     zero_module,
 )
 

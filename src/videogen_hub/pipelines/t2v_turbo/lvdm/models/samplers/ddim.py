@@ -1,11 +1,11 @@
 import numpy as np
 from tqdm import tqdm
 import torch
-from lvdm.models.utils_diffusion import (
+from videogen_hub.pipelines.t2v_turbo.lvdm.models.utils_diffusion import (
     make_ddim_sampling_parameters,
     make_ddim_timesteps,
 )
-from lvdm.common import noise_like
+from videogen_hub.pipelines.t2v_turbo.lvdm.common import noise_like
 
 
 class DDIMSampler(object):

@@ -8,7 +8,7 @@
 # thanks!
 
 import torch.nn as nn
-from utils.utils import instantiate_from_config
+from videogen_hub.pipelines.t2v_turbo.utils.utils import instantiate_from_config
 
 
 def disabled_train(self, mode=True):

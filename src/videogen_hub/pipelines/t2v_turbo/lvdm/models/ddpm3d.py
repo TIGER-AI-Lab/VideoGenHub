@@ -18,13 +18,13 @@ import torch
 import torch.nn as nn
 from torchvision.utils import make_grid
 import pytorch_lightning as pl
-from utils.utils import instantiate_from_config
-from lvdm.ema import LitEma
-from lvdm.distributions import DiagonalGaussianDistribution
-from lvdm.models.utils_diffusion import make_beta_schedule
-from lvdm.modules.encoders.ip_resampler import ImageProjModel, Resampler
-from lvdm.basics import disabled_train
-from lvdm.common import extract_into_tensor, noise_like, exists, default
+from videogen_hub.pipelines.t2v_turbo.utils.utils import instantiate_from_config
+from videogen_hub.pipelines.t2v_turbo.lvdm.ema import LitEma
+from videogen_hub.pipelines.t2v_turbo.lvdm.distributions import DiagonalGaussianDistribution
+from videogen_hub.pipelines.t2v_turbo.lvdm.models.utils_diffusion import make_beta_schedule
+from videogen_hub.pipelines.t2v_turbo.lvdm.modules.encoders.ip_resampler import ImageProjModel, Resampler
+from videogen_hub.pipelines.t2v_turbo.lvdm.basics import disabled_train
+from videogen_hub.pipelines.t2v_turbo.lvdm.common import extract_into_tensor, noise_like, exists, default
 
 
 __conditioning_keys__ = {"concat": "c_concat", "crossattn": "c_crossattn", "adm": "y"}
