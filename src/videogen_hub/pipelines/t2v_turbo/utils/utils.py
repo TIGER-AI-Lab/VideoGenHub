@@ -37,25 +37,28 @@ def instantiate_from_config(config):
 
 def get_obj_from_str(string, reload=False):
     # Get the current directory
-    base_dir = os.path.abspath(os.path.dirname(__file__))
+    current_dir = os.path.abspath(os.path.dirname(__file__))
     
-    # Move up to the `t2v_turbo` directory if inside a subdirectory
-    while os.path.basename(base_dir) != 't2v_turbo':
-        base_dir = os.path.dirname(base_dir)
-
+    # Move up to the `t2v_turbo` directory
+    while os.path.basename(current_dir) not in ['t2v_turbo', 'videogen_hub']:
+        current_dir = os.path.dirname(current_dir)
+        if current_dir == os.path.dirname(current_dir):  # Reached the root directory
+            raise FileNotFoundError("Couldn't find 't2v_turbo' or 'videogen_hub' in the path hierarchy")
     
     # Construct the paths for `pipelines` and `t2v_turbo`
-    paths_to_add = [
-        os.path.join(base_dir, '..'),  # up one level to the 'pipelines' directory
-        base_dir  # 't2v_turbo' directory
-    ]
+    paths_to_add = []
+    if os.path.basename(current_dir) == 't2v_turbo':
+        paths_to_add.append(current_dir)
+        paths_to_add.append(os.path.join(current_dir, '..'))  # Up one level to the 'pipelines' directory
+    elif os.path.basename(current_dir) == 'videogen_hub':
+        paths_to_add.append(os.path.join(current_dir, 'pipelines'))
+        paths_to_add.append(os.path.join(current_dir, 'pipelines', 't2v_turbo'))
 
     # Normalize paths to avoid issues with '..'
     paths_to_add = [os.path.normpath(path) for path in paths_to_add]
-    
 
     print("+++++> string", string)
-    print("+++++> base_dir", base_dir)
+    print("+++++> base_dir", current_dir)
     print("+++++> paths_to_add", paths_to_add)
 
     # Add the paths to sys.path if they're not already there
