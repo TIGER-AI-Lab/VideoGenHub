@@ -64,8 +64,8 @@ def randomize_seed_fn(seed: int, randomize_seed: bool) -> int:
 
 
 class T2VTurboVC2Pipeline1:
-    def __init__(self, device, unet_dir, base_model_dir):
-        config = OmegaConf.load("./src/videogen_hub/pipelines/t2v_turbo/configs/inference_t2v_512_v2.0.yaml")
+    def __init__(self, config, device, unet_dir, base_model_dir):
+        config = OmegaConf.create(config)
         model_config = config.pop("model", OmegaConf.create())
         pretrained_t2v = instantiate_from_config(model_config)
         pretrained_t2v = load_model_checkpoint(pretrained_t2v, base_model_dir)
