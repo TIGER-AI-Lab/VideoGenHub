@@ -42,12 +42,21 @@ def get_obj_from_str(string, reload=False):
     # Move up to the `t2v_turbo` directory if inside a subdirectory
     while os.path.basename(base_dir) != 't2v_turbo':
         base_dir = os.path.dirname(base_dir)
+
     
-    # Construct the paths assuming the script is inside `videogen_hub/t2v_turbo`
+    # Construct the paths for `pipelines` and `t2v_turbo`
     paths_to_add = [
-        os.path.join(base_dir, 'pipelines'),
-        base_dir  # this will be the t2v_turbo directory
+        os.path.join(base_dir, '..'),  # up one level to the 'pipelines' directory
+        base_dir  # 't2v_turbo' directory
     ]
+
+    # Normalize paths to avoid issues with '..'
+    paths_to_add = [os.path.normpath(path) for path in paths_to_add]
+    
+
+    print("+++++> string", string)
+    print("+++++> base_dir", base_dir)
+    print("+++++> paths_to_add", paths_to_add)
 
     # Add the paths to sys.path if they're not already there
     for path in paths_to_add:
