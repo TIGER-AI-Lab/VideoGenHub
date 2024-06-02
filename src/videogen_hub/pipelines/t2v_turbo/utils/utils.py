@@ -5,7 +5,7 @@ import cv2
 import torch
 import torch.distributed as dist
 import torchvision
-
+import sys
 
 def count_params(model, verbose=False):
     total_params = sum(p.numel() for p in model.parameters())
@@ -35,14 +35,31 @@ def instantiate_from_config(config):
         raise KeyError("Expected key `target` to instantiate.")
     return get_obj_from_str(config["target"])(**config.get("params", dict()))
 
+def get_obj_from_str(string, reload=False):
+    # Extract the module and class names
+    module, cls = string.rsplit(".", 1)
 
+    # Add the module's directory to the sys.path if it's not already there
+    module_path = os.path.dirname(os.path.abspath(module.replace(".", os.sep)))
+    if module_path not in sys.path:
+        sys.path.append(module_path)
+
+    # Import and optionally reload the module
+    module_imp = importlib.import_module(module)
+    if reload:
+        importlib.reload(module_imp)
+    
+    # Get the class from the module
+    return getattr(module_imp, cls)
+
+"""
 def get_obj_from_str(string, reload=False):
     module, cls = string.rsplit(".", 1)
     if reload:
         module_imp = importlib.import_module(module)
         importlib.reload(module_imp)
     return getattr(importlib.import_module(module, package=None), cls)
-
+"""
 
 def load_npz_from_dir(data_dir):
     data = [

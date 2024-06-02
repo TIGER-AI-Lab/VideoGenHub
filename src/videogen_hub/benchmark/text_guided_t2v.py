@@ -72,9 +72,10 @@ def infer_text_guided_vg_bench(
             frames = model.infer_one_video(prompt=prompt["prompt_en"])
             print("======> frames.shape", frames.shape)
 
-            #special_treated_list = ["LaVie", "ModelScope"]
+            #special_treated_list = ["LaVie", "ModelScope", "T2VTurbo"]
             special_treated_list = []
             if model.__class__.__name__ in special_treated_list:
+                print("======> Saved through cv2.VideoWriter_fourcc")
                 # save the video
                 fps = 8
                 fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Codec
@@ -106,7 +107,7 @@ def infer_text_guided_vg_bench(
                     tensor_max = tensor.max()
                     tensor = (tensor - tensor_min) / (tensor_max - tensor_min)
                     
-                    # Permute dimensions to (T, H, W, C) and scale to [0, 255]
+                    # Permute dimensions from (T, C, H, W) to (T, H, W, C) and scale to [0, 255]
                     video_frames = (tensor.transpose(0, 2, 3, 1) * 255).astype(np.uint8)
                     
                     # Create a video clip from the frames
