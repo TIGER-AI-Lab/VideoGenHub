@@ -36,13 +36,22 @@ def instantiate_from_config(config):
     return get_obj_from_str(config["target"])(**config.get("params", dict()))
 
 def get_obj_from_str(string, reload=False):
+    # Get the current directory
+    base_dir = os.path.abspath(os.path.dirname(__file__))
+    
+    # Construct the paths assuming the script is inside videogen_hub
+    paths_to_add = [
+        os.path.join(base_dir, 'pipelines'),
+        os.path.join(base_dir, 'pipelines', 't2v_turbo')
+    ]
+
+    # Add the paths to sys.path if they're not already there
+    for path in paths_to_add:
+        if path not in sys.path:
+            sys.path.insert(0, path)
+    
     # Extract the module and class names
     module, cls = string.rsplit(".", 1)
-
-    # Add the module's directory to the sys.path if it's not already there
-    module_path = os.path.dirname(os.path.abspath(module.replace(".", os.sep)))
-    if module_path not in sys.path:
-        sys.path.append(module_path)
 
     # Import and optionally reload the module
     module_imp = importlib.import_module(module)
