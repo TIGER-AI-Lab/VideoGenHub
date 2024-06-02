@@ -38,13 +38,15 @@ def instantiate_from_config(config):
 def get_obj_from_str(string, reload=False):
     # Get the current directory
     base_dir = os.path.abspath(os.path.dirname(__file__))
-    print("base_dir", base_dir)
-    print("string", string)
     
-    # Construct the paths assuming the script is inside videogen_hub
+    # Move up to the `t2v_turbo` directory if inside a subdirectory
+    while os.path.basename(base_dir) != 't2v_turbo':
+        base_dir = os.path.dirname(base_dir)
+    
+    # Construct the paths assuming the script is inside `videogen_hub/t2v_turbo`
     paths_to_add = [
         os.path.join(base_dir, 'pipelines'),
-        os.path.join(base_dir, 'pipelines', 't2v_turbo')
+        base_dir  # this will be the t2v_turbo directory
     ]
 
     # Add the paths to sys.path if they're not already there
@@ -54,7 +56,6 @@ def get_obj_from_str(string, reload=False):
     
     # Extract the module and class names
     module, cls = string.rsplit(".", 1)
-
 
     # Import and optionally reload the module
     module_imp = importlib.import_module(module)
