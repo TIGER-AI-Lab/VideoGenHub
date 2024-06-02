@@ -38,6 +38,8 @@ def instantiate_from_config(config):
 def get_obj_from_str(string, reload=False):
     # Get the current directory
     base_dir = os.path.abspath(os.path.dirname(__file__))
+    print("base_dir", base_dir)
+    print("string", string)
     
     # Construct the paths assuming the script is inside videogen_hub
     paths_to_add = [
@@ -52,6 +54,7 @@ def get_obj_from_str(string, reload=False):
     
     # Extract the module and class names
     module, cls = string.rsplit(".", 1)
+
 
     # Import and optionally reload the module
     module_imp = importlib.import_module(module)
