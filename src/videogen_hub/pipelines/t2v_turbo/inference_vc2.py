@@ -64,40 +64,47 @@ def randomize_seed_fn(seed: int, randomize_seed: bool) -> int:
 
 
 class T2VTurboVC2Pipeline1:
-    def __init__(self, config, device, unet_dir, base_model_dir):
+    def __init__(self, config, merged, device, unet_dir, base_model_dir):
         config = OmegaConf.create(config)
         model_config = config.pop("model", OmegaConf.create())
         pretrained_t2v = instantiate_from_config(model_config)
-        pretrained_t2v = load_model_checkpoint(pretrained_t2v, base_model_dir)
 
         unet_config = model_config["params"]["unet_config"]
         unet_config["params"]["time_cond_proj_dim"] = 256
         unet = instantiate_from_config(unet_config)
 
-        unet.load_state_dict(
-            pretrained_t2v.model.diffusion_model.state_dict(), strict=False
-        )
+        if merged:
+            pretrained_t2v.model.diffusion_model = unet
+            pretrained_t2v = load_model_checkpoint(pretrained_t2v, base_model_dir)
 
-        use_unet_lora = True
-        lora_manager = LoraHandler(
-            version="cloneofsimo",
-            use_unet_lora=use_unet_lora,
-            save_for_webui=True,
-            unet_replace_modules=["UNetModel"],
-        )
-        lora_manager.add_lora_to_model(
-            use_unet_lora,
-            unet,
-            lora_manager.unet_replace_modules,
-            lora_path=unet_dir,
-            dropout=0.1,
-            r=64,
-        )
-        unet.eval()
-        collapse_lora(unet, lora_manager.unet_replace_modules)
-        monkeypatch_remove_lora(unet)
+        else:
+            pretrained_t2v = load_model_checkpoint(pretrained_t2v, base_model_dir)
 
-        pretrained_t2v.model.diffusion_model = unet
+            unet.load_state_dict(
+                pretrained_t2v.model.diffusion_model.state_dict(), strict=False
+            )
+
+            use_unet_lora = True
+            lora_manager = LoraHandler(
+                version="cloneofsimo",
+                use_unet_lora=use_unet_lora,
+                save_for_webui=True,
+                unet_replace_modules=["UNetModel"],
+            )
+            lora_manager.add_lora_to_model(
+                use_unet_lora,
+                unet,
+                lora_manager.unet_replace_modules,
+                lora_path=unet_dir,
+                dropout=0.1,
+                r=64,
+            )
+            unet.eval()
+            collapse_lora(unet, lora_manager.unet_replace_modules)
+            monkeypatch_remove_lora(unet)
+
+            pretrained_t2v.model.diffusion_model = unet
+
         scheduler = T2VTurboScheduler(
             linear_start=model_config["params"]["linear_start"],
             linear_end=model_config["params"]["linear_end"],
