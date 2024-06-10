@@ -14,6 +14,7 @@ VideoGenHub is a one-stop library to standardize the inference and evaluation of
 - [🛠️ Installation](#%EF%B8%8F-installation-)
 - [👨‍🏫 Get Started](#-get-started-)
 - [🎫 License](#-license-)
+- [🖊️ Citation](#%EF%B8%8F-citation-)
 
 ## 🛠️ Installation [🔝](#-table-of-contents)
 To install from pypi:
@@ -90,3 +91,19 @@ We included more than 10 Models in video generation.
 
 This project is released under the [License](LICENSE).
 
+## 🖊️ Citation [🔝](#-table-of-contents)
+
+This work is a part of GenAI-Arena work.
+
+Please kindly cite our paper if you use our code, data, models or results:
+
+```bibtex
+@misc{jiang2024genai,
+      title={GenAI Arena: An Open Evaluation Platform for Generative Models}, 
+      author={Dongfu Jiang and Max Ku and Tianle Li and Yuansheng Ni and Shizhuo Sun and Rongqi Fan and Wenhu Chen},
+      year={2024},
+      eprint={2406.04485},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI}
+}
+```
