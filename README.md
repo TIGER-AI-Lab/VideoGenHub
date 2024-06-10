@@ -9,6 +9,9 @@ VideoGenHub is a one-stop library to standardize the inference and evaluation of
 * We define 2 prominent generation tasks (Text-to-Video and Image-to-Video).
 * We built a unified inference pipeline to ensure fair comparison. We currently support around 10 models.
 
+## 📰 News
+* 2024 Jun 10: [GenAI-Arena](https://arxiv.org/abs/2406.04485v1) Paper is out. It is featured on [Huggingface Daily Papers](https://huggingface.co/papers?date=2024-06-10).
+
 ## 📄 Table of Contents
 
 - [🛠️ Installation](#%EF%B8%8F-installation-)
