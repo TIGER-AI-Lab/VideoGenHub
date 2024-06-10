@@ -20,6 +20,7 @@ setup(
     description='VideoGenHub is a one-stop library to standardize the inference and evaluation of all the conditional '
                 'video generation models.',
     long_description=readme,
+    long_description_content_type='text/markdown',
     author='Max Ku',
     author_email='m3ku@uwaterloo.ca',
     url='https://github.com/TIGER-AI-Lab/VideoGenHub',
