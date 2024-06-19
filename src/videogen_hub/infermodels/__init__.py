@@ -8,6 +8,7 @@ from .show_one import ShowOne
 from .opensora import OpenSora
 from .opensora_plan import OpenSoraPlan
 from .t2v_turbo import T2VTurbo
+from .opensora_12 import OpenSora12
 
 # from .cogvideo import CogVideo # Not supporting CogVideo ATM
 
