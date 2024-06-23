@@ -71,9 +71,7 @@ def load_all_models():
 
     try:
         SEINE()
-    except Exception as e:
-        print(f"Seine exception: {e}")
-        traceback.print_exc()
+    except:
         pass
     torch.cuda.empty_cache()
     assert os.path.exists(os.path.join(MODEL_PATH, 'SEINE'))
