@@ -1,9 +1,7 @@
 import os
 
-import colossalai
 import torch
 import torch.distributed as dist
-from colossalai.cluster import DistCoordinator
 from mmengine.runner import set_random_seed
 
 from videogen_hub.pipelines.opensora.opensora.acceleration.parallel_states import set_sequence_parallel_group
@@ -12,6 +10,12 @@ from videogen_hub.pipelines.opensora.opensora.models.text_encoder.t5 import text
 from videogen_hub.pipelines.opensora.opensora.registry import MODELS, SCHEDULERS, build_module
 from videogen_hub.pipelines.opensora.opensora.utils.config_utils import parse_configs
 from videogen_hub.pipelines.opensora.opensora.utils.misc import to_torch_dtype
+
+try:
+    import colossalai
+    from colossalai.cluster import DistCoordinator
+except ImportError:
+    colossalai = None
 
 
 def main(config=None):
@@ -24,7 +28,7 @@ def main(config=None):
     print(cfg)
 
     # init distributed
-    if os.environ.get("WORLD_SIZE", None):
+    if os.environ.get("WORLD_SIZE", None) and colossalai is not None:
         use_dist = True
         colossalai.launch_from_torch({})
         coordinator = DistCoordinator()
