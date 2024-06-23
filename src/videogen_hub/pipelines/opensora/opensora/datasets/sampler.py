@@ -8,10 +8,10 @@ import torch.distributed as dist
 from torch.utils.data import Dataset, DistributedSampler
 
 
-from .aspect import get_num_pixels
-from .bucket import Bucket
-from .datasets import VariableVideoTextDataset
-from ..utils.misc import get_logger, format_numel_str
+from videogen_hub.pipelines.opensora.opensora.datasets.aspect import get_num_pixels
+from videogen_hub.pipelines.opensora.opensora.datasets.bucket import Bucket
+from videogen_hub.pipelines.opensora.opensora.datasets.datasets import VariableVideoTextDataset
+from videogen_hub.pipelines.opensora.opensora.utils.misc import get_logger, format_numel_str
 
 
 # use pandarallel to accelerate bucket processing

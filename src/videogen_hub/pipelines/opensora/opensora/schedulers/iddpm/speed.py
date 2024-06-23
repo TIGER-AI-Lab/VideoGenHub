@@ -3,9 +3,9 @@ import torch
 import torch.nn.functional as F
 
 
-from . import gaussian_diffusion as gd
-from .respace import SpacedDiffusion, space_timesteps
-from ...registry import SCHEDULERS
+from videogen_hub.pipelines.opensora.opensora.schedulers.iddpm import gaussian_diffusion as gd
+from videogen_hub.pipelines.opensora.opensora.schedulers.iddpm.respace import SpacedDiffusion, space_timesteps
+from videogen_hub.pipelines.opensora.opensora.registry import SCHEDULERS
 
 
 @SCHEDULERS.register_module("iddpm-speed")

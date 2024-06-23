@@ -3,10 +3,10 @@ from functools import partial
 import torch
 
 
-from . import gaussian_diffusion as gd
-from .respace import SpacedDiffusion, space_timesteps
-from .speed import SpeeDiffusion
-from ...registry import SCHEDULERS
+from videogen_hub.pipelines.opensora.opensora.schedulers.iddpm import gaussian_diffusion as gd
+from videogen_hub.pipelines.opensora.opensora.schedulers.iddpm.respace import SpacedDiffusion, space_timesteps
+from videogen_hub.pipelines.opensora.opensora.schedulers.iddpm.speed import SpeeDiffusion
+from videogen_hub.pipelines.opensora.opensora.registry import SCHEDULERS
 
 
 @SCHEDULERS.register_module("iddpm")

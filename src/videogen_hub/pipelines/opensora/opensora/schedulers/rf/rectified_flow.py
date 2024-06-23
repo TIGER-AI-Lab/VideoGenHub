@@ -1,7 +1,7 @@
 import torch
 from torch.distributions import LogisticNormal
 
-from ..iddpm.gaussian_diffusion import _extract_into_tensor, mean_flat
+from videogen_hub.pipelines.opensora.opensora.schedulers.iddpm.gaussian_diffusion import _extract_into_tensor, mean_flat
 
 # some code are inspired by https://github.com/magic-research/piecewise-rectified-flow/blob/main/scripts/train_perflow.py
 # and https://github.com/magic-research/piecewise-rectified-flow/blob/main/src/scheduler_perflow.py

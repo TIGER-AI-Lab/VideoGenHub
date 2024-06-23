@@ -4,8 +4,8 @@ import re
 
 import torch
 
-.datasets import IMG_FPS
-.datasets.utils import read_from_path
+from videogen_hub.pipelines.opensora.opensora.datasets import IMG_FPS
+from videogen_hub.pipelines.opensora.opensora.datasets.utils import read_from_path
 
 
 def prepare_multi_resolution_info(info_type, batch_size, image_size, num_frames, fps, device, dtype):

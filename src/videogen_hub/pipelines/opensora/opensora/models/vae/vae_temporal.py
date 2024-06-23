@@ -7,7 +7,7 @@ from einops import rearrange
 from videogen_hub.pipelines.opensora.opensora.registry import MODELS
 from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import load_checkpoint
 
-from .utils import DiagonalGaussianDistribution
+from videogen_hub.pipelines.opensora.opensora.models.vae.utils import DiagonalGaussianDistribution
 
 
 def cast_tuple(t, length=1):

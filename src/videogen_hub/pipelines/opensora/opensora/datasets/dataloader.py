@@ -8,8 +8,8 @@ from torch.distributed import ProcessGroup
 from torch.distributed.distributed_c10d import _get_default_group
 from torch.utils.data import DataLoader
 
-from .datasets import BatchFeatureDataset, VariableVideoTextDataset, VideoTextDataset
-from .sampler import BatchDistributedSampler, StatefulDistributedSampler, VariableVideoBatchSampler
+from videogen_hub.pipelines.opensora.opensora.datasets.datasets import BatchFeatureDataset, VariableVideoTextDataset, VideoTextDataset
+from videogen_hub.pipelines.opensora.opensora.datasets.sampler import BatchDistributedSampler, StatefulDistributedSampler, VariableVideoBatchSampler
 
 
 # Deterministic dataloader

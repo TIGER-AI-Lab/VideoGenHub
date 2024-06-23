@@ -7,7 +7,7 @@ import torch
 import torch.distributed as dist
 from torchvision.datasets.utils import download_url
 
-from .misc import get_logger
+from videogen_hub.pipelines.opensora.opensora.utils.misc import get_logger
 
 hf_endpoint = os.environ.get("HF_ENDPOINT")
 if hf_endpoint is None:

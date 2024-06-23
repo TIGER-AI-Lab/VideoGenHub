@@ -2,8 +2,8 @@ import torch
 from tqdm import tqdm
 
 
-from .rectified_flow import RFlowScheduler, timestep_transform
-from ...registry import SCHEDULERS
+from videogen_hub.pipelines.opensora.opensora.schedulers.rf.rectified_flow import RFlowScheduler, timestep_transform
+from videogen_hub.pipelines.opensora.opensora.registry import SCHEDULERS
 
 
 @SCHEDULERS.register_module("rflow")

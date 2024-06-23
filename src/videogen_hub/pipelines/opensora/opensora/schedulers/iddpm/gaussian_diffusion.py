@@ -17,7 +17,7 @@ import numpy as np
 import torch
 from einops import rearrange
 
-from .diffusion_utils import discretized_gaussian_log_likelihood, normal_kl
+from videogen_hub.pipelines.opensora.opensora.schedulers.iddpm.diffusion_utils import discretized_gaussian_log_likelihood, normal_kl
 
 
 def mean_flat(tensor: torch.Tensor, mask=None):

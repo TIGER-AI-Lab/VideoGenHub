@@ -7,9 +7,9 @@ from PIL import ImageFile
 from torchvision.datasets.folder import IMG_EXTENSIONS, pil_loader
 
 
-from .read_video import read_video
-from .utils import VID_EXTENSIONS, get_transforms_image, get_transforms_video, read_file, temporal_random_crop
-from ..registry import DATASETS
+from videogen_hub.pipelines.opensora.opensora.datasets.read_video import read_video
+from videogen_hub.pipelines.opensora.opensora.datasets.utils import VID_EXTENSIONS, get_transforms_image, get_transforms_video, read_file, temporal_random_crop
+from videogen_hub.pipelines.opensora.opensora.registry import DATASETS
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 IMG_FPS = 120

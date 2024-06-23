@@ -1,7 +1,7 @@
 from functools import partial
 
-from .dpm_solver import DPMS
-from ...registry import SCHEDULERS
+from videogen_hub.pipelines.opensora.opensora.schedulers.dpms.dpm_solver import DPMS
+from videogen_hub.pipelines.opensora.opensora.registry import SCHEDULERS
 
 
 @SCHEDULERS.register_module("dpm-solver")

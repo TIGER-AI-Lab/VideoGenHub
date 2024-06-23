@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange, repeat
 
-from .lpips import LPIPS
+from videogen_hub.pipelines.opensora.opensora.models.vae.lpips import LPIPS
 
 
 def hinge_d_loss(logits_real, logits_fake):

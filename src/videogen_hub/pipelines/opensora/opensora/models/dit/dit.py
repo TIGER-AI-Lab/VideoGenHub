@@ -16,7 +16,7 @@ import torch.utils.checkpoint
 from einops import rearrange
 from timm.models.vision_transformer import Mlp
 
-from ..layers.blocks import (
+from videogen_hub.pipelines.opensora.opensora.models.layers.blocks import (
     Attention,
     CaptionEmbedder,
     FinalLayer,
@@ -29,9 +29,9 @@ from ..layers.blocks import (
     get_layernorm,
     modulate,
 )
-from ...acceleration.checkpoint import auto_grad_checkpoint
-from ...registry import MODELS
-from ...utils.ckpt_utils import load_checkpoint
+from videogen_hub.pipelines.opensora.opensora.acceleration.checkpoint import auto_grad_checkpoint
+from videogen_hub.pipelines.opensora.opensora.registry import MODELS
+from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import load_checkpoint
 
 
 class DiTBlock(nn.Module):

@@ -29,8 +29,8 @@ from timm.models.layers import DropPath
 from timm.models.vision_transformer import Mlp
 
 # from .builder import MODELS
-from ...acceleration.checkpoint import auto_grad_checkpoint
-from ...models.layers.blocks import (
+from videogen_hub.pipelines.opensora.opensora.acceleration.checkpoint import auto_grad_checkpoint
+from videogen_hub.pipelines.opensora.opensora.models.layers.blocks import (
     CaptionEmbedder,
     KVCompressAttention,
     MultiHeadCrossAttention,
@@ -43,8 +43,8 @@ from ...models.layers.blocks import (
     get_layernorm,
     t2i_modulate,
 )
-from ...registry import MODELS
-from ...utils.ckpt_utils import load_checkpoint
+from videogen_hub.pipelines.opensora.opensora.registry import MODELS
+from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import load_checkpoint
 
 
 class PixArtBlock(nn.Module):
