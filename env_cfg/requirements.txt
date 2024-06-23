@@ -1,3 +1,4 @@
+deepspeed; platform_system != "Windows"
 bitsandbytes
 flask
 flask_restful

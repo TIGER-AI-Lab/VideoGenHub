@@ -1,4 +1,4 @@
-colossalai
+colossalai; platform_system != "Windows"
 accelerate
 diffusers
 ftfy
