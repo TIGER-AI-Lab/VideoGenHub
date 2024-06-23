@@ -2,7 +2,7 @@
 *jpg
 *png
 *mp4
-
+.idea/
 # Src
 env_cfg/src
 results/
