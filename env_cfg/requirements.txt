@@ -1,4 +1,3 @@
-deepspeed
 bitsandbytes
 flask
 flask_restful
@@ -44,6 +43,7 @@ madgrad>=1.1
 -e git+https://github.com/openai/CLIP.git@main#egg=clip
 dominate>=2.8.0
 -e git+https://github.com/CompVis/latent-diffusion.git#egg=latent-diffusion #ldm
+jsonargparse
 openai
 nltk~=3.8.1
 krippendorff
