@@ -134,7 +134,7 @@ class T5Embedder:
         return text_encoder_embs, attention_mask
 
 
-@MODELS.register_module("t5", force=True)
+@MODELS.register_module("t5")
 class T5Encoder:
     def __init__(
         self,
@@ -161,16 +161,23 @@ class T5Encoder:
 
         self.model_max_length = model_max_length
         self.output_dim = self.t5.model.config.d_model
+        self.dtype = dtype
+        try:
+            import colossalai
+        except:
+            shardformer = False
 
         if shardformer:
             self.shardformer_t5()
 
     def shardformer_t5(self):
-        from colossalai.shardformer import ShardConfig, ShardFormer
+        try:
+            from colossalai.shardformer import ShardConfig, ShardFormer
 
-        from videogen_hub.pipelines.opensora.opensora.acceleration.shardformer.policy.t5_encoder import T5EncoderPolicy
-        from videogen_hub.pipelines.opensora.opensora.utils.misc import requires_grad
-
+            from ...acceleration.shardformer.policy.t5_encoder import T5EncoderPolicy
+            from ...utils.misc import requires_grad
+        except:
+            return
         shard_config = ShardConfig(
             tensor_parallel_process_group=None,
             pipeline_stage_manager=None,
@@ -183,7 +190,7 @@ class T5Encoder:
         )
         shard_former = ShardFormer(shard_config=shard_config)
         optim_model, _ = shard_former.optimize(self.t5.model, policy=T5EncoderPolicy())
-        self.t5.model = optim_model.half()
+        self.t5.model = optim_model.to(self.dtype)
 
         # ensure the weights are frozen
         requires_grad(self.t5.model, False)

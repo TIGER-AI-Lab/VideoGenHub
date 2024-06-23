@@ -1,5 +1,4 @@
 import functools
-import logging
 import operator
 import os
 from typing import Tuple
@@ -8,6 +7,8 @@ import torch
 import torch.distributed as dist
 from torchvision.datasets.utils import download_url
 
+from .misc import get_logger
+
 hf_endpoint = os.environ.get("HF_ENDPOINT")
 if hf_endpoint is None:
     hf_endpoint = "https://huggingface.co"
@@ -15,26 +16,29 @@ if hf_endpoint is None:
 pretrained_models = {
     "DiT-XL-2-512x512.pt": "https://dl.fbaipublicfiles.com/DiT/models/DiT-XL-2-512x512.pt",
     "DiT-XL-2-256x256.pt": "https://dl.fbaipublicfiles.com/DiT/models/DiT-XL-2-256x256.pt",
-    "Latte-XL-2-256x256-ucf101.pt": hf_endpoint
-    + "/maxin-cn/Latte/resolve/main/ucf101.pt",
-    "PixArt-XL-2-256x256.pth": hf_endpoint
-    + "/PixArt-alpha/PixArt-alpha/resolve/main/PixArt-XL-2-256x256.pth",
-    "PixArt-XL-2-SAM-256x256.pth": hf_endpoint
-    + "/PixArt-alpha/PixArt-alpha/resolve/main/PixArt-XL-2-SAM-256x256.pth",
-    "PixArt-XL-2-512x512.pth": hf_endpoint
-    + "/PixArt-alpha/PixArt-alpha/resolve/main/PixArt-XL-2-512x512.pth",
-    "PixArt-XL-2-1024-MS.pth": hf_endpoint
-    + "/PixArt-alpha/PixArt-alpha/resolve/main/PixArt-XL-2-1024-MS.pth",
-    "OpenSora-v1-16x256x256.pth": hf_endpoint
-    + "/hpcai-tech/Open-Sora/resolve/main/OpenSora-v1-16x256x256.pth",
-    "OpenSora-v1-HQ-16x256x256.pth": hf_endpoint
-    + "/hpcai-tech/Open-Sora/resolve/main/OpenSora-v1-HQ-16x256x256.pth",
-    "OpenSora-v1-HQ-16x512x512.pth": hf_endpoint
-    + "/hpcai-tech/Open-Sora/resolve/main/OpenSora-v1-HQ-16x512x512.pth",
+    "Latte-XL-2-256x256-ucf101.pt": hf_endpoint + "/maxin-cn/Latte/resolve/main/ucf101.pt",
+    "PixArt-XL-2-256x256.pth": hf_endpoint + "/PixArt-alpha/PixArt-alpha/resolve/main/PixArt-XL-2-256x256.pth",
+    "PixArt-XL-2-SAM-256x256.pth": hf_endpoint + "/PixArt-alpha/PixArt-alpha/resolve/main/PixArt-XL-2-SAM-256x256.pth",
+    "PixArt-XL-2-512x512.pth": hf_endpoint + "/PixArt-alpha/PixArt-alpha/resolve/main/PixArt-XL-2-512x512.pth",
+    "PixArt-XL-2-1024-MS.pth": hf_endpoint + "/PixArt-alpha/PixArt-alpha/resolve/main/PixArt-XL-2-1024-MS.pth",
+    "OpenSora-v1-16x256x256.pth": hf_endpoint + "/hpcai-tech/Open-Sora/resolve/main/OpenSora-v1-16x256x256.pth",
+    "OpenSora-v1-HQ-16x256x256.pth": hf_endpoint + "/hpcai-tech/Open-Sora/resolve/main/OpenSora-v1-HQ-16x256x256.pth",
+    "OpenSora-v1-HQ-16x512x512.pth": hf_endpoint + "/hpcai-tech/Open-Sora/resolve/main/OpenSora-v1-HQ-16x512x512.pth",
+    "PixArt-Sigma-XL-2-256x256.pth": hf_endpoint
+    + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-256x256.pth",
+    "PixArt-Sigma-XL-2-512-MS.pth": hf_endpoint
+    + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-512-MS.pth",
+    "PixArt-Sigma-XL-2-1024-MS.pth": hf_endpoint
+    + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-1024-MS.pth",
+    "PixArt-Sigma-XL-2-2K-MS.pth": hf_endpoint + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-2K-MS.pth",
 }
 
 
 def reparameter(ckpt, name=None, model=None):
+    model_name = name
+    name = os.path.basename(name)
+    if not dist.is_initialized() or dist.get_rank() == 0:
+        get_logger().info("loading pretrained model: %s", model_name)
     if name in ["DiT-XL-2-512x512.pt", "DiT-XL-2-256x256.pt"]:
         ckpt["x_embedder.proj.weight"] = ckpt["x_embedder.proj.weight"].unsqueeze(2)
         del ckpt["pos_embed"]
@@ -47,10 +51,23 @@ def reparameter(ckpt, name=None, model=None):
         "PixArt-XL-2-256x256.pth",
         "PixArt-XL-2-SAM-256x256.pth",
         "PixArt-XL-2-512x512.pth",
+        "PixArt-XL-2-1024-MS.pth",
+        "PixArt-Sigma-XL-2-256x256.pth",
+        "PixArt-Sigma-XL-2-512-MS.pth",
+        "PixArt-Sigma-XL-2-1024-MS.pth",
+        "PixArt-Sigma-XL-2-2K-MS.pth",
     ]:
         ckpt = ckpt["state_dict"]
         ckpt["x_embedder.proj.weight"] = ckpt["x_embedder.proj.weight"].unsqueeze(2)
-        del ckpt["pos_embed"]
+        if "pos_embed" in ckpt:
+            del ckpt["pos_embed"]
+
+    if name in [
+        "PixArt-1B-2.pth",
+    ]:
+        ckpt = ckpt["state_dict"]
+        if "pos_embed" in ckpt:
+            del ckpt["pos_embed"]
 
     # no need pos_embed
     if "pos_embed_temporal" in ckpt:
@@ -59,34 +76,30 @@ def reparameter(ckpt, name=None, model=None):
         del ckpt["pos_embed"]
     # different text length
     if "y_embedder.y_embedding" in ckpt:
-        if (
-            ckpt["y_embedder.y_embedding"].shape[0]
-            < model.y_embedder.y_embedding.shape[0]
-        ):
-            print(
-                f"Extend y_embedding from {ckpt['y_embedder.y_embedding'].shape[0]} to {model.y_embedder.y_embedding.shape[0]}"
+        if ckpt["y_embedder.y_embedding"].shape[0] < model.y_embedder.y_embedding.shape[0]:
+            get_logger().info(
+                "Extend y_embedding from %s to %s",
+                ckpt["y_embedder.y_embedding"].shape[0],
+                model.y_embedder.y_embedding.shape[0],
             )
-            additional_length = (
-                model.y_embedder.y_embedding.shape[0]
-                - ckpt["y_embedder.y_embedding"].shape[0]
-            )
-            new_y_embedding = torch.zeros(
-                additional_length, model.y_embedder.y_embedding.shape[1]
-            )
+            additional_length = model.y_embedder.y_embedding.shape[0] - ckpt["y_embedder.y_embedding"].shape[0]
+            new_y_embedding = torch.zeros(additional_length, model.y_embedder.y_embedding.shape[1])
             new_y_embedding[:] = ckpt["y_embedder.y_embedding"][-1]
-            ckpt["y_embedder.y_embedding"] = torch.cat(
-                [ckpt["y_embedder.y_embedding"], new_y_embedding], dim=0
+            ckpt["y_embedder.y_embedding"] = torch.cat([ckpt["y_embedder.y_embedding"], new_y_embedding], dim=0)
+        elif ckpt["y_embedder.y_embedding"].shape[0] > model.y_embedder.y_embedding.shape[0]:
+            get_logger().info(
+                "Shrink y_embedding from %s to %s",
+                ckpt["y_embedder.y_embedding"].shape[0],
+                model.y_embedder.y_embedding.shape[0],
             )
-        elif (
-            ckpt["y_embedder.y_embedding"].shape[0]
-            > model.y_embedder.y_embedding.shape[0]
-        ):
-            print(
-                f"Shrink y_embedding from {ckpt['y_embedder.y_embedding'].shape[0]} to {model.y_embedder.y_embedding.shape[0]}"
-            )
-            ckpt["y_embedder.y_embedding"] = ckpt["y_embedder.y_embedding"][
-                : model.y_embedder.y_embedding.shape[0]
-            ]
+            ckpt["y_embedder.y_embedding"] = ckpt["y_embedder.y_embedding"][: model.y_embedder.y_embedding.shape[0]]
+    # stdit3 special case
+    if type(model).__name__ == "STDiT3" and "PixArt-Sigma" in name:
+        ckpt_keys = list(ckpt.keys())
+        for key in ckpt_keys:
+            if "blocks." in key:
+                ckpt[key.replace("blocks.", "spatial_blocks.")] = ckpt[key]
+                del ckpt[key]
 
     return ckpt
 
@@ -99,9 +112,7 @@ def find_model(model_name, model=None):
         model_ckpt = download_model(model_name)
         model_ckpt = reparameter(model_ckpt, model_name, model=model)
     else:  # Load a custom DiT checkpoint:
-        assert os.path.isfile(
-            model_name
-        ), f"Could not find DiT checkpoint at {model_name}"
+        assert os.path.isfile(model_name), f"Could not find DiT checkpoint at {model_name}"
         model_ckpt = torch.load(model_name, map_location=lambda storage, loc: storage)
         model_ckpt = reparameter(model_ckpt, model_name, model=model)
     return model_ckpt
@@ -128,7 +139,7 @@ def download_model(model_name=None, local_path=None, url=None):
     return model
 
 
-def load_from_sharded_state_dict(model, ckpt_path):
+def load_from_sharded_state_dict(model, ckpt_path, model_name="model", strict=False):
     import os
     from contextlib import suppress
 
@@ -165,18 +176,12 @@ def model_sharding(model: torch.nn.Module):
     for _, param in model.named_parameters():
         padding_size = (world_size - param.numel() % world_size) % world_size
         if padding_size > 0:
-            padding_param = torch.nn.functional.pad(
-                param.data.view(-1), [0, padding_size]
-            )
+            padding_param = torch.nn.functional.pad(param.data.view(-1), [0, padding_size])
         else:
             padding_param = param.data.view(-1)
         splited_params = padding_param.split(padding_param.numel() // world_size)
         splited_params = splited_params[global_rank]
         param.data = splited_params
-
-
-def remove_padding(tensor: torch.Tensor, original_shape: Tuple) -> torch.Tensor:
-    return tensor[: functools.reduce(operator.mul, original_shape)]
 
 
 def model_gathering(model: torch.nn.Module, model_shape_dict: dict):
@@ -187,10 +192,12 @@ def model_gathering(model: torch.nn.Module, model_shape_dict: dict):
         dist.all_gather(all_params, param.data, group=dist.group.WORLD)
         if int(global_rank) == 0:
             all_params = torch.cat(all_params)
-            param.data = remove_padding(all_params, model_shape_dict[name]).view(
-                model_shape_dict[name]
-            )
+            param.data = remove_padding(all_params, model_shape_dict[name]).view(model_shape_dict[name])
     dist.barrier()
+
+
+def remove_padding(tensor: torch.Tensor, original_shape: Tuple) -> torch.Tensor:
+    return tensor[: functools.reduce(operator.mul, original_shape)]
 
 
 def record_model_param_shape(model: torch.nn.Module) -> dict:
@@ -200,44 +207,20 @@ def record_model_param_shape(model: torch.nn.Module) -> dict:
     return param_shape
 
 
-def create_logger(logging_dir):
-    """
-    Create a logger that writes to a log file and stdout.
-    """
-    if dist.get_rank() == 0:  # real logger
-        logging.basicConfig(
-            level=logging.INFO,
-            format="[\033[34m%(asctime)s\033[0m] %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-            handlers=[
-                logging.StreamHandler(),
-                logging.FileHandler(f"{logging_dir}/log.txt"),
-            ],
-        )
-        logger = logging.getLogger(__name__)
-    else:  # dummy logger (does nothing)
-        logger = logging.getLogger(__name__)
-        logger.addHandler(logging.NullHandler())
-    return logger
-
-
-def load_checkpoint(model, ckpt_path, save_as_pt=False):
+def load_checkpoint(model, ckpt_path, save_as_pt=False, model_name="model", strict=False):
     if ckpt_path.endswith(".pt") or ckpt_path.endswith(".pth"):
         state_dict = find_model(ckpt_path, model=model)
-        missing_keys, unexpected_keys = model.load_state_dict(state_dict, strict=False)
-        print(f"Missing keys: {missing_keys}")
-        print(f"Unexpected keys: {unexpected_keys}")
-    elif ckpt_path.endswith(".safetensors"):
-        from safetensors.torch import load_file
-        state_dict = load_file(ckpt_path)
-        missing_keys, unexpected_keys = model.load_state_dict(state_dict, strict=False)
-        print(f"Missing keys: {missing_keys}")
-        print(f"Unexpected keys: {unexpected_keys}")
+        missing_keys, unexpected_keys = model.load_state_dict(state_dict, strict=strict)
+        get_logger().info("Missing keys: %s", missing_keys)
+        get_logger().info("Unexpected keys: %s", unexpected_keys)
     elif os.path.isdir(ckpt_path):
-        load_from_sharded_state_dict(model, ckpt_path)
+        load_from_sharded_state_dict(model, ckpt_path, model_name, strict=strict)
+        get_logger().info("Model checkpoint loaded from %s", ckpt_path)
         if save_as_pt:
-            save_path = os.path.join(ckpt_path, "model_ckpt.pt")
+            save_path = os.path.join(ckpt_path, model_name + "_ckpt.pt")
             torch.save(model.state_dict(), save_path)
-            print(f"Model checkpoint saved to {save_path}")
+            get_logger().info("Model checkpoint saved to %s", save_path)
     else:
         raise ValueError(f"Invalid checkpoint path: {ckpt_path}")
+
+

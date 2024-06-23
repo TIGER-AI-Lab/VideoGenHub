@@ -11,20 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import math
 import html
 import inspect
+import math
 import re
 import urllib.parse as ul
+from dataclasses import dataclass
 from typing import Callable, List, Optional, Tuple, Union
 
 import torch
-import einops
-from einops import rearrange
-from transformers import T5EncoderModel, T5Tokenizer
-
-from diffusers.image_processor import VaeImageProcessor
 from diffusers.models import AutoencoderKL, Transformer2DModel
+from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 from diffusers.schedulers import DPMSolverMultistepScheduler
 from diffusers.utils import (
     BACKENDS_MAPPING,
@@ -33,10 +30,9 @@ from diffusers.utils import (
     logging,
     replace_example_docstring,
 )
-from diffusers.utils.torch_utils import randn_tensor
-from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 from diffusers.utils import BaseOutput
-from dataclasses import dataclass
+from diffusers.utils.torch_utils import randn_tensor
+from transformers import T5EncoderModel, T5Tokenizer
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 

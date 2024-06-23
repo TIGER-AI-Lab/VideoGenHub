@@ -29,15 +29,12 @@ from timm.models.layers import DropPath
 from timm.models.vision_transformer import Mlp
 
 # from .builder import MODELS
-from videogen_hub.pipelines.opensora.opensora.acceleration.checkpoint import auto_grad_checkpoint
-from videogen_hub.pipelines.opensora.opensora.models.layers.blocks import (
-    Attention,
+from ...acceleration.checkpoint import auto_grad_checkpoint
+from ...models.layers.blocks import (
     CaptionEmbedder,
+    KVCompressAttention,
     MultiHeadCrossAttention,
     PatchEmbed3D,
-    SeqParallelAttention,
-    SeqParallelMultiHeadCrossAttention,
-    SizeEmbedder,
     T2IFinalLayer,
     TimestepEmbedder,
     approx_gelu,
@@ -46,8 +43,8 @@ from videogen_hub.pipelines.opensora.opensora.models.layers.blocks import (
     get_layernorm,
     t2i_modulate,
 )
-from videogen_hub.pipelines.opensora.opensora.registry import MODELS
-from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import load_checkpoint
+from ...registry import MODELS
+from ...utils.ckpt_utils import load_checkpoint
 
 
 class PixArtBlock(nn.Module):
@@ -64,18 +61,18 @@ class PixArtBlock(nn.Module):
         enable_flash_attn=False,
         enable_layernorm_kernel=False,
         enable_sequence_parallelism=False,
+        qk_norm=False,
+        sampling="conv",
+        sr_ratio=1,
     ):
         super().__init__()
         self.hidden_size = hidden_size
         self.enable_flash_attn = enable_flash_attn
         self._enable_sequence_parallelism = enable_sequence_parallelism
+        assert not enable_sequence_parallelism, "Sequence parallelism is not supported in this version."
 
-        if enable_sequence_parallelism:
-            self.attn_cls = SeqParallelAttention
-            self.mha_cls = SeqParallelMultiHeadCrossAttention
-        else:
-            self.attn_cls = Attention
-            self.mha_cls = MultiHeadCrossAttention
+        self.attn_cls = KVCompressAttention
+        self.mha_cls = MultiHeadCrossAttention
 
         self.norm1 = get_layernorm(hidden_size, eps=1e-6, affine=False, use_kernel=enable_layernorm_kernel)
         self.attn = self.attn_cls(
@@ -83,6 +80,10 @@ class PixArtBlock(nn.Module):
             num_heads=num_heads,
             qkv_bias=True,
             enable_flash_attn=enable_flash_attn,
+            qk_norm=qk_norm,
+            sr_ratio=sr_ratio,
+            sampling=sampling,
+            attn_half=True,
         )
         self.cross_attn = self.mha_cls(hidden_size, num_heads)
         self.norm2 = get_layernorm(hidden_size, eps=1e-6, affine=False, use_kernel=enable_layernorm_kernel)
@@ -91,14 +92,18 @@ class PixArtBlock(nn.Module):
         )
         self.drop_path = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
         self.scale_shift_table = nn.Parameter(torch.randn(6, hidden_size) / hidden_size**0.5)
+        self.sampling = sampling
+        self.sr_ratio = sr_ratio
 
-    def forward(self, x, y, t, mask=None):
+    def forward(self, x, y, t, hw, mask=None):
         B, N, C = x.shape
 
         shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = (
             self.scale_shift_table[None] + t.reshape(B, 6, -1)
         ).chunk(6, dim=1)
-        x = x + self.drop_path(gate_msa * self.attn(t2i_modulate(self.norm1(x), shift_msa, scale_msa)).reshape(B, N, C))
+        x = x + self.drop_path(
+            gate_msa * self.attn(t2i_modulate(self.norm1(x), shift_msa, scale_msa), HW=hw).reshape(B, N, C)
+        )
         x = x + self.cross_attn(x, y, mask)
         x = x + self.drop_path(gate_mlp * self.mlp(t2i_modulate(self.norm2(x), shift_mlp, scale_mlp)))
 
@@ -106,7 +111,7 @@ class PixArtBlock(nn.Module):
 
 
 @MODELS.register_module()
-class PixArt(nn.Module):
+class PixArt_Sigma(nn.Module):
     """
     Diffusion model with a Transformer backbone.
     """
@@ -128,12 +133,13 @@ class PixArt(nn.Module):
         model_max_length=120,
         dtype=torch.float32,
         freeze=None,
+        qk_norm=False,
         space_scale=1.0,
         time_scale=1.0,
         enable_flash_attn=False,
         enable_layernorm_kernel=False,
         enable_sequence_parallelism=False,
-        base_size=None,
+        kv_compress_config=None,
     ):
         super().__init__()
         assert enable_sequence_parallelism is False, "Sequence parallelism is not supported in this version."
@@ -147,10 +153,7 @@ class PixArt(nn.Module):
         self.num_patches = num_patches
         self.num_temporal = input_size[0] // patch_size[0]
         self.num_spatial = num_patches // self.num_temporal
-        if base_size is None:
-            self.base_size = int(np.sqrt(self.num_spatial))
-        else:
-            self.base_size = base_size // patch_size[1]
+        self.base_size = int(np.sqrt(self.num_spatial))
         self.num_heads = num_heads
         self.dtype = dtype
         self.no_temporal_pos_emb = no_temporal_pos_emb
@@ -176,6 +179,15 @@ class PixArt(nn.Module):
         self.register_buffer("pos_embed_temporal", self.get_temporal_pos_embed())
 
         drop_path = [x.item() for x in torch.linspace(0, drop_path, depth)]  # stochastic depth decay rule
+
+        self.kv_compress_config = kv_compress_config
+        if kv_compress_config is None:
+            self.kv_compress_config = {
+                "sampling": None,
+                "scale_factor": 1,
+                "kv_compress_layer": [],
+            }
+
         self.blocks = nn.ModuleList(
             [
                 PixArtBlock(
@@ -185,6 +197,13 @@ class PixArt(nn.Module):
                     drop_path=drop_path[i],
                     enable_flash_attn=enable_flash_attn,
                     enable_layernorm_kernel=enable_layernorm_kernel,
+                    qk_norm=qk_norm,
+                    sr_ratio=(
+                        int(self.kv_compress_config["scale_factor"])
+                        if i in self.kv_compress_config["kv_compress_layer"]
+                        else 1
+                    ),
+                    sampling=self.kv_compress_config["sampling"],
                 )
                 for i in range(depth)
             ]
@@ -207,11 +226,13 @@ class PixArt(nn.Module):
         x = x.to(self.dtype)
         timestep = timestep.to(self.dtype)
         y = y.to(self.dtype)
+        pos_embed = self.get_spatial_pos_embed((x.shape[-2], x.shape[-1])).to(x.dtype)
+        hw = (x.shape[-2] // self.patch_size[-2], x.shape[-1] // self.patch_size[-1])
 
         # embedding
         x = self.x_embedder(x)  # (B, N, D)
         x = rearrange(x, "b (t s) d -> b t s d", t=self.num_temporal, s=self.num_spatial)
-        x = x + self.pos_embed
+        x = x + pos_embed.to(x.device)
         if not self.no_temporal_pos_emb:
             x = rearrange(x, "b t s d -> b s t d")
             x = x + self.pos_embed_temporal
@@ -234,7 +255,7 @@ class PixArt(nn.Module):
 
         # blocks
         for block in self.blocks:
-            x = auto_grad_checkpoint(block, x, y, t0, y_lens)
+            x = auto_grad_checkpoint(block, x, y, t0, hw, y_lens)
 
         # final process
         x = self.final_layer(x, t)  # (N, T, patch_size ** 2 * out_channels)
@@ -313,91 +334,9 @@ class PixArt(nn.Module):
         nn.init.constant_(self.final_layer.linear.bias, 0)
 
 
-@MODELS.register_module()
-class PixArtMS(PixArt):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        assert self.hidden_size % 3 == 0, "hidden_size must be divisible by 3"
-        self.csize_embedder = SizeEmbedder(self.hidden_size // 3)
-        self.ar_embedder = SizeEmbedder(self.hidden_size // 3)
-
-    def forward(self, x, timestep, y, mask=None, data_info=None):
-        """
-        Forward pass of PixArt.
-        x: (N, C, H, W) tensor of spatial inputs (images or latent representations of images)
-        t: (N,) tensor of diffusion timesteps
-        y: (N, 1, 120, C) tensor of class labels
-        """
-        x = x.to(self.dtype)
-        timestep = timestep.to(self.dtype)
-        y = y.to(self.dtype)
-
-        c_size = data_info["hw"]
-        ar = data_info["ar"]
-        pos_embed = self.get_spatial_pos_embed((x.shape[-2], x.shape[-1])).to(x.dtype)
-
-        # embedding
-        x = self.x_embedder(x)  # (B, N, D)
-        x = rearrange(x, "b (t s) d -> b t s d", t=self.num_temporal, s=self.num_spatial)
-        x = x + pos_embed.to(x.device)
-        if not self.no_temporal_pos_emb:
-            x = rearrange(x, "b t s d -> b s t d")
-            x = x + self.pos_embed_temporal
-            x = rearrange(x, "b s t d -> b (t s) d")
-        else:
-            x = rearrange(x, "b t s d -> b (t s) d")
-
-        t = self.t_embedder(timestep, dtype=x.dtype)  # (N, D)
-        B = x.shape[0]
-        csize = self.csize_embedder(c_size, B)
-        ar = self.ar_embedder(ar, B)
-        t = t + torch.cat([csize, ar], dim=1)
-
-        t0 = self.t_block(t)
-        y = self.y_embedder(y, self.training)  # (N, 1, L, D)
-        if mask is not None:
-            if mask.shape[0] != y.shape[0]:
-                mask = mask.repeat(y.shape[0] // mask.shape[0], 1)
-            mask = mask.squeeze(1).squeeze(1)
-            y = y.squeeze(1).masked_select(mask.unsqueeze(-1) != 0).view(1, -1, x.shape[-1])
-            y_lens = mask.sum(dim=1).tolist()
-        else:
-            y_lens = [y.shape[2]] * y.shape[0]
-            y = y.squeeze(1).view(1, -1, x.shape[-1])
-
-        # blocks
-        for block in self.blocks:
-            x = block(x, y, t0, y_lens)
-
-        # final process
-        x = self.final_layer(x, t)  # (N, T, patch_size ** 2 * out_channels)
-        x = self.unpatchify(x)  # (N, out_channels, H, W)
-
-        # cast to float32 for better accuracy
-        x = x.to(torch.float32)
-        return x
-
-
-@MODELS.register_module("PixArt-XL/2")
-def PixArt_XL_2(from_pretrained=None, **kwargs):
-    model = PixArt(depth=28, hidden_size=1152, patch_size=(1, 2, 2), num_heads=16, **kwargs)
-    if from_pretrained is not None:
-        load_checkpoint(model, from_pretrained)
-    return model
-
-
-@MODELS.register_module("PixArt-1B/2")
-def PixArt_1B_2(from_pretrained=None, **kwargs):
-    model = PixArt(depth=28, hidden_size=1872, patch_size=(1, 2, 2), num_heads=26, **kwargs)
-    if from_pretrained is not None:
-        load_checkpoint(model, from_pretrained)
-    return model
-
-
-@MODELS.register_module("PixArtMS-XL/2")
-def PixArtMS_XL_2(from_pretrained=None, **kwargs):
-    model = PixArtMS(depth=28, hidden_size=1152, patch_size=(1, 2, 2), num_heads=16, **kwargs)
+@MODELS.register_module("PixArt-Sigma-XL/2")
+def PixArt_Sigma_XL_2(from_pretrained=None, **kwargs):
+    model = PixArt_Sigma(depth=28, hidden_size=1152, patch_size=(1, 2, 2), num_heads=16, **kwargs)
     if from_pretrained is not None:
         load_checkpoint(model, from_pretrained)
     return model

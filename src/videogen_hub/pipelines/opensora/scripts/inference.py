@@ -133,15 +133,15 @@ def main(config=None):
     # 4.1. batch generation
     for i in range(0, len(prompts), cfg.batch_size):
         # 4.2 sample in hidden space
-        batch_prompts_raw = prompts[i : i + cfg.batch_size]
+        batch_prompts_raw = prompts[i: i + cfg.batch_size]
         batch_prompts = [text_preprocessing(prompt) for prompt in batch_prompts_raw]
         # handle the last batch
         if len(batch_prompts_raw) < cfg.batch_size and cfg.multi_resolution == "STDiT2":
             model_args["height"] = model_args["height"][: len(batch_prompts_raw)]
             model_args["width"] = model_args["width"][: len(batch_prompts_raw)]
             model_args["num_frames"] = model_args["num_frames"][
-                : len(batch_prompts_raw)
-            ]
+                                       : len(batch_prompts_raw)
+                                       ]
             model_args["ar"] = model_args["ar"][: len(batch_prompts_raw)]
             model_args["fps"] = model_args["fps"][: len(batch_prompts_raw)]
 
@@ -198,9 +198,9 @@ def main(config=None):
                     )
                     if cfg.num_sample != 1:
                         save_path = f"{save_path}-{k}"
-                    #save_sample(
+                    # save_sample(
                     #    sample, fps=cfg.fps, save_path=save_path
-                    #)
+                    # )
                     sample_idx += 1
 
             all_samples.append(samples)

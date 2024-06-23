@@ -24,12 +24,12 @@ import torch
 from einops import rearrange, repeat
 
 from videogen_hub.pipelines.opensora.opensora.acceleration.checkpoint import auto_grad_checkpoint
-from videogen_hub.pipelines.opensora.opensora.models.dit import DiT
+from videogen_hub.pipelines.opensora.opensora.models import DiT
 from videogen_hub.pipelines.opensora.opensora.registry import MODELS
 from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import load_checkpoint
 
 
-@MODELS.register_module(force=True)
+@MODELS.register_module()
 class Latte(DiT):
     def forward(self, x, t, y):
         """
@@ -84,7 +84,7 @@ class Latte(DiT):
         return x
 
 
-@MODELS.register_module("Latte-XL/2", force=True)
+@MODELS.register_module("Latte-XL/2")
 def Latte_XL_2(from_pretrained=None, **kwargs):
     model = Latte(
         depth=28,
@@ -98,7 +98,7 @@ def Latte_XL_2(from_pretrained=None, **kwargs):
     return model
 
 
-@MODELS.register_module("Latte-XL/2x2", force=True)
+@MODELS.register_module("Latte-XL/2x2")
 def Latte_XL_2x2(from_pretrained=None, **kwargs):
     model = Latte(
         depth=28,

@@ -16,8 +16,7 @@ import torch.utils.checkpoint
 from einops import rearrange
 from timm.models.vision_transformer import Mlp
 
-from videogen_hub.pipelines.opensora.opensora.acceleration.checkpoint import auto_grad_checkpoint
-from videogen_hub.pipelines.opensora.opensora.models.layers.blocks import (
+from ..layers.blocks import (
     Attention,
     CaptionEmbedder,
     FinalLayer,
@@ -30,8 +29,9 @@ from videogen_hub.pipelines.opensora.opensora.models.layers.blocks import (
     get_layernorm,
     modulate,
 )
-from videogen_hub.pipelines.opensora.opensora.registry import MODELS
-from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import load_checkpoint
+from ...acceleration.checkpoint import auto_grad_checkpoint
+from ...registry import MODELS
+from ...utils.ckpt_utils import load_checkpoint
 
 
 class DiTBlock(nn.Module):
@@ -44,13 +44,13 @@ class DiTBlock(nn.Module):
         hidden_size,
         num_heads,
         mlp_ratio=4.0,
-        enable_flashattn=False,
+        enable_flash_attn=False,
         enable_layernorm_kernel=False,
     ):
         super().__init__()
         self.hidden_size = hidden_size
         self.num_heads = num_heads
-        self.enable_flashattn = enable_flashattn
+        self.enable_flash_attn = enable_flash_attn
         mlp_hidden_dim = int(hidden_size * mlp_ratio)
 
         self.norm1 = get_layernorm(hidden_size, eps=1e-6, affine=False, use_kernel=enable_layernorm_kernel)
@@ -58,7 +58,7 @@ class DiTBlock(nn.Module):
             hidden_size,
             num_heads=num_heads,
             qkv_bias=True,
-            enable_flashattn=enable_flashattn,
+            enable_flash_attn=enable_flash_attn,
         )
         self.norm2 = get_layernorm(hidden_size, eps=1e-6, affine=False, use_kernel=enable_layernorm_kernel)
         self.mlp = Mlp(in_features=hidden_size, hidden_features=mlp_hidden_dim, act_layer=approx_gelu, drop=0)
@@ -71,7 +71,7 @@ class DiTBlock(nn.Module):
         return x
 
 
-@MODELS.register_module(force=True)
+@MODELS.register_module()
 class DiT(nn.Module):
     """
     Diffusion model with a Transformer backbone.
@@ -93,7 +93,7 @@ class DiT(nn.Module):
         caption_channels=512,
         model_max_length=77,
         dtype=torch.float32,
-        enable_flashattn=False,
+        enable_flash_attn=False,
         enable_layernorm_kernel=False,
         enable_sequence_parallelism=False,
     ):
@@ -111,7 +111,7 @@ class DiT(nn.Module):
         self.num_heads = num_heads
         self.dtype = dtype
         self.use_text_encoder = not condition.startswith("label")
-        if enable_flashattn:
+        if enable_flash_attn:
             assert dtype in [
                 torch.float16,
                 torch.bfloat16,
@@ -143,7 +143,7 @@ class DiT(nn.Module):
                     hidden_size,
                     num_heads,
                     mlp_ratio=mlp_ratio,
-                    enable_flashattn=enable_flashattn,
+                    enable_flash_attn=enable_flash_attn,
                     enable_layernorm_kernel=enable_layernorm_kernel,
                 )
                 for _ in range(depth)
@@ -152,7 +152,7 @@ class DiT(nn.Module):
         self.final_layer = FinalLayer(hidden_size, np.prod(self.patch_size), self.out_channels)
 
         self.initialize_weights()
-        self.enable_flashattn = enable_flashattn
+        self.enable_flash_attn = enable_flash_attn
         self.enable_layernorm_kernel = enable_layernorm_kernel
 
     def get_spatial_pos_embed(self):
@@ -260,7 +260,7 @@ class DiT(nn.Module):
             nn.init.normal_(self.y_embedder.y_proj.fc2.weight, std=0.02)
 
 
-@MODELS.register_module("DiT-XL/2", force=True)
+@MODELS.register_module("DiT-XL/2")
 def DiT_XL_2(from_pretrained=None, **kwargs):
     model = DiT(
         depth=28,
@@ -274,7 +274,7 @@ def DiT_XL_2(from_pretrained=None, **kwargs):
     return model
 
 
-@MODELS.register_module("DiT-XL/2x2", force=True)
+@MODELS.register_module("DiT-XL/2x2")
 def DiT_XL_2x2(from_pretrained=None, **kwargs):
     model = DiT(
         depth=28,
