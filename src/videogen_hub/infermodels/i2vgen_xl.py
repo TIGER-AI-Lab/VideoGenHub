@@ -18,7 +18,7 @@ class I2VGenXL:
 
         from diffusers import I2VGenXLPipeline
         model_path = os.path.join(MODEL_PATH, "i2vgen-xl")
-        model_path = snapshot_download("ali-vilab/i2vgen-xl", local_dir=model_path)
+        model_path = snapshot_download("ali-vilab/i2vgen-xl", local_dir=model_path, ignore_patterns=["*fp16*", "*png"])
         self.pipeline = I2VGenXLPipeline.from_pretrained(
             model_path, torch_dtype=torch.float16, variant="fp16"
         )
