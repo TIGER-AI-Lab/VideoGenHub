@@ -17,6 +17,8 @@ from einops import rearrange, repeat
 
 import sys
 
+from videogen_hub import MODEL_PATH
+
 sys.path.append("thirdparty")
 from modelscope.pipelines import pipeline
 from modelscope.outputs import OutputKeys
@@ -104,7 +106,7 @@ if __name__ == "__main__":
     # --------------------------
     # ----- Configurations -----
     # --------------------------
-    ckpt_file_streaming_t2v = Path("checkpoints/streaming_t2v.ckpt").absolute()
+    ckpt_file_streaming_t2v = os.path.join(MODEL_PATH, "streaming_t2v.ckpt")
     cfg_v2v = {
         "downscale": 1,
         "upscale_size": (1280, 720),

@@ -19,6 +19,8 @@ from PIL.Image import Image, fromarray
 
 import sys
 
+from ... import MODEL_PATH
+
 sys.path.append("thirdparty")
 # from modelscope.pipelines import pipeline
 # from modelscope.outputs import OutputKeys
@@ -115,7 +117,7 @@ def pipeline(prompt, size, seconds, fps, seed):
     # --------------------------
     # ----- Configurations -----
     # --------------------------
-    ckpt_file_streaming_t2v = Path("checkpoints/streaming_t2v.ckpt").absolute()
+    ckpt_file_streaming_t2v = os.path.join(MODEL_PATH, "streamingtv2", "streaming_t2v.ckpt")
     cfg_v2v = {
         "downscale": 1,
         "upscale_size": size,

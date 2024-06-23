@@ -1,7 +1,10 @@
+import os
 from typing import Union
 import torch
 from huggingface_hub import snapshot_download, hf_hub_download
 from PIL import Image
+
+from videogen_hub import MODEL_PATH
 
 
 class I2VGenXL:
@@ -14,19 +17,20 @@ class I2VGenXL:
         """
 
         from diffusers import I2VGenXLPipeline
-
+        model_path = os.path.join(MODEL_PATH, "i2vgen-xl")
+        model_path = snapshot_download("ali-vilab/i2vgen-xl", local_dir=model_path)
         self.pipeline = I2VGenXLPipeline.from_pretrained(
-            "ali-vilab/i2vgen-xl", torch_dtype=torch.float16, variant="fp16"
+            model_path, torch_dtype=torch.float16, variant="fp16"
         )
 
     def infer_one_video(
-        self,
-        input_image: Image.Image,
-        prompt: str = None,
-        size: list = [320, 512],
-        seconds: int = 2,
-        fps: int = 8,
-        seed: int = 42,
+            self,
+            input_image: Image.Image,
+            prompt: str = None,
+            size: list = [320, 512],
+            seconds: int = 2,
+            fps: int = 8,
+            seed: int = 42,
     ):
         """
         Generates a single video based on a textual prompt and first frame image, using either a provided image or an image path as the starting point. The output is a tensor representing the video.

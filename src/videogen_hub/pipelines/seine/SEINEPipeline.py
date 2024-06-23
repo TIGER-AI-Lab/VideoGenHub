@@ -1,12 +1,14 @@
 from typing import List
 from torch import _validate_compressed_sparse_indices
 from torchvision.utils import save_image
+
+from videogen_hub import MODEL_PATH
 from with_mask_sample import *
 
 
 class SEINEPipeline():
-    def __init__(self, seine_path: str = "./checkpoints/SEINE/seine.pt",
-                 pretrained_model_path: str = "./checkpoints/SEINE/stable-diffusion-v1-4/",
+    def __init__(self, seine_path: str = os.path.join(MODEL_PATH, "SEINE", "seine.pt"),
+                 pretrained_model_path: str = os.path.join(MODEL_PATH, "SEINE", "stable-diffusion-v1-4"),
                  config_path: str = "src/videogen_hub/pipelines/seine/sample_i2v.yaml"):
         """
         Load the configuration file and set the paths of models.

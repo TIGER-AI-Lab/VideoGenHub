@@ -1,12 +1,16 @@
+import os
+
 from huggingface_hub import hf_hub_download
 from PIL import Image
+
+from videogen_hub import MODEL_PATH
 
 
 class DynamiCrafter:
     def __init__(self, version: str = "256"):
         """
         Initializes the DynamiCrafter model using the Doubiiu/DynamiCrafter_{version} checkpoint from the Hugging Face Hub.
-        and load them to "./checkpoints/dynamicrafter_{version}_v1"
+        and load them to "MODEL_DIR/dynamicrafter_{version}_v1"
 
         Args:
             version (str, optional): The resolution of the video to generate. Choose from '256', '512', or '1024'. Defaults to '256'.
@@ -19,7 +23,7 @@ class DynamiCrafter:
             self.model_path = hf_hub_download(
                 repo_id="Doubiiu/DynamiCrafter",
                 filename="model.ckpt",
-                local_dir="./checkpoints/dynamicrafter_256_v1",
+                local_dir=os.path.join(MODEL_PATH, "dynamicrafter_256_v1"),
             )
 
         elif version == "512":
@@ -28,7 +32,7 @@ class DynamiCrafter:
             self.model_path = hf_hub_download(
                 repo_id="Doubiiu/DynamiCrafter_512",
                 filename="model.ckpt",
-                local_dir="./checkpoints/dynamicrafter_512_v1",
+                local_dir=os.path.join(MODEL_PATH, "dynamicrafter_512_v1"),
             )
 
         elif version == "1024":
@@ -37,7 +41,7 @@ class DynamiCrafter:
             self.model_path = hf_hub_download(
                 repo_id="Doubiiu/DynamiCrafter_1024",
                 filename="model.ckpt",
-                local_dir="./checkpoints/dynamicrafter_1024_v1",
+                local_dir=os.path.join(MODEL_PATH, "dynamicrafter_1024_v1"),
             )
         else:
             raise ValueError("Invalid input. Please enter 256, 512, or 1024.")

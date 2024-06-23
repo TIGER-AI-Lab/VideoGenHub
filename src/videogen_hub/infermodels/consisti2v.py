@@ -1,4 +1,9 @@
+import os
+
 from PIL import Image
+from huggingface_hub import snapshot_download
+
+from videogen_hub import MODEL_PATH
 
 
 class ConsistI2V:
@@ -17,12 +22,11 @@ class ConsistI2V:
                 self.optional_args = []
 
         self.args = Args()
-
-        yaml_config = """
+        model_path = os.path.join(MODEL_PATH, "TIGER-Lab", "ConsistI2V").replace("\\", "\\\\")
+        yaml_config = f"""
             output_dir: "samples/inference"
             output_name: "i2v"
-
-            pretrained_model_path: "TIGER-Lab/ConsistI2V"
+            pretrained_model_path: "{model_path}"
             unet_path: null
             unet_ckpt_prefix: "module."
             pipeline_pretrained_path: null
@@ -71,8 +75,9 @@ class ConsistI2V:
 
         from omegaconf import OmegaConf
 
-        self.config = OmegaConf.safe_load(yaml_config)
-
+        self.config = OmegaConf.create(yaml_config)
+        model_path = os.path.join(MODEL_PATH, "ConsistI2V").replace("\\", "\\\\")
+        snapshot_download("TIGER-Lab/ConsistI2V", local_dir=model_path)
         from videogen_hub.pipelines.consisti2v.scripts.animate import main
 
         self.pipeline = main
