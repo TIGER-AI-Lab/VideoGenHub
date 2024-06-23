@@ -1,7 +1,6 @@
 import torch
-import random
 import numbers
-from torchvision.transforms import RandomCrop, RandomResizedCrop
+import numpy as np
 from PIL import Image
 
 def _is_tensor_video_clip(clip):
