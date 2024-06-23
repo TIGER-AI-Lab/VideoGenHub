@@ -1,9 +1,14 @@
-import diffusers
-from diffusers.models.transformer_temporal import (
-    TransformerTemporalModel,
-    TransformerTemporalModelOutput,
-)
 import torch.nn as nn
+
+try:
+    from diffusers.models.transformer_temporal import (
+        TransformerTemporalModel,
+        TransformerTemporalModelOutput,
+    )
+except:
+    from diffusers.models.transformers.transformer_temporal import TransformerTemporalModelOutput
+    from diffusers.models import TransformerTemporalModel
+
 from einops import rearrange
 from diffusers.models.attention_processor import Attention
 

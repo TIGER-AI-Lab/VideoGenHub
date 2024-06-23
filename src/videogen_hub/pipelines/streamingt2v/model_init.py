@@ -25,7 +25,6 @@ from videogen_hub.pipelines.streamingt2v.inference_utils import (
 import sys
 
 sys.path.append(Path(__file__).parent / "thirdparty")
-from modelscope.pipelines import pipeline
 
 
 # Initialize Stage-1 model1.
@@ -154,6 +153,8 @@ def init_streamingt2v_model(ckpt_file, result_fol, device):
 
 # Initialize Stage-3 model.
 def init_v2v_model(cfg, device):
+    from modelscope.pipelines import pipeline
+
     model_id = cfg["model_id"]
     pipe_enhance = pipeline(
         task="video-to-video", model=model_id, model_revision="v1.1.0", device="cpu"
