@@ -187,7 +187,7 @@ class FrozenOpenCLIPEmbedder(AbstractEncoder):
                  freeze=True, layer="last"):
         super().__init__()
         assert layer in self.LAYERS
-        model, _, _ = open_clip.create_model_and_transforms(arch, device=torch.device('cpu'))
+        model, _, _ = open_clip.create_model_and_transforms(arch, device=torch.device('cpu'), pretrained=version)
         del model.visual
         self.model = model
 
@@ -209,7 +209,6 @@ class FrozenOpenCLIPEmbedder(AbstractEncoder):
             param.requires_grad = False
 
     def forward(self, text):
-        self.device = self.model.positional_embedding.device
         tokens = open_clip.tokenize(text)
         z = self.encode_with_transformer(tokens.to(self.device))
         return z
@@ -277,7 +276,7 @@ class FrozenOpenCLIPImageEmbedder(AbstractEncoder):
 
     def freeze(self):
         self.model = self.model.eval()
-        for param in self.parameters():
+        for param in self.model.parameters():
             param.requires_grad = False
 
     @autocast

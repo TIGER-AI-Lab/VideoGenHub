@@ -2,9 +2,9 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-from videogen_hub.pipelines.dynamicrafter.lvdm.common import extract_into_tensor
-from videogen_hub.pipelines.dynamicrafter.lvdm.common import noise_like
-from videogen_hub.pipelines.dynamicrafter.lvdm.models.utils_diffusion import make_ddim_sampling_parameters, \
+from videogen_hub.common.lvdm.common import extract_into_tensor
+from videogen_hub.common.lvdm.common import noise_like
+from videogen_hub.common.lvdm.models.utils_diffusion import make_ddim_sampling_parameters, \
     make_ddim_timesteps, rescale_noise_cfg
 
 

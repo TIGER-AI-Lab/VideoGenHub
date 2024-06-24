@@ -5,8 +5,8 @@ import torch
 import torch.nn.functional as F
 from einops import rearrange
 
-from videogen_hub.pipelines.dynamicrafter.lvdm.distributions import DiagonalGaussianDistribution
-from videogen_hub.pipelines.dynamicrafter.lvdm.modules.networks.ae_modules import Encoder, Decoder
+from videogen_hub.common.lvdm.distributions import DiagonalGaussianDistribution
+from videogen_hub.common.lvdm.modules.networks.ae_modules import Encoder, Decoder
 from videogen_hub.pipelines.dynamicrafter.utils import instantiate_from_config
 
 

@@ -1,5 +1,6 @@
 # General
 import argparse
+import os
 import sys
 
 from videogen_hub import MODEL_PATH

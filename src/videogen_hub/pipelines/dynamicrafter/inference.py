@@ -11,8 +11,8 @@ from einops import rearrange, repeat
 from omegaconf import OmegaConf
 from pytorch_lightning import seed_everything
 
-from videogen_hub.pipelines.dynamicrafter.lvdm.models.samplers.ddim import DDIMSampler
-from videogen_hub.pipelines.dynamicrafter.lvdm.models.samplers.ddim_multiplecond import \
+from videogen_hub.common.lvdm.models.samplers.ddim import DDIMSampler
+from videogen_hub.common.lvdm.models.samplers.ddim_multiplecond import \
     DDIMSampler as DDIMSampler_multicond
 from videogen_hub.pipelines.dynamicrafter.utils import instantiate_from_config
 

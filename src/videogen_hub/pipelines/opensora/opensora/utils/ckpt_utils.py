@@ -160,7 +160,7 @@ def load_from_sharded_state_dict(model, ckpt_path, model_name="model", strict=Fa
             ckpt_io = GeneralCheckpointIO()
             ckpt_io.load_model(model, ckpt_path)
         else:
-            model.load_state_dict(torch_load(os.path.join(ckpt_path, 'model')))
+            model.load_state_dict(torch_load(os.path.join(ckpt_path, 'model.safetensors')))
 
     print(os.getcwd())
     print(f"path={os.path.join(ckpt_path, 'model')}")

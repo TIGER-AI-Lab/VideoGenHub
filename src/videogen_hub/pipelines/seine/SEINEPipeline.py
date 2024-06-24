@@ -7,6 +7,7 @@ from omegaconf import OmegaConf
 from torchvision.utils import save_image
 
 from videogen_hub import MODEL_PATH
+from videogen_hub.pipelines.seine.diffusion import create_diffusion
 from videogen_hub.pipelines.seine.models import get_models
 from videogen_hub.pipelines.seine.models.clip import TextEmbedder
 from videogen_hub.pipelines.seine.utils import mask_generation_before
