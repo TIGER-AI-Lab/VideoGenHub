@@ -1,22 +1,17 @@
 # this script is modified from https://github.com/MCG-NKU/AMT/blob/main/demos/demo_2x.py
-from json import load
-import os
-import cv2
-import sys
-import glob
-import torch
 import argparse
-import numpy as np
+import os
 import os.path as osp
-from warnings import warn
-from omegaconf import OmegaConf
-from torchvision.utils import make_grid
+import sys
+
+import cv2
+import numpy as np
+import torch
+
 sys.path.append('.')
 from utils.utils import (
-    read, write,
-    img2tensor, tensor2img,
-    check_dim_and_resize
-    )
+    img2tensor, tensor2img
+)
 from utils.build_utils import build_from_cfg
 from utils.utils import InputPadder
 

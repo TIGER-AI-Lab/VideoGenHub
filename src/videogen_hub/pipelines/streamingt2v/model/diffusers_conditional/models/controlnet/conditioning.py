@@ -13,7 +13,7 @@ from einops import rearrange
 from diffusers.models.attention_processor import Attention
 
 # from t2v_enhanced.model.diffusers_conditional.models.controlnet.attention_processor import Attention
-from .transformer_temporal_crossattention import (
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.transformer_temporal_crossattention import (
     TransformerTemporalModel as TransformerTemporalModelCrossAttn,
 )
 import torch

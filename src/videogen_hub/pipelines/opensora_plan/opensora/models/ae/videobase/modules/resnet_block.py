@@ -1,10 +1,10 @@
 import torch
-import torch.nn as nn
-from einops import rearrange, pack, unpack
-from .normalize import Normalize
-from .ops import nonlinearity, video_to_image
-from .conv import CausalConv3d
-from .block import Block
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.block import Block
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.conv import CausalConv3d
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.normalize import Normalize
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.ops import nonlinearity, video_to_image
+
 
 class ResnetBlock2D(Block):
     def __init__(self, *, in_channels, out_channels=None, conv_shortcut=False,

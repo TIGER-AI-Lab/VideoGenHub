@@ -6,7 +6,7 @@ import torch
 import numpy as np
 import torch as th
 
-from .gaussian_diffusion import GaussianDiffusion
+from videogen_hub.pipelines.lavie.lavie_src.interpolation.diffusion.gaussian_diffusion import GaussianDiffusion
 
 
 def space_timesteps(num_timesteps, section_counts):

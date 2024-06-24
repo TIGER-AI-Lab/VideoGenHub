@@ -9,8 +9,8 @@ import torch
 
 from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import download_model
 
-from .networks.amt_g import Model
-from .utils.utils import InputPadder, img2tensor, tensor2img
+from videogen_hub.pipelines.opensora.tools.frame_interpolation.networks.amt_g import Model
+from videogen_hub.pipelines.opensora.tools.frame_interpolation.utils.utils import InputPadder, img2tensor, tensor2img
 
 hf_endpoint = os.environ.get("HF_ENDPOINT")
 if hf_endpoint is None:

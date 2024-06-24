@@ -1,32 +1,21 @@
+import math
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Union
+from typing import Tuple
 
-import torch
 import numpy as np
+import torch
 import torch.nn.functional as F
-from torch import nn
 import torchvision
-# from torch_utils.ops import grid_sample_gradfix
-
 from diffusers.configuration_utils import ConfigMixin, register_to_config
+from diffusers.models.attention import FeedForward
 from diffusers.models.modeling_utils import ModelMixin
 from diffusers.utils import BaseOutput
 from diffusers.utils.import_utils import is_xformers_available
-from diffusers.models.attention import FeedForward
-# from diffusers.models.attention_processor import Attention
-
-try:
-    from .diffusers_attention import CrossAttention
-    from .resnet import Downsample3D, Upsample3D, InflatedConv3d, ResnetBlock3D, ResnetBlock3DCNN
-
-except:
-    from diffusers_attention import CrossAttention
-    from resnet import Downsample3D, Upsample3D, InflatedConv3d, ResnetBlock3D, ResnetBlock3DCNN
-
 from einops import rearrange, repeat
-import math
+from torch import nn
 
-import pdb
+from videogen_hub.pipelines.lavie.lavie_src.vsr.models.diffusers_attention import CrossAttention
+from videogen_hub.pipelines.lavie.lavie_src.vsr.models.resnet import InflatedConv3d, ResnetBlock3D, ResnetBlock3DCNN
 
 
 def zero_module(module):
@@ -425,6 +414,50 @@ class TemporalTransformerBlock(nn.Module):
         hidden_states = self.ff(self.norm3(hidden_states)) + hidden_states
 
         return hidden_states
+
+
+class PositionalEncoding(nn.Module):
+    r"""Inject some information about the relative or absolute position of the tokens
+        in the sequence. The positional encodings have the same dimension as
+        the embeddings, so that the two can be summed. Here, we use sine and cosine
+        functions of different frequencies.
+    .. math::
+        \text{PosEncoder}(pos, 2i) = sin(pos/10000^(2i/d_model))
+        \text{PosEncoder}(pos, 2i+1) = cos(pos/10000^(2i/d_model))
+        \text{where pos is the word position and i is the embed idx)
+    Args:
+        d_model: the embed dim (required).
+        dropout: the dropout value (default=0.1).
+        max_len: the max. length of the incoming sequence (default=5000).
+    Examples:
+        >>> pos_encoder = PositionalEncoding(d_model)
+    """
+
+    def __init__(self, d_model, dropout=0.1, max_len=5000):
+        super(PositionalEncoding, self).__init__()
+        self.dropout = nn.Dropout(p=dropout)
+
+        pe = torch.zeros(max_len, d_model)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        pe = pe.unsqueeze(0).transpose(0, 1)
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        r"""Inputs of forward function
+        Args:
+            x: the sequence fed to the positional encoder model (required).
+        Shape:
+            x: [sequence length, batch size, embed dim]
+            output: [sequence length, batch size, embed dim]
+        Examples:
+            >>> output = pos_encoder(x)
+        """
+
+        x = x + self.pe[:x.size(0), :]
+        return self.dropout(x)
 
 
 class VersatileSelfAttention(CrossAttention):

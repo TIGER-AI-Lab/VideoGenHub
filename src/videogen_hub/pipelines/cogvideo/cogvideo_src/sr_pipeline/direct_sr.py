@@ -34,10 +34,10 @@ from torchvision import transforms
 
 from SwissArmyTransformer import get_args
 from SwissArmyTransformer.training.model_io import load_checkpoint
-from .dsr_sampling import filling_sequence_dsr, IterativeEntfilterStrategy
+from videogen_hub.pipelines.cogvideo.cogvideo_src.sr_pipeline.dsr_sampling import filling_sequence_dsr, IterativeEntfilterStrategy
 from SwissArmyTransformer.generation.utils import timed_name, save_multiple_images, generate_continually
 
-from .dsr_model import DsrModel
+from videogen_hub.pipelines.cogvideo.cogvideo_src.sr_pipeline.dsr_model import DsrModel
 
 from videogen_hub.depend.icetk import icetk as tokenizer
 

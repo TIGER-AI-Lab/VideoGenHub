@@ -1,20 +1,21 @@
-import argparse, os, sys, glob
-import datetime, time
-from omegaconf import OmegaConf
-from tqdm import tqdm
-from einops import rearrange, repeat
+import argparse
+import glob
+import os
+import sys
 from collections import OrderedDict
 
 import torch
 import torchvision
 import torchvision.transforms as transforms
-from pytorch_lightning import seed_everything
 from PIL import Image
+from einops import rearrange, repeat
+from omegaconf import OmegaConf
+from pytorch_lightning import seed_everything
 
-sys.path.insert(1, os.path.join(sys.path[0], '..', '..'))
-from .lvdm.models.samplers.ddim import DDIMSampler
-from .lvdm.models.samplers.ddim_multiplecond import DDIMSampler as DDIMSampler_multicond
-from .utils import instantiate_from_config
+from videogen_hub.pipelines.dynamicrafter.lvdm.models.samplers.ddim import DDIMSampler
+from videogen_hub.pipelines.dynamicrafter.lvdm.models.samplers.ddim_multiplecond import \
+    DDIMSampler as DDIMSampler_multicond
+from videogen_hub.pipelines.dynamicrafter.utils import instantiate_from_config
 
 
 def get_filelist(data_dir, postfixes):
@@ -138,7 +139,7 @@ def save_results(prompt, samples, filename, fakedir, fps=8, loop=False):
             video = video[:-1, ...]
 
         frame_grids = [torchvision.utils.make_grid(framesheet, nrow=int(n), padding=0) for framesheet in
-                       video]  #[3, 1*h, n*w]
+                       video]  # [3, 1*h, n*w]
         grid = torch.stack(frame_grids, dim=0)  # stack in temporal dim [t, 3, h, n*w]
         grid = (grid + 1.0) / 2.0
         grid = (grid * 255).to(torch.uint8).permute(0, 2, 3, 1)
@@ -165,7 +166,7 @@ def save_results_seperate(prompt, samples, filename, fakedir, fps=10, loop=False
         for i in range(n):
             grid = video[i, ...]
             grid = (grid + 1.0) / 2.0
-            grid = (grid * 255).to(torch.uint8).permute(1, 2, 3, 0)  #thwc
+            grid = (grid * 255).to(torch.uint8).permute(1, 2, 3, 0)  # thwc
             path = os.path.join(savedirs[idx].replace('samples', 'samples_separate'),
                                 f'{filename.split(".")[0]}_sample{i}.mp4')
             torchvision.io.write_video(path, grid, fps=fps, video_codec='h264', options={'crf': '10'})
@@ -179,7 +180,7 @@ def get_latent_z(model, videos):
     return z
 
 
-def image_guided_synthesis(model, prompts, videos, noise_shape, n_samples=1, ddim_steps=50, ddim_eta=1., \
+def image_guided_synthesis(model, prompts, videos, noise_shape, n_samples=1, ddim_steps=50, ddim_eta=1.,
                            unconditional_guidance_scale=1.0, cfg_img=None, fs=None, text_input=False,
                            multiple_cond_cfg=False, loop=False, interp=False, timestep_spacing='uniform',
                            guidance_rescale=0.0, **kwargs):
@@ -190,7 +191,7 @@ def image_guided_synthesis(model, prompts, videos, noise_shape, n_samples=1, ddi
     if not text_input:
         prompts = [""] * batch_size
 
-    img = videos[:, :, 0]  #bchw
+    img = videos[:, :, 0]  # bchw
     img_emb = model.embedder(img)  ## blc
     img_emb = model.image_proj_model(img_emb)
 

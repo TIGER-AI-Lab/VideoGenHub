@@ -1,1 +1,1 @@
-from datasets import video_transforms
+from videogen_hub.pipelines.lavie.lavie_src.interpolation.datasets import video_transforms

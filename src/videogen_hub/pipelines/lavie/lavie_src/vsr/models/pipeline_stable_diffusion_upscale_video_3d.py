@@ -12,22 +12,19 @@
 # limitations under the License.
 
 import inspect
-from typing import Any, Callable, List, Optional, Union
+from typing import Callable, List, Optional, Union
 
+import PIL.Image
 import numpy as np
-import math
-import PIL
 import torch
 import torch.nn.functional as F
-from transformers import CLIPImageProcessor, CLIPTextModel, CLIPTokenizer
-
 from diffusers.loaders import TextualInversionLoaderMixin
 from diffusers.models import AutoencoderKL, UNet2DConditionModel
 from diffusers.schedulers import DDPMScheduler
-# from diffusers.schedulers import DDIMScheduler
-from diffusion.scheduling_ddim import DDIMScheduler
-
 from diffusers.utils import deprecate, is_accelerate_available, is_accelerate_version, logging
+from transformers import CLIPImageProcessor, CLIPTextModel, CLIPTokenizer
+
+from videogen_hub.pipelines.lavie.lavie_src.vsr.diffusion.scheduling_ddim import DDIMScheduler
 
 try:
     from diffusers.utils import randn_tensor
@@ -38,9 +35,6 @@ from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 from diffusers.pipelines.stable_diffusion import StableDiffusionPipelineOutput
 
 from einops import rearrange
-
-# from datasets.data_utils import filter2D
-# from datasets.degradations import random_mixed_kernels, bivariate_Gaussian
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 

@@ -1,11 +1,13 @@
 import itertools
+
 import numpy as np
+from LLaMA2_Accessory.SPHINX import SPHINXModel
 from PIL import Image
 from PIL import ImageSequence
 from nltk import pos_tag, word_tokenize
 
-from LLaMA2_Accessory.SPHINX import SPHINXModel
 from gpt_combinator import caption_summary
+
 
 class CaptionRefiner():
     def __init__(self, sample_num, add_detect=True, add_pos=True, add_attr=True,

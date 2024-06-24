@@ -3,30 +3,35 @@ from typing import Optional, Dict, Tuple, Any
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from einops import rearrange, repeat
-from einops.layers.torch import Rearrange
-from diffusers.utils import logging
-from diffusers.models.unet_2d_blocks import (
-    DownBlock2D,
-    UpBlock2D
-)
+from diffusers.models import DualTransformer2DModel
 from diffusers.models.resnet import (
     ResnetBlock2D,
     Downsample2D,
     Upsample2D,
 )
-from diffusers.models.transformer_2d import Transformer2DModelOutput
-from diffusers.models.dual_transformer_2d import DualTransformer2DModel
+from einops import rearrange
+from einops.layers.torch import Rearrange
+
+try:
+    from diffusers.models.transformer_2d import Transformer2DModelOutput
+    from diffusers.models.dual_transformer_2d import DualTransformer2DModel
+    from diffusers.models.unet_2d_blocks import (
+        DownBlock2D,
+        UpBlock2D
+    )
+except:
+    from diffusers.models.transformers.transformer_2d import Transformer2DModelOutput
+    from diffusers.models.unets.unet_2d_blocks import DownBlock2D, UpBlock2D
+
 from diffusers.models.activations import get_activation
 from diffusers.utils import logging, is_torch_version
 from diffusers.utils.import_utils import is_xformers_available
-from .videoldm_transformer_blocks import Transformer2DConditionModel
+from videogen_hub.pipelines.consisti2v.consisti2v.models.videoldm_transformer_blocks import Transformer2DConditionModel
 
 logger = logging.get_logger(__name__)
 
 if is_xformers_available():
-    import xformers
-    import xformers.ops
+    pass
 else:
     xformers = None
 

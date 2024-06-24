@@ -1,9 +1,7 @@
-import torch
 from torch import nn
-import json
-import os
 
-from .api import new_module
+from videogen_hub.depend.icetk.vqvae.api import new_module
+
 
 class HVQVAE(nn.Module):
     def __init__(

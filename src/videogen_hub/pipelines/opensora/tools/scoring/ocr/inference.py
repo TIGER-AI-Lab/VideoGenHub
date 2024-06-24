@@ -1,24 +1,21 @@
 import argparse
 import os
 
+import colossalai
 import numpy as np
 import pandas as pd
 import torch
 import torch.distributed as dist
-import torch.nn.functional as F
-from torchvision.transforms import Resize, CenterCrop, Compose
+from mmengine import Config
+from mmengine.dataset import Compose, default_collate
+from mmengine.registry import DefaultScope
+from mmocr.datasets import PackTextDetInputs
+from mmocr.registry import MODELS
+from tools.datasets.utils import extract_frames, is_video
 from torch.utils.data import DataLoader, DistributedSampler
 from torchvision.datasets.folder import pil_loader
+from torchvision.transforms import Resize, CenterCrop, Compose
 from tqdm import tqdm
-
-import colossalai
-from mmengine import Config
-from mmengine.registry import DefaultScope
-from mmengine.dataset import Compose, default_collate
-from mmocr.registry import MODELS
-from mmocr.datasets import PackTextDetInputs
-
-from tools.datasets.utils import extract_frames, is_video
 
 
 def merge_scores(gathered_list: list, meta: pd.DataFrame):

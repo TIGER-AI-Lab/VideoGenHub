@@ -1,10 +1,10 @@
-import cv2
+import numpy as np
+from os import path as osp
+
 import numpy as np
 import torch
-from os import path as osp
+from basicsr.utils import scandir
 from torch.nn import functional as F
-
-from basicsr.utils import img2tensor, scandir
 
 
 def generate_frame_indices(crt_idx, max_frame_num, num_frames, padding='reflection'):

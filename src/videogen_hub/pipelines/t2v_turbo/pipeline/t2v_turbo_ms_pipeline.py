@@ -7,7 +7,7 @@ from diffusers import logging
 from diffusers.utils.torch_utils import randn_tensor
 from diffusers.models import AutoencoderKL
 from transformers import CLIPTokenizer, CLIPTextModel
-from ..scheduler.t2v_turbo_scheduler import T2VTurboScheduler
+from videogen_hub.pipelines.t2v_turbo.pipeline.scheduler.t2v_turbo_scheduler import T2VTurboScheduler
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 

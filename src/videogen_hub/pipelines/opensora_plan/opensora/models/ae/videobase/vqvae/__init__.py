@@ -1,9 +1,10 @@
 from einops import rearrange
 from torch import nn
 
-from .configuration_vqvae import VQVAEConfiguration
-from .modeling_vqvae import VQVAEModel
-from .trainer_vqvae import VQVAETrainer
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.vqvae.configuration_vqvae import \
+    VQVAEConfiguration
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.vqvae.modeling_vqvae import VQVAEModel
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.vqvae.trainer_vqvae import VQVAETrainer
 
 videovqvae = [
     "bair_stride4x2x2",

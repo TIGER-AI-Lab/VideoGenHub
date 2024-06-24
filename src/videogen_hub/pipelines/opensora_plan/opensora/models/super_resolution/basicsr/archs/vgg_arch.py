@@ -1,10 +1,10 @@
 import os
-import torch
 from collections import OrderedDict
+
+import torch
+from basicsr.utils.registry import ARCH_REGISTRY
 from torch import nn as nn
 from torchvision.models import vgg as vgg
-
-from basicsr.utils.registry import ARCH_REGISTRY
 
 VGG_PRETRAIN_PATH = 'experiments/pretrained_models/vgg19-dcbb9e9d.pth'
 NAMES = {

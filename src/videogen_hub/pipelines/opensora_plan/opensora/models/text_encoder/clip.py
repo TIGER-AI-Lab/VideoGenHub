@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+import html
 import os
 import re
+
 import ftfy
 import torch
-import html
 from PIL import Image
 from transformers import CLIPProcessor, CLIPModel, CLIPTokenizer, CLIPTextModel
+
 
 class CLIPEmbedder:
     """

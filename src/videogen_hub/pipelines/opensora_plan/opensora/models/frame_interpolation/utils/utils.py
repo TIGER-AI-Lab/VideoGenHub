@@ -1,11 +1,13 @@
+import random
 import re
 import sys
-import torch
-import random
+
 import numpy as np
-from PIL import ImageFile
+import torch
 import torch.nn.functional as F
+from PIL import ImageFile
 from imageio import imread, imwrite
+
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 

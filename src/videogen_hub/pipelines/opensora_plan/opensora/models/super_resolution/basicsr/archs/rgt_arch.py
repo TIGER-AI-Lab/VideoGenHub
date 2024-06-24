@@ -1,19 +1,14 @@
+import math
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.utils.checkpoint as checkpoint
-from torch import Tensor
-from torch.nn import functional as F
-
-from timm.models.layers import DropPath, trunc_normal_
-from einops.layers.torch import Rearrange
-from einops import rearrange, repeat
-
-import math
-import numpy as np
-
-import random
-
 from basicsr.utils.registry import ARCH_REGISTRY
+from einops import rearrange
+from einops.layers.torch import Rearrange
+from timm.models.layers import DropPath, trunc_normal_
+from torch.nn import functional as F
 
 
 def img2windows(img, H_sp, W_sp):

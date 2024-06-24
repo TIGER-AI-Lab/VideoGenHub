@@ -19,7 +19,7 @@ from PIL.Image import Image, fromarray
 
 import sys
 
-from ... import MODEL_PATH
+from videogen_hub.pipelines. import MODEL_PATH
 
 sys.path.append("thirdparty")
 # from modelscope.pipelines import pipeline
@@ -29,9 +29,9 @@ import pathlib
 import numpy as np
 
 # Utilities
-from .inference_utils import *
+from videogen_hub.pipelines.streamingt2v.inference_utils import *
 
-from .model_init import (
+from videogen_hub.pipelines.streamingt2v.model_init import (
     init_modelscope,
     init_animatediff,
     init_svd,
@@ -39,7 +39,7 @@ from .model_init import (
     init_v2v_model,
     init_streamingt2v_model,
 )
-from .model_func import *
+from videogen_hub.pipelines.streamingt2v.model_func import *
 
 
 def pipeline(prompt, size, seconds, fps, seed):

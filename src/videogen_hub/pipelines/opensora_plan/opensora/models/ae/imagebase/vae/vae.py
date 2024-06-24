@@ -1,6 +1,6 @@
+from diffusers.models import AutoencoderKL
 from einops import rearrange
 from torch import nn
-from diffusers.models import AutoencoderKL
 
 
 class HFVAEWrapper(nn.Module):

@@ -9,6 +9,7 @@ import torch.distributed as dist
 from colossalai.cluster import DistCoordinator, ProcessGroupMesh
 from colossalai.shardformer import ShardConfig, ShardFormer
 from colossalai.utils import get_current_device, set_seed
+
 from llava.constants import DEFAULT_IMAGE_TOKEN, IMAGE_TOKEN_INDEX
 from llava.conversation import conv_templates
 from llava.mm_utils import get_model_name_from_path, process_images, tokenizer_image_token
@@ -17,8 +18,10 @@ from llava.utils import disable_torch_init
 from torch.utils.data.distributed import DistributedSampler
 from tqdm import tqdm
 
-from .acceleration.llava.policies import LlavaLlamaForCausalLMPolicy, LlavaMistralForCausalLMPolicy
-from .utils import IMG_EXTENSIONS, PROMPTS, VID_EXTENSIONS, Timer, VideoTextDataset, collate_fn
+from videogen_hub.pipelines.opensora.opensora.datasets.utils import VID_EXTENSIONS
+from videogen_hub.pipelines.opensora.tools.caption.acceleration.llava.policies import LlavaLlamaForCausalLMPolicy, LlavaMistralForCausalLMPolicy
+from videogen_hub.pipelines.opensora.tools.caption.utils import PROMPTS, Timer, VideoTextDataset, collate_fn
+from videogen_hub.pipelines.opensora.tools.datasets.utils import IMG_EXTENSIONS
 
 disable_torch_init()
 

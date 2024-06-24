@@ -12,12 +12,12 @@ try:
 except:
     pass
 
-from .utils.lora import collapse_lora, monkeypatch_remove_lora
-from .utils.lora_handler import LoraHandler
-from .utils.common_utils import load_model_checkpoint
-from .utils.utils import instantiate_from_config
-from .scheduler.t2v_turbo_scheduler import T2VTurboScheduler
-from .pipeline.t2v_turbo_vc2_pipeline import T2VTurboVC2Pipeline
+from videogen_hub.pipelines.t2v_turbo.utils.lora import collapse_lora, monkeypatch_remove_lora
+from videogen_hub.pipelines.t2v_turbo.utils.lora_handler import LoraHandler
+from videogen_hub.pipelines.t2v_turbo.utils.common_utils import load_model_checkpoint
+from videogen_hub.pipelines.t2v_turbo.utils.utils import instantiate_from_config
+from videogen_hub.pipelines.t2v_turbo.scheduler.t2v_turbo_scheduler import T2VTurboScheduler
+from videogen_hub.pipelines.t2v_turbo.pipeline.t2v_turbo_vc2_pipeline import T2VTurboVC2Pipeline
 
 import torch
 

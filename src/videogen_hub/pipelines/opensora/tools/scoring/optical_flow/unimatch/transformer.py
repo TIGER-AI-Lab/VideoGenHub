@@ -1,13 +1,13 @@
 import torch
 import torch.nn as nn
 
-from .attention import (
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.attention import (
     single_head_full_attention,
     single_head_full_attention_1d,
     single_head_split_window_attention,
     single_head_split_window_attention_1d,
 )
-from .utils import generate_shift_window_attn_mask, generate_shift_window_attn_mask_1d
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.utils import generate_shift_window_attn_mask, generate_shift_window_attn_mask_1d
 
 
 class TransformerLayer(nn.Module):

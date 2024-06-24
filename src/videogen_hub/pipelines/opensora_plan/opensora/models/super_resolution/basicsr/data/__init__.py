@@ -1,12 +1,12 @@
 import importlib
-import numpy as np
 import random
-import torch
-import torch.utils.data
 from copy import deepcopy
 from functools import partial
 from os import path as osp
 
+import numpy as np
+import torch
+import torch.utils.data
 from basicsr.data.prefetch_dataloader import PrefetchDataLoader
 from basicsr.utils import get_root_logger, scandir
 from basicsr.utils.dist_util import get_dist_info

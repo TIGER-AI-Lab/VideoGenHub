@@ -1,6 +1,8 @@
 """Modified from https://github.com/CompVis/taming-transformers.git"""
 
-import os, hashlib
+import hashlib
+import os
+
 import requests
 from tqdm import tqdm
 

@@ -1,2 +1,2 @@
-from .llama import LlavaLlamaForCausalLMPolicy
-from .mistral import LlavaMistralForCausalLMPolicy
+from videogen_hub.pipelines.opensora.tools.caption.acceleration.llava.policies.llama import LlavaLlamaForCausalLMPolicy
+from videogen_hub.pipelines.opensora.tools.caption.acceleration.llava.policies.mistral import LlavaMistralForCausalLMPolicy

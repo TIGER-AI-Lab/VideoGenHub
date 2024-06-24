@@ -1,10 +1,11 @@
-from transformers import Trainer
-import torch.nn.functional as F
-from typing import Optional
-import os
-import torch
-from transformers.utils import WEIGHTS_NAME
 import json
+import os
+from typing import Optional
+
+import torch
+from transformers import Trainer
+from transformers.utils import WEIGHTS_NAME
+
 
 class VideoBaseTrainer(Trainer):
 

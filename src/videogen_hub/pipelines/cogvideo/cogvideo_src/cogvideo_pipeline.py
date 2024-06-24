@@ -10,7 +10,6 @@
 # here put the import lib
 
 import os
-import sys
 import torch
 import argparse
 import time
@@ -27,17 +26,11 @@ tokenizer.add_special_tokens(
 
 
 from SwissArmyTransformer import get_args
-from SwissArmyTransformer.data_utils import BinaryDataset, make_loaders
 from SwissArmyTransformer.generation.sampling_strategies import BaseStrategy
-from SwissArmyTransformer.generation.utils import (
-    timed_name,
-    save_multiple_images,
-    generate_continually,
-)
 from SwissArmyTransformer.resources import auto_create
 
-from .models.cogvideo_cache_model import CogVideoCacheModel
-from .coglm_strategy import CoglmStrategy
+from videogen_hub.pipelines.cogvideo.cogvideo_src.models.cogvideo_cache_model import CogVideoCacheModel
+from videogen_hub.pipelines.cogvideo.cogvideo_src.coglm_strategy import CoglmStrategy
 
 
 def get_masks_and_position_ids_stage1(data, textlen, framelen):
@@ -1303,39 +1296,3 @@ def main(args):
         assert False
 
 
-if __name__ == "__main__":
-    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
-
-    py_parser = argparse.ArgumentParser(add_help=False)
-    py_parser.add_argument("--generate-frame-num", type=int, default=5)
-    py_parser.add_argument("--coglm-temperature2", type=float, default=0.89)
-    # py_parser.add_argument("--interp-duration", type=float, default=-1) # -1是顺序生成，0是超分，0.5/1/2是插帧
-    # py_parser.add_argument("--total-duration", type=float, default=4.0) # 整个的时间
-    py_parser.add_argument("--use-guidance-stage1", action="store_true")
-    py_parser.add_argument("--use-guidance-stage2", action="store_true")
-    py_parser.add_argument("--guidance-alpha", type=float, default=3.0)
-    py_parser.add_argument(
-        "--stage-1", action="store_true"
-    )  # stage 1: sequential generation
-    py_parser.add_argument("--stage-2", action="store_true")  # stage 2: interp + dsr
-    py_parser.add_argument(
-        "--both-stages", action="store_true"
-    )  # stage 1&2: sequential generation; interp + dsr
-    py_parser.add_argument("--parallel-size", type=int, default=1)
-    py_parser.add_argument(
-        "--stage1-max-inference-batch-size", type=int, default=-1
-    )  # -1: use max-inference-batch-size
-    py_parser.add_argument("--multi-gpu", action="store_true")
-
-    CogVideoCacheModel.add_model_specific_args(py_parser)
-
-    known, args_list = py_parser.parse_known_args()
-    args = get_args(args_list)
-    args = argparse.Namespace(**vars(args), **vars(known))
-    args.layout = [int(x) for x in args.layout.split(",")]
-    args.do_train = False
-
-    torch.cuda.set_device(args.device)
-
-    with torch.no_grad():
-        main(args)

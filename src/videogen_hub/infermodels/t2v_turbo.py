@@ -6,7 +6,7 @@ import torch
 from videogen_hub import MODEL_PATH
 
 
-class T2VTurbo():
+class T2VTurbo:
     def __init__(self, base_model="vc2", merged=True, device="cuda"):
         """
     1. Download the pretrained model and put it inside MODEL_PATH

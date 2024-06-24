@@ -1,29 +1,20 @@
 # Adapted from https://github.com/huggingface/diffusers/blob/main/src/diffusers/models/attention.py
-import os
-import sys
-sys.path.append(os.path.split(sys.path[0])[0])
-
-from dataclasses import dataclass
-from typing import Optional
 
 import math
+from dataclasses import dataclass
+
 import torch
 import torch.nn.functional as F
-from torch import nn
-
 from diffusers.configuration_utils import ConfigMixin, register_to_config
+from diffusers.models.attention import FeedForward, AdaLayerNorm
 from diffusers.models.modeling_utils import ModelMixin
 from diffusers.utils import BaseOutput
 from diffusers.utils.import_utils import is_xformers_available
-from diffusers.models.attention import FeedForward, AdaLayerNorm
+from torch import nn
 
-try:
-    from .resnet import ResnetBlock3DCNN
-except:
-    from resnet import ResnetBlock3DCNN
-
+from videogen_hub.pipelines.lavie.lavie_src.vsr.models.resnet import ResnetBlock3DCNN
 from rotary_embedding_torch import RotaryEmbedding
-from typing import Callable, Optional
+from typing import Optional
 from einops import rearrange, repeat
 
 @dataclass

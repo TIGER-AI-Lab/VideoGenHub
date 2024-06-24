@@ -1,10 +1,13 @@
-from .configuration_causalvqvae import CausalVQVAEConfiguration
-from .modeling_causalvqvae import CausalVQVAEModel
-from .trainer_causalvqvae import CausalVQVAETrainer
-
-
 from einops import rearrange
 from torch import nn
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vqvae.configuration_causalvqvae import \
+    CausalVQVAEConfiguration
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vqvae.modeling_causalvqvae import \
+    CausalVQVAEModel
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vqvae.trainer_causalvqvae import \
+    CausalVQVAETrainer
+
 
 class CausalVQVAEModelWrapper(nn.Module):
     def __init__(self, ckpt):

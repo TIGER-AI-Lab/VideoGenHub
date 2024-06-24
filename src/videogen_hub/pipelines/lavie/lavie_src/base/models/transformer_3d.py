@@ -25,10 +25,7 @@ from diffusers.models.lora import LoRACompatibleConv, LoRACompatibleLinear
 from diffusers.models.modeling_utils import ModelMixin
 from einops import rearrange, repeat
 
-try:
-    from attention import BasicTransformerBlock
-except:
-    from .attention import BasicTransformerBlock
+from videogen_hub.pipelines.lavie.lavie_src.base.models.attention import BasicTransformerBlock
 
 @dataclass
 class Transformer3DModelOutput(BaseOutput):

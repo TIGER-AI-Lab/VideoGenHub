@@ -2,15 +2,15 @@ import os.path as osp
 import random
 from glob import glob
 
-from torchvision import transforms
 import numpy as np
 import torch
-import torch.utils.data as data
 import torch.nn.functional as F
+import torch.utils.data as data
+from torchvision import transforms
 from torchvision.transforms import Lambda
+from videogen_hub.pipelines.opensora_plan.opensora.models.dataset.transform import ToTensorVideo, CenterCropVideo
+from videogen_hub.pipelines.opensora_plan.opensora.models.utils.dataset_utils import DecordInit
 
-from ....dataset.transform import ToTensorVideo, CenterCropVideo
-from ....utils.dataset_utils import DecordInit
 
 def TemporalRandomCrop(total_frames, size):
     """

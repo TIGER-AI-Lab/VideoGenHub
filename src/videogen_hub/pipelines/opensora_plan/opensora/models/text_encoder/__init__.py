@@ -1,6 +1,5 @@
-import torch
 from torch import nn
-from transformers import T5EncoderModel, CLIPModel, CLIPProcessor
+from transformers import T5EncoderModel, CLIPModel
 
 from videogen_hub.pipelines.opensora_plan.opensora.utils.utils import get_precision
 

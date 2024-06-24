@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 
-from .geometry import coords_grid, generate_window_grid, normalize_coords
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.geometry import coords_grid, generate_window_grid, normalize_coords
 
 
 def global_correlation_softmax(

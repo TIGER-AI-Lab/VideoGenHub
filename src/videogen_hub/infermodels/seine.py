@@ -7,7 +7,7 @@ from huggingface_hub import snapshot_download, hf_hub_download
 from videogen_hub import MODEL_PATH
 
 
-class SEINE():
+class SEINE:
     def __init__(self):
         """
         1. Download the pretrained model and put it inside MODEL_PATH/SEINE

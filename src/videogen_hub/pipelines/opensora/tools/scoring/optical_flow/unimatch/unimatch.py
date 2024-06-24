@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .attention import SelfAttnPropagation
-from .backbone import CNNEncoder
-from .geometry import compute_flow_with_depth_pose, flow_warp
-from .matching import (
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.attention import SelfAttnPropagation
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.backbone import CNNEncoder
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.geometry import compute_flow_with_depth_pose, flow_warp
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.matching import (
     correlation_softmax_depth,
     global_correlation_softmax,
     global_correlation_softmax_stereo,
@@ -13,9 +13,9 @@ from .matching import (
     local_correlation_softmax_stereo,
     local_correlation_with_flow,
 )
-from .reg_refine import BasicUpdateBlock
-from .transformer import FeatureTransformer
-from .utils import feature_add_position, normalize_img, upsample_flow_with_mask
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.reg_refine import BasicUpdateBlock
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.transformer import FeatureTransformer
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.utils import feature_add_position, normalize_img, upsample_flow_with_mask
 
 
 class UniMatch(nn.Module):

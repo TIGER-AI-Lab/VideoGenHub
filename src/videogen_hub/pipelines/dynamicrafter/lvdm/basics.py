@@ -11,11 +11,11 @@ import torch.nn as nn
 from videogen_hub.pipelines.dynamicrafter.utils import instantiate_from_config
 
 
-
 def disabled_train(self, mode=True):
     """Overwrite model.train with this function to make sure train/eval mode
     does not change anymore."""
     return self
+
 
 def zero_module(module):
     """
@@ -24,6 +24,7 @@ def zero_module(module):
     for p in module.parameters():
         p.detach().zero_()
     return module
+
 
 def scale_module(module, scale):
     """

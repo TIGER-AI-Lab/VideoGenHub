@@ -1,5 +1,8 @@
-from ..configuration_videobase import VideoBaseConfiguration
 from typing import Union, Tuple
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.vqvae.configuration_videobase import \
+    VideoBaseConfiguration
+
 
 class VQVAEConfiguration(VideoBaseConfiguration):
     def __init__(

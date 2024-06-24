@@ -1,27 +1,23 @@
-import torch
-
-import os
 import json
-
-from dataclasses import dataclass
-from einops import rearrange, repeat
-from typing import Any, Dict, Optional, Tuple
-from diffusers.models import Transformer2DModel
-from diffusers.utils import USE_PEFT_BACKEND, BaseOutput, deprecate
-from diffusers.models.embeddings import get_1d_sincos_pos_embed_from_grid, ImagePositionalEmbeddings
-from diffusers.configuration_utils import ConfigMixin, register_to_config
-from diffusers.models.modeling_utils import ModelMixin
-from diffusers.models.lora import LoRACompatibleConv, LoRACompatibleLinear
+import os
+from typing import Any, Dict, Optional
 
 import torch
 import torch.nn.functional as F
+from diffusers.configuration_utils import ConfigMixin, register_to_config
+from diffusers.models.lora import LoRACompatibleConv, LoRACompatibleLinear
+from diffusers.models.modeling_utils import ModelMixin
+from diffusers.utils import USE_PEFT_BACKEND, deprecate
+from einops import rearrange, repeat
 from torch import nn
-
 # from opensora_plan.models.diffusion.utils.pos_embed import get_1d_sincos_pos_embed, PositionGetter1D, PositionGetter2D
 # from opensora_plan.models.diffusion.latte.modules import PatchEmbed, BasicTransformerBlock, BasicTransformerBlock_, AdaLayerNormSingle, \
 #    Transformer3DModelOutput, CaptionProjection
-from ..utils.pos_embed import get_1d_sincos_pos_embed, PositionGetter1D, PositionGetter2D
-from .modules import PatchEmbed, BasicTransformerBlock, BasicTransformerBlock_, AdaLayerNormSingle, \
+from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.latte.utils.pos_embed import \
+    get_1d_sincos_pos_embed, PositionGetter1D, PositionGetter2D
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.latte.modules import PatchEmbed, \
+    BasicTransformerBlock, BasicTransformerBlock_, AdaLayerNormSingle, \
     Transformer3DModelOutput, CaptionProjection
 
 
@@ -609,7 +605,7 @@ Latte_models = {
 
 if __name__ == '__main__':
     from opensora.models.ae import ae_channel_config, ae_stride_config
-    from opensora.models.ae import getae, getae_wrapper
+    from opensora.models.ae import getae_wrapper
     from opensora.models.ae.videobase import CausalVQVAEModelWrapper, CausalVAEModelWrapper
 
     args = type('args', (), 

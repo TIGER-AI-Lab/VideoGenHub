@@ -1,5 +1,5 @@
-from ..configuration_videobase import VideoBaseConfiguration
-from typing import Union, Tuple
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vqvae.configuration_videobase import VideoBaseConfiguration
+
 
 class CausalVQVAEConfiguration(VideoBaseConfiguration):
     def __init__(

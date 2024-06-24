@@ -1,31 +1,28 @@
 # -*- encoding: utf-8 -*-
-'''
+"""
 @File    :   text_tokenizer.py
 @Time    :   2021/12/20 01:26:12
-@Author  :   Ming Ding 
+@Author  :   Ming Ding
 @Contact :   dm18@mails.tsinghua.edu.cn
-'''
+"""
 
 # here put the import lib
-import os
-import sys
-import math
-import random
-from copy import copy
 from typing import List
 
 import sentencepiece as spm
-from . import sentencepiece_model_pb2 as model
+from videogen_hub.depend.icetk import sentencepiece_model_pb2 as model
 
 
 class TextTokenizer:
     def __init__(self, model_path):
+        self.num_tokens = None
+        self.sp = None
         self.proto = model.ModelProto()
         with open(model_path, 'rb') as fin:
             proto_str = fin.read()
             self.proto.ParseFromString(proto_str)
         self.refresh()
-        
+
     def refresh(self):
         self.sp = spm.SentencePieceProcessor()
         self.sp.Load(model_proto=self.proto.SerializeToString())
@@ -38,16 +35,16 @@ class TextTokenizer:
             new_token.score = 0
             self.proto.pieces.append(new_token)
         self.refresh()
-    
+
     def discourage_tokens(self, tokens):
-        if isinstance(tokens, str): # single token
+        if isinstance(tokens, str):  # single token
             tokens = [tokens]
         for token in tokens:
-            for piece in self.proto.pieces:    
+            for piece in self.proto.pieces:
                 if piece.piece == token:
                     piece.score = -100
         self.refresh()
-    
+
     def discourage_ids(self, ids):
         if isinstance(ids, int):
             ids = [ids]
@@ -72,6 +69,6 @@ class TextTokenizer:
 
     def convert_id_to_token(self, idx):
         return self.sp.IdToPiece(idx)
-    
+
     def __len__(self):
         return self.num_tokens

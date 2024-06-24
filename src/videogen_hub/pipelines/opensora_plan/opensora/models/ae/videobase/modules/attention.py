@@ -1,11 +1,12 @@
-import torch.nn as nn
-from .normalize import Normalize
-from .conv import CausalConv3d
 import torch
-import numpy as np
+import torch.nn as nn
 from einops import rearrange
-from .block import Block
-from .ops import video_to_image
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.block import Block
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.conv import CausalConv3d
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.normalize import Normalize
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.ops import video_to_image
+
 
 class LinearAttention(Block):
     def __init__(self, dim, heads=4, dim_head=32):

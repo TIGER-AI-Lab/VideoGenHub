@@ -13,7 +13,7 @@ import pandas as pd
 import torchvision
 from tqdm import tqdm
 
-from .utils import IMG_EXTENSIONS
+from videogen_hub.pipelines.opensora.tools.datasets.utils import IMG_EXTENSIONS
 
 tqdm.pandas()
 

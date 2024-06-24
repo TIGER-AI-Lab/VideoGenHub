@@ -23,10 +23,10 @@ from diffusers.models.resnet import (
 )
 
 # from diffusers.models.transformer_2d import Transformer2DModel
-from .transformer_2d import Transformer2DModel
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.transformer_2d import Transformer2DModel
 
 # from diffusers.models.transformer_temporal import TransformerTemporalModel
-from .transformer_temporal import TransformerTemporalModel
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.transformer_temporal import TransformerTemporalModel
 
 
 # Assign gradient checkpoint function to simple variable for readability.

@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-from .trident_conv import MultiScaleTridentConv
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.trident_conv import MultiScaleTridentConv
 
 
 class ResidualBlock(nn.Module):

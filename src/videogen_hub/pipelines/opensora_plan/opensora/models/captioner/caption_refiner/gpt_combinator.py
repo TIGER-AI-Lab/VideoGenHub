@@ -1,5 +1,7 @@
-import openai
 import ast
+
+import openai
+
 
 def caption_qa(caption_list, api_key, api_base):
     openai.api_key = api_key

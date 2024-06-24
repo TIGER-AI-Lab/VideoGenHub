@@ -26,7 +26,7 @@ from diffusers.models.attention_processor import AttentionProcessor, AttnProcess
 # from diffusers.models.transformer_temporal import TransformerTemporalModel
 from diffusers.models.embeddings import TimestepEmbedding, Timesteps
 from diffusers.models.modeling_utils import ModelMixin
-from .unet_3d_blocks import (
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.unet_3d_blocks import (
     CrossAttnDownBlock3D,
     CrossAttnUpBlock3D,
     DownBlock3D,
@@ -38,10 +38,10 @@ from .unet_3d_blocks import (
 )
 
 # from diffusers.models.unet_3d_condition import UNet3DConditionModel
-from .unet_3d_condition import (
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.unet_3d_condition import (
     UNet3DConditionModel,
 )
-from .transformer_temporal import (
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.transformer_temporal import (
     TransformerTemporalModel,
 )
 from videogen_hub.pipelines.streamingt2v.model.layers.conv_channel_extension import (

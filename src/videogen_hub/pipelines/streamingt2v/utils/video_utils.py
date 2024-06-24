@@ -13,7 +13,7 @@ import torchvision
 
 # from decord import VideoReader, cpu
 from einops import rearrange, repeat
-from .iimage import IImage
+from videogen_hub.pipelines.streamingt2v.utils.iimage import IImage
 from PIL import Image, ImageDraw, ImageFont
 from torchvision.utils import save_image
 

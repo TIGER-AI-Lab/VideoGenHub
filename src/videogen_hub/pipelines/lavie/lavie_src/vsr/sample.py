@@ -1,23 +1,18 @@
-import io
-import os
-import sys
-import argparse
-o_path = os.getcwd()
-sys.path.append(o_path)
-
-import torch
-import time
 import json
-import numpy as np
+import os
+import time
+
 import imageio
+import numpy as np
+import torch
 import torchvision
+from diffusers import DDIMScheduler
 from einops import rearrange
+from omegaconf import OmegaConf
 
 from models.autoencoder_kl import AutoencoderKL
-from models.unet import UNet3DVSRModel
 from models.pipeline_stable_diffusion_upscale_video_3d import StableDiffusionUpscalePipeline
-from diffusers import DDIMScheduler
-from omegaconf import OmegaConf
+from models.unet import UNet3DVSRModel
 
 
 def main(args):

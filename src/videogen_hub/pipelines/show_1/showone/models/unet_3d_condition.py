@@ -38,8 +38,8 @@ from diffusers.models.embeddings import (
 )
 from diffusers.models.modeling_utils import ModelMixin
 # from diffusers.models.transformer_temporal import TransformerTemporalModel
-from .transformer_temporal import  TransformerTemporalModel
-from .unet_3d_blocks import (
+from videogen_hub.pipelines.show_1.showone.models.transformer_temporal import  TransformerTemporalModel
+from videogen_hub.pipelines.show_1.showone.models.unet_3d_blocks import (
     CrossAttnDownBlock3D,
     CrossAttnUpBlock3D,
     DownBlock3D,

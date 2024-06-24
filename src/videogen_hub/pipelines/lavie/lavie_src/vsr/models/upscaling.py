@@ -4,24 +4,29 @@ import numpy as np
 from functools import partial
 from inspect import isfunction
 
+
 def exists(x):
     return x is not None
+
 
 def default(val, d):
     if exists(val):
         return val
     return d() if isfunction(d) else d
 
+
 def extract_into_tensor(a, t, x_shape):
     b, *_ = t.shape
     out = a.gather(-1, t)
     return out.reshape(b, *((1,) * (len(x_shape) - 1)))
+
 
 def make_beta_schedule(n_timestep, linear_start=1e-4, linear_end=2e-2):
     betas = (
             torch.linspace(linear_start ** 0.5, linear_end ** 0.5, n_timestep, dtype=torch.float64) ** 2
     )
     return betas.numpy()
+
 
 class AbstractLowScaleModel(nn.Module):
     # for concatenating a downsampled image to the latent representation
@@ -90,6 +95,3 @@ class ImageConcatWithNoiseAugmentation(AbstractLowScaleModel):
             assert isinstance(noise_level, torch.Tensor)
         z = self.q_sample(x, noise_level)
         return z, noise_level
-
-
-

@@ -1,8 +1,8 @@
 import functools
+
 import torch.nn as nn
-from ..modules.normalize import ActNorm
-from ..modules.conv import CausalConv3d
-from einops import rearrange
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.losses.modules.normalize import ActNorm
+
 
 def weights_init(m):
     classname = m.__class__.__name__

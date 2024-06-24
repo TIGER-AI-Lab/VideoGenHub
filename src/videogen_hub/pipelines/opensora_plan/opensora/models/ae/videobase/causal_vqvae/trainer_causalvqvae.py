@@ -1,10 +1,7 @@
-from ..trainer_videobase import VideoBaseTrainer
 import torch.nn.functional as F
-from typing import Optional
-import os
-import torch
-from transformers.utils import WEIGHTS_NAME
-import json
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vqvae.trainer_videobase import \
+    VideoBaseTrainer
+
 
 class CausalVQVAETrainer(VideoBaseTrainer):
 

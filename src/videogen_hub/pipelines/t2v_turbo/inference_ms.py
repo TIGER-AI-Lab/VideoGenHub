@@ -6,9 +6,9 @@ import random
 
 import numpy as np
 
-from .pipeline.t2v_turbo_ms_pipeline import T2VTurboMSPipeline
-from .scheduler.t2v_turbo_scheduler import T2VTurboScheduler
-from .utils.common_utils import set_torch_2_attn
+from videogen_hub.pipelines.t2v_turbo.pipeline.t2v_turbo_ms_pipeline import T2VTurboMSPipeline
+from videogen_hub.pipelines.t2v_turbo.scheduler.t2v_turbo_scheduler import T2VTurboScheduler
+from videogen_hub.pipelines.t2v_turbo.utils.common_utils import set_torch_2_attn
 
 try:
     import intel_extension_for_pytorch as ipex
@@ -16,10 +16,10 @@ except:
     pass
 
 from transformers import CLIPTokenizer, CLIPTextModel
-from .model_scope.unet_3d_condition import UNet3DConditionModel
+from videogen_hub.pipelines.t2v_turbo.model_scope.unet_3d_condition import UNet3DConditionModel
 
-from .utils.lora import collapse_lora, monkeypatch_remove_lora
-from .utils.lora_handler import LoraHandler
+from videogen_hub.pipelines.t2v_turbo.utils.lora import collapse_lora, monkeypatch_remove_lora
+from videogen_hub.pipelines.t2v_turbo.utils.lora_handler import LoraHandler
 
 import torch
 from diffusers.models import AutoencoderKL

@@ -30,8 +30,8 @@ except OptionalDependencyNotAvailable:
 else:
     # from .pipeline_t2v_base_latent import TextToVideoSDPipeline  # noqa: F401
     # from .pipeline_t2v_base_latent_sdxl import TextToVideoSDXLPipeline
-    from .pipeline_t2v_base_pixel import TextToVideoIFPipeline
-    from .pipeline_t2v_interp_pixel import TextToVideoIFInterpPipeline
+    from videogen_hub.pipelines.show_1.showone.pipelines.pipeline_t2v_base_pixel import TextToVideoIFPipeline
+    from videogen_hub.pipelines.show_1.showone.pipelines.pipeline_t2v_interp_pixel import TextToVideoIFInterpPipeline
     # from .pipeline_t2v_sr_latent import TextToVideoSDSuperResolutionPipeline
-    from .pipeline_t2v_sr_pixel import TextToVideoIFSuperResolutionPipeline
+    from videogen_hub.pipelines.show_1.showone.pipelines.pipeline_t2v_sr_pixel import TextToVideoIFSuperResolutionPipeline
     # from .pipeline_t2v_base_latent_controlnet import TextToVideoSDControlNetPipeline

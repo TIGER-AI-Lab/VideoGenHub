@@ -1,8 +1,10 @@
-from torch import nn
-import yaml
 import torch
+import yaml
 from omegaconf import OmegaConf
-from .vqgan import VQModel, GumbelVQ
+from torch import nn
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.imagebase.vqvae.vqgan import VQModel, GumbelVQ
+
 
 def load_config(config_path, display=False):
     config = OmegaConf.load(config_path)

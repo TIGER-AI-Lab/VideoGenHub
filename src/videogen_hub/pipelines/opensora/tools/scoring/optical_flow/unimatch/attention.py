@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .utils import merge_splits, merge_splits_1d, split_feature, split_feature_1d
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.utils import merge_splits, merge_splits_1d, split_feature, split_feature_1d
 
 
 def single_head_full_attention(q, k, v):

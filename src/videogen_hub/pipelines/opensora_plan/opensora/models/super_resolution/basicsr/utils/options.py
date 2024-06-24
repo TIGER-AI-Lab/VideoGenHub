@@ -1,10 +1,10 @@
 import argparse
 import random
-import torch
-import yaml
 from collections import OrderedDict
 from os import path as osp
 
+import torch
+import yaml
 from basicsr.utils import set_random_seed
 from basicsr.utils.dist_util import get_dist_info, init_dist, master_only
 

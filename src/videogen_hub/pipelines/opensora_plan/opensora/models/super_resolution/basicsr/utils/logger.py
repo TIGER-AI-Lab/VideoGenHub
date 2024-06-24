@@ -2,7 +2,8 @@ import datetime
 import logging
 import time
 
-from .dist_util import get_dist_info, master_only
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.dist_util import get_dist_info, \
+    master_only
 
 initialized_logger = {}
 

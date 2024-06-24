@@ -14,22 +14,22 @@ from videogen_hub.pipelines.streamingt2v.utils.video_utils import (
     video_naming,
 )
 
-from . import pl_module_params_controlnet
+from videogen_hub.pipelines.streamingt2v.model. import pl_module_params_controlnet
 
-from .diffusers_conditional.models.controlnet.controlnet import (
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.controlnet import (
     ControlNetModel,
 )
-from .diffusers_conditional.models.controlnet.unet_3d_condition import (
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.unet_3d_condition import (
     UNet3DConditionModel,
 )
-from .diffusers_conditional.models.controlnet.pipeline_text_to_video_w_controlnet_synth import (
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.pipeline_text_to_video_w_controlnet_synth import (
     TextToVideoSDPipeline,
 )
 
-from .diffusers_conditional.models.controlnet.processor import (
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.processor import (
     set_use_memory_efficient_attention_xformers,
 )
-from .diffusers_conditional.models.controlnet.mask_generator import (
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.mask_generator import (
     MaskGenerator,
 )
 

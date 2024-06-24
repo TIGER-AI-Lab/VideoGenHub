@@ -1,14 +1,15 @@
-import torch
 from collections import OrderedDict
 from os import path as osp
-from tqdm import tqdm
 
+import torch
 from basicsr.archs import build_network
 from basicsr.losses import build_loss
 from basicsr.metrics import calculate_metric
 from basicsr.utils import get_root_logger, imwrite, tensor2img
 from basicsr.utils.registry import MODEL_REGISTRY
-from .base_model import BaseModel
+from tqdm import tqdm
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.models.base_model import BaseModel
 
 
 @MODEL_REGISTRY.register()

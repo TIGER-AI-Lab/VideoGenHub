@@ -1,6 +1,6 @@
-import torch as th
 import numpy as np
-from functools import partial
+import torch as th
+
 
 def expand_t_like_x(t, x):
     """Function to reshape time t to broadcastable dimension of x

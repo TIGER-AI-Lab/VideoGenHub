@@ -1,17 +1,9 @@
-from importlib import import_module
-from typing import Callable, Optional, Union
 import math
-
-from einops import rearrange, repeat
+from importlib import import_module
+from typing import Callable, Optional
 
 import torch
 import torch.nn.functional as F
-from torch import nn
-
-from diffusers.utils import deprecate, logging
-from diffusers.utils.import_utils import is_xformers_available
-from diffusers.utils.torch_utils import maybe_allow_in_graph
-from diffusers.models.lora import LoRACompatibleLinear, LoRALinearLayer
 from diffusers.models.attention_processor import (
     Attention,
     AttnAddedKVProcessor,
@@ -32,18 +24,23 @@ from diffusers.models.attention_processor import (
     SlicedAttnProcessor,
     AttentionProcessor
 )
+from diffusers.models.lora import LoRACompatibleLinear
+from diffusers.utils import deprecate, logging
+from diffusers.utils.import_utils import is_xformers_available
+from diffusers.utils.torch_utils import maybe_allow_in_graph
+from einops import rearrange, repeat
+from torch import nn
 
-from .rotary_embedding import RotaryEmbedding
-
+from videogen_hub.pipelines.consisti2v.consisti2v.models.rotary_embedding import RotaryEmbedding
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
-
 
 if is_xformers_available():
     import xformers
     import xformers.ops
 else:
     xformers = None
+
 
 @maybe_allow_in_graph
 class ConditionalAttention(nn.Module):
@@ -62,28 +59,28 @@ class ConditionalAttention(nn.Module):
     """
 
     def __init__(
-        self,
-        query_dim: int,
-        cross_attention_dim: Optional[int] = None,
-        heads: int = 8,
-        dim_head: int = 64,
-        dropout: float = 0.0,
-        bias=False,
-        upcast_attention: bool = False,
-        upcast_softmax: bool = False,
-        cross_attention_norm: Optional[str] = None,
-        cross_attention_norm_num_groups: int = 32,
-        added_kv_proj_dim: Optional[int] = None,
-        norm_num_groups: Optional[int] = None,
-        spatial_norm_dim: Optional[int] = None,
-        out_bias: bool = True,
-        scale_qk: bool = True,
-        only_cross_attention: bool = False,
-        eps: float = 1e-5,
-        rescale_output_factor: float = 1.0,
-        residual_connection: bool = False,
-        _from_deprecated_attn_block=False,
-        processor: Optional["AttnProcessor"] = None,
+            self,
+            query_dim: int,
+            cross_attention_dim: Optional[int] = None,
+            heads: int = 8,
+            dim_head: int = 64,
+            dropout: float = 0.0,
+            bias=False,
+            upcast_attention: bool = False,
+            upcast_softmax: bool = False,
+            cross_attention_norm: Optional[str] = None,
+            cross_attention_norm_num_groups: int = 32,
+            added_kv_proj_dim: Optional[int] = None,
+            norm_num_groups: Optional[int] = None,
+            spatial_norm_dim: Optional[int] = None,
+            out_bias: bool = True,
+            scale_qk: bool = True,
+            only_cross_attention: bool = False,
+            eps: float = 1e-5,
+            rescale_output_factor: float = 1.0,
+            residual_connection: bool = False,
+            _from_deprecated_attn_block=False,
+            processor: Optional["AttnProcessor"] = None,
     ):
         super().__init__()
         self.inner_dim = dim_head * heads
@@ -99,7 +96,7 @@ class ConditionalAttention(nn.Module):
         self._from_deprecated_attn_block = _from_deprecated_attn_block
 
         self.scale_qk = scale_qk
-        self.scale = dim_head**-0.5 if self.scale_qk else 1.0
+        self.scale = dim_head ** -0.5 if self.scale_qk else 1.0
 
         self.heads = heads
         # for slice_size > 0 the attention score computation
@@ -177,7 +174,7 @@ class ConditionalAttention(nn.Module):
         self.set_processor(processor)
 
     def set_use_memory_efficient_attention_xformers(
-        self, use_memory_efficient_attention_xformers: bool, attention_op: Optional[Callable] = None
+            self, use_memory_efficient_attention_xformers: bool, attention_op: Optional[Callable] = None
     ):
         is_lora = hasattr(self, "processor") and isinstance(
             self.processor,
@@ -317,9 +314,9 @@ class ConditionalAttention(nn.Module):
 
     def set_processor(self, processor: "AttnProcessor"):
         if (
-            hasattr(self, "processor")
-            and not isinstance(processor, LORA_ATTENTION_PROCESSORS)
-            and self.to_q.lora_layer is not None
+                hasattr(self, "processor")
+                and not isinstance(processor, LORA_ATTENTION_PROCESSORS)
+                and self.to_q.lora_layer is not None
         ):
             deprecate(
                 "set_processor to offload LoRA",
@@ -335,9 +332,9 @@ class ConditionalAttention(nn.Module):
         # if current processor is in `self._modules` and if passed `processor` is not, we need to
         # pop `processor` from `self._modules`
         if (
-            hasattr(self, "processor")
-            and isinstance(self.processor, torch.nn.Module)
-            and not isinstance(processor, torch.nn.Module)
+                hasattr(self, "processor")
+                and isinstance(self.processor, torch.nn.Module)
+                and not isinstance(processor, torch.nn.Module)
         ):
             logger.info(f"You are removing possibly trained weights of {self.processor} with {processor}")
             self._modules.pop("processor")
@@ -564,12 +561,12 @@ class TemporalConditionalAttention(Attention):
         self.n_frames = n_frames
 
     def forward(
-        self, 
-        hidden_states, 
-        encoder_hidden_states=None,
-        attention_mask=None,
-        adjacent_slices=None,
-        **cross_attention_kwargs):
+            self,
+            hidden_states,
+            encoder_hidden_states=None,
+            attention_mask=None,
+            adjacent_slices=None,
+            **cross_attention_kwargs):
 
         key_pos_idx = None
 
@@ -593,7 +590,8 @@ class TemporalConditionalAttention(Attention):
                 adjacent_slices = adjacent_slices + first_frame_pos_embed
             else:
                 pos_idx = torch.arange(self.n_frames, device=hidden_states.device, dtype=hidden_states.dtype)
-                first_frame_pos_pad = torch.zeros(adjacent_slices.shape[2], device=hidden_states.device, dtype=hidden_states.dtype)
+                first_frame_pos_pad = torch.zeros(adjacent_slices.shape[2], device=hidden_states.device,
+                                                  dtype=hidden_states.dtype)
                 key_pos_idx = torch.cat([pos_idx, first_frame_pos_pad], dim=0)
             adjacent_slices = rearrange(adjacent_slices, 'b hw n c -> (b hw) n c')
             encoder_hidden_states = torch.cat([hidden_states, adjacent_slices], dim=1)
@@ -647,7 +645,7 @@ class PositionalEncoding(nn.Module):
 
         pos = torch.arange(max_pos)
 
-        freq = torch.arange(dim//2) / dim
+        freq = torch.arange(dim // 2) / dim
         freq = (freq * torch.tensor(10000).log()).exp()
 
         x = rearrange(pos, 'L -> L 1') / freq
@@ -667,10 +665,10 @@ class PositionalEncoding(nn.Module):
 # code taken from https://github.com/Vchitect/LaVie/blob/main/base/models/temporal_attention.py
 class RelativePositionBias(nn.Module):
     def __init__(
-        self,
-        heads=8,
-        num_buckets=32,
-        max_distance=128,
+            self,
+            heads=8,
+            num_buckets=32,
+            max_distance=128,
     ):
         super().__init__()
         self.num_buckets = num_buckets
@@ -690,7 +688,7 @@ class RelativePositionBias(nn.Module):
         is_small = n < max_exact
 
         val_if_large = max_exact + (
-            torch.log(n.float() / max_exact) / math.log(max_distance / max_exact) * (num_buckets - max_exact)
+                torch.log(n.float() / max_exact) / math.log(max_distance / max_exact) * (num_buckets - max_exact)
         ).long()
         val_if_large = torch.min(val_if_large, torch.full_like(val_if_large, num_buckets - 1))
 
@@ -698,13 +696,14 @@ class RelativePositionBias(nn.Module):
         return ret
 
     def forward(self, qlen, klen, device, dtype):
-        q_pos = torch.arange(qlen, dtype = torch.long, device = device)
-        k_pos = torch.arange(klen, dtype = torch.long, device = device)
+        q_pos = torch.arange(qlen, dtype=torch.long, device=device)
+        k_pos = torch.arange(klen, dtype=torch.long, device=device)
         rel_pos = rearrange(k_pos, 'j -> 1 j') - rearrange(q_pos, 'i -> i 1')
-        rp_bucket = self._relative_position_bucket(rel_pos, num_buckets = self.num_buckets, max_distance = self.max_distance)
+        rp_bucket = self._relative_position_bucket(rel_pos, num_buckets=self.num_buckets,
+                                                   max_distance=self.max_distance)
         values = self.relative_attention_bias(rp_bucket)
         values = values.to(device, dtype)
-        return rearrange(values, 'i j h -> h i j') # num_heads, num_frames, num_frames
+        return rearrange(values, 'i j h -> h i j')  # num_heads, num_frames, num_frames
 
 
 class RotaryEmbAttnProcessor2_0:
@@ -719,14 +718,14 @@ class RotaryEmbAttnProcessor2_0:
             raise ImportError("AttnProcessor2_0 requires PyTorch 2.0, to use it, please upgrade PyTorch to 2.0.")
 
     def __call__(
-        self,
-        attn: Attention,
-        hidden_states,
-        encoder_hidden_states=None,
-        attention_mask=None,
-        temb=None,
-        scale: float = 1.0,
-        key_pos_idx: Optional[torch.Tensor] = None,
+            self,
+            attn: Attention,
+            hidden_states,
+            encoder_hidden_states=None,
+            attention_mask=None,
+            temb=None,
+            scale: float = 1.0,
+            key_pos_idx: Optional[torch.Tensor] = None,
     ):
         assert attention_mask is None
         residual = hidden_states
@@ -759,7 +758,7 @@ class RotaryEmbAttnProcessor2_0:
             encoder_hidden_states = hidden_states
         elif attn.norm_cross:
             encoder_hidden_states = attn.norm_encoder_hidden_states(encoder_hidden_states)
-        
+
         qlen = hidden_states.shape[1]
         klen = encoder_hidden_states.shape[1]
         # currently only add bias for self attention. Relative distance doesn't make sense for cross attention.

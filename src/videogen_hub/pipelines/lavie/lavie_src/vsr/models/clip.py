@@ -1,6 +1,5 @@
 import numpy
 import torch.nn as nn
-from transformers import CLIPTokenizer, CLIPTextModel
 from diffusers import StableDiffusionUpscalePipeline
 
 """
@@ -19,6 +18,7 @@ You can safely ignore the warning, it is not an error.
 This clip usage is from U-ViT and same with Stable Diffusion.
 """
 
+
 class AbstractEncoder(nn.Module):
     def __init__(self):
         super().__init__()
@@ -29,6 +29,7 @@ class AbstractEncoder(nn.Module):
 
 class FrozenCLIPEmbedder(AbstractEncoder):
     """Uses the CLIP transformer encoder for text (from Hugging Face)"""
+
     def __init__(self, device="cuda", max_length=77):
         super().__init__()
         # self.tokenizer = CLIPTokenizer.from_pretrained('laion/CLIP-ViT-H-14-laion2B-s32B-b79K')
@@ -59,17 +60,18 @@ class FrozenCLIPEmbedder(AbstractEncoder):
 
     def encode(self, text):
         return self(text)
-    
+
 
 class TextEmbedder(nn.Module):
     """
     Embeds text prompt into vector representations. Also handles text dropout for classifier-free guidance.
     """
+
     def __init__(self, dropout_prob=0.1):
         super().__init__()
         self.text_encodder = FrozenCLIPEmbedder()
         self.dropout_prob = dropout_prob
-    
+
     def token_drop(self, text_prompts, force_drop_ids=None):
         """
         Drops text to enable classifier-free guidance.
@@ -88,10 +90,9 @@ class TextEmbedder(nn.Module):
             text_prompts = self.token_drop(text_prompts, force_drop_ids)
         embeddings = self.text_encodder(text_prompts)
         return embeddings
-    
+
 
 if __name__ == '__main__':
-
     r"""
     Returns:
 
@@ -124,4 +125,4 @@ if __name__ == '__main__':
     # print(output)
     print(output.shape)
     print(output1.shape)
-    print((output==output1).all())
+    print((output == output1).all())

@@ -16,8 +16,8 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from SwissArmyTransformer.resources import auto_create
-from .direct_sr import DirectSuperResolution
-from .iterative_sr import IterativeSuperResolution
+from videogen_hub.pipelines.cogvideo.cogvideo_src.sr_pipeline.direct_sr import DirectSuperResolution
+from videogen_hub.pipelines.cogvideo.cogvideo_src.sr_pipeline.iterative_sr import IterativeSuperResolution
 
 class SRGroup:
     def __init__(self, args, home_path=None,):

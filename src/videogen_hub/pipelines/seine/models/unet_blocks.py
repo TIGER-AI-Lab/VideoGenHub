@@ -7,8 +7,8 @@ import torch
 from torch import nn
 
 try:
-    from .attention import Transformer3DModel
-    from .resnet import Downsample3D, ResnetBlock3D, Upsample3D
+    from videogen_hub.pipelines.seine.models.attention import Transformer3DModel
+    from videogen_hub.pipelines.seine.models.resnet import Downsample3D, ResnetBlock3D, Upsample3D
 except:
     from attention import Transformer3DModel
     from resnet import Downsample3D, ResnetBlock3D, Upsample3D

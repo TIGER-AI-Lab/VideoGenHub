@@ -1,6 +1,6 @@
-import json
-import yaml
 from typing import TypeVar, Dict, Any
+
+import yaml
 from diffusers import ConfigMixin
 
 T = TypeVar('T', bound='VideoBaseConfiguration')

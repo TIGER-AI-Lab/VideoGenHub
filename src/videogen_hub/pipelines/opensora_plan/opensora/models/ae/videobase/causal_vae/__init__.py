@@ -1,7 +1,9 @@
-from .modeling_causalvae import CausalVAEModel
-
 from einops import rearrange
 from torch import nn
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vae.modeling_causalvae import \
+    CausalVAEModel
+
 
 class CausalVAEModelWrapper(nn.Module):
     def __init__(self, model_path, subfolder=None, cache_dir=None, **kwargs):

@@ -2,12 +2,13 @@
 #     GLIDE: https://github.com/openai/glide-text2im/blob/main/glide_text2im/gaussian_diffusion.py
 #     ADM:   https://github.com/openai/guided-diffusion/blob/main/guided_diffusion
 #     IDDPM: https://github.com/openai/improved-diffusion/blob/main/improved_diffusion/gaussian_diffusion.py
-import torch
 import numpy as np
 import torch as th
 
-from .gaussian_diffusion import GaussianDiffusion
-from .gaussian_diffusion_t2v import GaussianDiffusion_T
+from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.diffusion.gaussian_diffusion import \
+    GaussianDiffusion
+from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.diffusion.gaussian_diffusion_t2v import \
+    GaussianDiffusion_T
 
 
 def space_timesteps(num_timesteps, section_counts):

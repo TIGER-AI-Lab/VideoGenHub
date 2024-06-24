@@ -1,39 +1,30 @@
+import logging
+import os
+import time
+import torch
+
+import torch.distributed as dist
+from SwissArmyTransformer.resources import auto_create
+
+from videogen_hub.depend.icetk import icetk as tokenizer
+from videogen_hub.pipelines.cogvideo.cogvideo_src.coglm_strategy import (
+    CoglmStrategy,
+)
 from videogen_hub.pipelines.cogvideo.cogvideo_src.cogvideo_pipeline import (
     InferenceModel_Interpolate,
     InferenceModel_Sequential,
     my_filling_sequence,
     get_masks_and_position_ids_stage1,
     get_masks_and_position_ids_stage2,
-    my_save_multiple_images,
-)
-from videogen_hub.depend.icetk import icetk as tokenizer
-from videogen_hub.pipelines.cogvideo.cogvideo_src.coglm_strategy import (
-    CoglmStrategy,
 )
 from videogen_hub.pipelines.cogvideo.cogvideo_src.sr_pipeline import (
     DirectSuperResolution,
 )
-from SwissArmyTransformer.resources import auto_create
-import time, logging, sys, os, torch
-import torch.distributed as dist
-
-# path = os.path.join(args.output_path, f"{now_qi}_{raw_text}")
 
 
 def pipeline(args, raw_text, height, width, duration):
-    # model_stage1, args = InferenceModel_Sequential.from_pretrained(args, 'cogvideo-stage1')
-    # model_stage1.eval()
-    # parent_givan_tokens = process_stage1(model_stage1, raw_text, duration=4.0, video_raw_text=raw_text, video_guidance_text="视频",
-    #                                         image_text_suffix=" 高清摄影",
-    #                                         outputdir=None, batch_size=args.batch_size)
-
-    # process_stage2(model_stage2, raw_text, duration=2.0, video_raw_text=raw_text+" 视频",
-    #         video_guidance_text="视频", parent_given_tokens=parent_given_tokens,
-    #         outputdir=path,
-    #         gpu_rank=0, gpu_parallel_size=1) # TODO: 修改
 
     assert int(args.stage_1) + int(args.stage_2) + int(args.both_stages) == 1
-    rank_id = args.device % args.parallel_size
     generate_frame_num = args.generate_frame_num
 
     if args.stage_1 or args.both_stages:
@@ -71,11 +62,9 @@ def pipeline(args, raw_text, height, width, duration):
         model,
         seq_text,
         duration,
-        video_raw_text=None,
         video_guidance_text="视频",
         parent_given_tokens=None,
         conddir=None,
-        outputdir=None,
         gpu_rank=0,
         gpu_parallel_size=1,
     ):
@@ -316,10 +305,8 @@ def pipeline(args, raw_text, height, width, duration):
         video_raw_text=None,
         video_guidance_text="视频",
         image_text_suffix="",
-        outputdir=None,
         batch_size=1,
     ):
-        process_start_time = time.time()
         use_guide = args.use_guidance_stage1
         if args.both_stages:
             move_start_time = time.time()
@@ -522,8 +509,6 @@ def pipeline(args, raw_text, height, width, duration):
 
         # return save_tokens
 
-    # ======================================================================================================
-
     if args.stage_1 or args.both_stages:
         if args.input_source != "interactive":
             with open(args.input_source, "r") as fin:
@@ -564,7 +549,6 @@ def pipeline(args, raw_text, height, width, duration):
                     video_raw_text=raw_text,
                     video_guidance_text="视频",
                     image_text_suffix=" 高清摄影",
-                    outputdir=path if args.stage_1 else None,
                     batch_size=args.batch_size,
                 )
                 if args.stage_1 and not args.both_stages:
@@ -576,10 +560,8 @@ def pipeline(args, raw_text, height, width, duration):
                         model_stage2,
                         raw_text,
                         duration=duration,
-                        video_raw_text=raw_text + " 视频",
                         video_guidance_text="视频",
                         parent_given_tokens=parent_given_tokens,
-                        outputdir=path,
                         gpu_rank=0,
                         gpu_parallel_size=1,
                     )  # TODO: 修改
@@ -592,7 +574,6 @@ def pipeline(args, raw_text, height, width, duration):
         sample_dirs = os.listdir(args.output_path)
         for sample in sample_dirs:
             raw_text = sample.split("_")[-1]
-            path = os.path.join(args.output_path, sample, "Interp")
             parent_given_tokens = torch.load(
                 os.path.join(args.output_path, sample, "frame_tokens.pt")
             )
@@ -600,10 +581,8 @@ def pipeline(args, raw_text, height, width, duration):
             process_stage2(
                 raw_text,
                 duration=2.0,
-                video_raw_text=raw_text + " 视频",
                 video_guidance_text="视频",
                 parent_given_tokens=parent_given_tokens,
-                outputdir=path,
                 gpu_rank=0,
                 gpu_parallel_size=1,
             )  # TODO: 修改

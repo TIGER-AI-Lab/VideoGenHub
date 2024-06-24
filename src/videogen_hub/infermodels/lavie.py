@@ -1,10 +1,11 @@
-import os, sys
+import os
+
 import torch
 
 from videogen_hub import MODEL_PATH
 
 
-class LaVie():
+class LaVie:
     def __init__(self, model_path=os.path.join(MODEL_PATH, "lavie"), device="cuda"):
         """
         1. Download all necessary models from huggingface.

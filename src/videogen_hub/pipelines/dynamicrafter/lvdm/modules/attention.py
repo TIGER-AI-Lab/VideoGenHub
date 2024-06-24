@@ -9,12 +9,12 @@ try:
     XFORMERS_IS_AVAILBLE = True
 except:
     XFORMERS_IS_AVAILBLE = False
-from lvdm.common import (
+from videogen_hub.pipelines.dynamicrafter.lvdm.common import (
     checkpoint,
     exists,
     default,
 )
-from lvdm.basics import zero_module
+from videogen_hub.pipelines.dynamicrafter.lvdm.basics import zero_module
 
 
 class RelativePosition(nn.Module):

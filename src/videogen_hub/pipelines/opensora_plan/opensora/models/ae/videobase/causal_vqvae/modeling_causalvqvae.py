@@ -1,15 +1,20 @@
-from ..modeling_videobase import VideoBaseAE
-import torch
-from torch import nn, Tensor
-import numpy as np
-import torch.distributed as dist
-import torch.nn.functional as F
+import json
 import math
 import os
-import json
 from typing import Tuple, Dict, Union
-from .configuration_causalvqvae import CausalVQVAEConfiguration
+
+import numpy as np
+import torch
+import torch.distributed as dist
+import torch.nn.functional as F
 from einops import rearrange, pack, unpack
+from torch import nn, Tensor
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vqvae.modeling_videobase import \
+    VideoBaseAE
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vqvae.configuration_causalvqvae import \
+    CausalVQVAEConfiguration
+
 
 # Copied from https://github.com/wilson1yan/VideoGPT
 def view_range(x, i, j, shape):

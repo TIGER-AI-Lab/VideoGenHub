@@ -1,26 +1,26 @@
 # Modified from https://github.com/huggingface/diffusers/blob/v0.21.0/src/diffusers/models/transformer_2d.py
-from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 import torch
 import torch.nn.functional as F
+from diffusers.configuration_utils import ConfigMixin, register_to_config
+from diffusers.models.attention import AdaLayerNorm, AdaLayerNormZero, FeedForward, GatedSelfAttentionDense
+from diffusers.models.embeddings import ImagePositionalEmbeddings
+from diffusers.models.embeddings import PatchEmbed
+from diffusers.models.lora import LoRACompatibleConv
+from diffusers.models.lora import LoRACompatibleLinear
+from diffusers.models.modeling_utils import ModelMixin
+try:
+    from diffusers.models.transformer_2d import Transformer2DModelOutput
+except ImportError:
+    from diffusers.models.transformers.transformer_2d import Transformer2DModelOutput
+from diffusers.utils import deprecate
+from diffusers.utils.torch_utils import maybe_allow_in_graph
+from einops import rearrange, repeat
 from torch import nn
 
-from einops import rearrange, repeat
-
-from diffusers.configuration_utils import ConfigMixin, register_to_config
-from diffusers.models.embeddings import ImagePositionalEmbeddings
-from diffusers.utils import BaseOutput, deprecate
-from diffusers.models.attention import AdaLayerNorm, AdaLayerNormZero, FeedForward, GatedSelfAttentionDense
-from diffusers.models.embeddings import PatchEmbed
-from diffusers.models.lora import LoRACompatibleConv, LoRACompatibleLinear
-from diffusers.models.modeling_utils import ModelMixin
-from diffusers.models.transformer_2d import Transformer2DModelOutput
-from diffusers.utils.torch_utils import maybe_allow_in_graph
-from diffusers.models.attention_processor import Attention
-from diffusers.models.lora import LoRACompatibleLinear
-
-from .videoldm_attention import ConditionalAttention, TemporalConditionalAttention
+from videogen_hub.pipelines.consisti2v.consisti2v.models.videoldm_attention import ConditionalAttention, \
+    TemporalConditionalAttention
 
 
 class Transformer2DConditionModel(ModelMixin, ConfigMixin):

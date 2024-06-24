@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
-from utils.flow_utils import warp
 from networks.blocks.ifrnet import (
     convrelu, resize,
     ResBlock,
 )
+from utils.flow_utils import warp
 
 
 def multi_flow_combine(comb_block, img0, img1, flow0, flow1, 

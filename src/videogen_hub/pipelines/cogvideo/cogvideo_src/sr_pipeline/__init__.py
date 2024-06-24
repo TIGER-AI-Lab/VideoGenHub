@@ -7,11 +7,7 @@
 '''
 
 # here put the import lib
-import os
-import sys
-import math
-import random
 
-from .direct_sr import DirectSuperResolution
-from .iterative_sr import IterativeSuperResolution
-from .sr_group import SRGroup
+from videogen_hub.pipelines.cogvideo.cogvideo_src.sr_pipeline.direct_sr import DirectSuperResolution
+from videogen_hub.pipelines.cogvideo.cogvideo_src.sr_pipeline.iterative_sr import IterativeSuperResolution
+from videogen_hub.pipelines.cogvideo.cogvideo_src.sr_pipeline.sr_group import SRGroup

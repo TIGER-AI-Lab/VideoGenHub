@@ -1,7 +1,7 @@
-import torch
 import random
-import numbers
-from torchvision.transforms import RandomCrop, RandomResizedCrop
+
+import torch
+
 
 def _is_tensor_video_clip(clip):
     if not torch.is_tensor(clip):
@@ -11,7 +11,7 @@ def _is_tensor_video_clip(clip):
         raise ValueError("clip should be 4D. Got %dD" % clip.dim())
 
     return True
-	
+
 
 def to_tensor(clip):
     """
@@ -56,15 +56,16 @@ class ToTensorVideo:
     def __repr__(self) -> str:
         return self.__class__.__name__
 
-	
+
 class ResizeVideo:
     '''
     Resize to the specified size
     '''
+
     def __init__(
-        self,
-        size,
-        interpolation_mode="bilinear",
+            self,
+            size,
+            interpolation_mode="bilinear",
     ):
         if isinstance(size, tuple):
             if len(size) != 2:
@@ -74,7 +75,6 @@ class ResizeVideo:
             self.size = (size, size)
 
         self.interpolation_mode = interpolation_mode
-
 
     def __call__(self, clip):
         """
@@ -89,7 +89,7 @@ class ResizeVideo:
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(size={self.size}, interpolation_mode={self.interpolation_mode}"
-		
+
 
 class TemporalRandomCrop(object):
     """Temporally crop the given frame indices at a random location.
@@ -106,4 +106,3 @@ class TemporalRandomCrop(object):
         begin_index = random.randint(0, rand_end)
         end_index = min(begin_index + self.size, total_frames)
         return begin_index, end_index
-

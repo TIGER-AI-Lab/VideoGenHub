@@ -1,12 +1,12 @@
 import os
 
-from huggingface_hub import snapshot_download, hf_hub_download
 import torch
+from huggingface_hub import snapshot_download
 
 from videogen_hub import MODEL_PATH
 
 
-class OpenSoraPlan():
+class OpenSoraPlan:
     def __init__(self, device="cuda"):
         """
     1. Download the pretrained model and put it inside MODEL_PATH

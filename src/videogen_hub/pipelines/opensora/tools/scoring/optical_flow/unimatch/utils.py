@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 
-from .position import PositionEmbeddingSine
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.position import PositionEmbeddingSine
 
 
 def generate_window_grid(h_min, h_max, w_min, w_max, len_h, len_w, device=None):

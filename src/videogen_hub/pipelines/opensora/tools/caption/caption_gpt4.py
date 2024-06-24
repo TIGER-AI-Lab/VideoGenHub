@@ -7,7 +7,9 @@ from io import BytesIO
 import requests
 import tqdm
 
-from .utils import IMG_EXTENSIONS, PROMPTS, VID_EXTENSIONS, VideoTextDataset
+from videogen_hub.pipelines.opensora.opensora.datasets.utils import VID_EXTENSIONS
+from videogen_hub.pipelines.opensora.tools.caption.utils import PROMPTS, VideoTextDataset
+from videogen_hub.pipelines.opensora.tools.datasets.utils import IMG_EXTENSIONS
 
 
 def to_base64(image):

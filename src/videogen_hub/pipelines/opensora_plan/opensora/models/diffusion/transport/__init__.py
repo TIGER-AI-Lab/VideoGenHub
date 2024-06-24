@@ -1,4 +1,4 @@
-from .transport import Transport, ModelType, WeightType, PathType, Sampler
+from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.transport.transport import Transport, ModelType, WeightType, PathType, Sampler
 
 def create_transport(
     path_type='Linear',

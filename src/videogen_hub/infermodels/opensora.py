@@ -1,6 +1,6 @@
 import os
 
-from huggingface_hub import snapshot_download, hf_hub_download
+from huggingface_hub import hf_hub_download
 
 from videogen_hub import MODEL_PATH
 

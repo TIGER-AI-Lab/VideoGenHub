@@ -23,7 +23,7 @@ from diffusers.utils import BaseOutput
 # from diffusers.models.attention import BasicTransformerBlock
 # from t2v_enhanced.model.diffusers_conditional.models.attention import BasicTransformerBlock
 from diffusers.models.modeling_utils import ModelMixin
-from .attention import BasicTransformerBlock
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.attention import BasicTransformerBlock
 
 
 @dataclass

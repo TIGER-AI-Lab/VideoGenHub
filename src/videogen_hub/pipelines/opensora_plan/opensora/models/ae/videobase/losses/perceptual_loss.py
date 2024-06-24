@@ -1,9 +1,11 @@
 import torch
-from torch import nn
 import torch.nn.functional as F
-from .lpips import LPIPS
 from einops import rearrange
-from .discriminator import NLayerDiscriminator, weights_init, NLayerDiscriminator3D
+from torch import nn
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.losses.discriminator import NLayerDiscriminator, \
+    weights_init, NLayerDiscriminator3D
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.losses.lpips import LPIPS
 
 
 def hinge_d_loss(logits_real, logits_fake):

@@ -174,8 +174,8 @@ class T5Encoder:
         try:
             from colossalai.shardformer import ShardConfig, ShardFormer
 
-            from ...acceleration.shardformer.policy.t5_encoder import T5EncoderPolicy
-            from ...utils.misc import requires_grad
+            from videogen_hub.pipelines.opensora.opensora.models.acceleration.shardformer.policy.t5_encoder import T5EncoderPolicy
+            from videogen_hub.pipelines.opensora.opensora.models.utils.misc import requires_grad
         except:
             return
         shard_config = ShardConfig(

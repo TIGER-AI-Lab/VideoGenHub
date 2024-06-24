@@ -1,9 +1,11 @@
-import torch
-import torch.nn as nn
-import torch.distributed as dist
 import numpy as np
+import torch
+import torch.distributed as dist
+import torch.nn as nn
 import torch.nn.functional as F
-from .ops import shift_dim
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.ops import shift_dim
+
 
 class Codebook(nn.Module):
     def __init__(self, n_codes, embedding_dim):

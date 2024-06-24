@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
-from .block import Block
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.block import Block
+
 
 class GroupNorm(Block):
     def __init__(self, num_channels, num_groups=32, eps=1e-6, *args, **kwargs) -> None:

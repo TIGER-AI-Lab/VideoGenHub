@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
+import html
 import os
 import re
-import html
 import urllib.parse as ul
 
 import ftfy
 import torch
 from bs4 import BeautifulSoup
-from transformers import T5EncoderModel, AutoTokenizer
 from huggingface_hub import hf_hub_download
+from transformers import T5EncoderModel, AutoTokenizer
+
 
 class T5Embedder:
 

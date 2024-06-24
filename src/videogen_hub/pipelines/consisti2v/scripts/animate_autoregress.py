@@ -12,10 +12,12 @@ from diffusers import AutoencoderKL, DDIMScheduler
 
 from transformers import CLIPTextModel, CLIPTokenizer
 
-from consisti2v.models.videoldm_unet import VideoLDMUNet3DConditionModel
-from consisti2v.pipelines.pipeline_autoregress_animation import AutoregressiveAnimationPipeline
-from consisti2v.utils.util import save_videos_grid
+from videogen_hub.pipelines.consisti2v.consisti2v.models.videoldm_unet import VideoLDMUNet3DConditionModel
+from videogen_hub.pipelines.consisti2v.consisti2v.pipelines.pipeline_autoregress_animation import \
+    AutoregressiveAnimationPipeline
+from videogen_hub.pipelines.consisti2v.consisti2v.utils.util import save_videos_grid
 from diffusers.utils.import_utils import is_xformers_available
+
 
 def main(args, config):
     logging.basicConfig(
@@ -35,10 +37,11 @@ def main(args, config):
     ### >>> create validation pipeline >>> ###
     if config.pipeline_pretrained_path is None:
         noise_scheduler = DDIMScheduler(**OmegaConf.to_container(config.noise_scheduler_kwargs))
-        tokenizer       = CLIPTokenizer.from_pretrained(config.pretrained_model_path, subfolder="tokenizer", use_safetensors=True)
-        text_encoder    = CLIPTextModel.from_pretrained(config.pretrained_model_path, subfolder="text_encoder")
-        vae             = AutoencoderKL.from_pretrained(config.pretrained_model_path, subfolder="vae", use_safetensors=True)            
-        unet            = VideoLDMUNet3DConditionModel.from_pretrained(
+        tokenizer = CLIPTokenizer.from_pretrained(config.pretrained_model_path, subfolder="tokenizer",
+                                                  use_safetensors=True)
+        text_encoder = CLIPTextModel.from_pretrained(config.pretrained_model_path, subfolder="text_encoder")
+        vae = AutoencoderKL.from_pretrained(config.pretrained_model_path, subfolder="vae", use_safetensors=True)
+        unet = VideoLDMUNet3DConditionModel.from_pretrained(
             config.pretrained_model_path,
             subfolder="unet",
             variant=config.unet_additional_kwargs['variant'],
@@ -78,7 +81,7 @@ def main(args, config):
 
         pipeline = AutoregressiveAnimationPipeline(
             vae=vae, text_encoder=text_encoder, tokenizer=tokenizer, unet=unet, scheduler=noise_scheduler)
-    
+
     else:
         pipeline = AutoregressiveAnimationPipeline.from_pretrained(config.pipeline_pretrained_path)
 
@@ -87,10 +90,10 @@ def main(args, config):
     # (frameinit) initialize frequency filter for noise reinitialization -------------
     if config.frameinit_kwargs.enable:
         pipeline.init_filter(
-            width         = config.sampling_kwargs.width,
-            height        = config.sampling_kwargs.height,
-            video_length  = config.sampling_kwargs.n_frames,
-            filter_params = config.frameinit_kwargs.filter_params,
+            width=config.sampling_kwargs.width,
+            height=config.sampling_kwargs.height,
+            video_length=config.sampling_kwargs.n_frames,
+            filter_params=config.frameinit_kwargs.filter_params,
         )
     # -------------------------------------------------------------------------------
     ### <<< create validation pipeline <<< ###
@@ -103,55 +106,61 @@ def main(args, config):
     else:
         prompt_config = OmegaConf.load(args.prompt_config)
         prompts = prompt_config.prompts
-        n_prompts = list(prompt_config.n_prompts) * len(prompts) if len(prompt_config.n_prompts) == 1 else prompt_config.n_prompts
+        n_prompts = list(prompt_config.n_prompts) * len(prompts) if len(
+            prompt_config.n_prompts) == 1 else prompt_config.n_prompts
         first_frame_paths = prompt_config.path_to_first_frames
         random_seeds = prompt_config.seeds
-    
+
     if random_seeds == "random":
         random_seeds = [random.randint(0, 1e5) for _ in range(len(prompts))]
     else:
         random_seeds = [random_seeds] if isinstance(random_seeds, int) else list(random_seeds)
         random_seeds = random_seeds * len(prompts) if len(random_seeds) == 1 else random_seeds
-    
-    config.prompt_kwargs = OmegaConf.create({"random_seeds": [], "prompts": prompts, "n_prompts": n_prompts, "first_frame_paths": first_frame_paths})
-    for prompt_idx, (prompt, n_prompt, first_frame_path, random_seed) in enumerate(zip(prompts, n_prompts, first_frame_paths, random_seeds)):
+
+    config.prompt_kwargs = OmegaConf.create(
+        {"random_seeds": [], "prompts": prompts, "n_prompts": n_prompts, "first_frame_paths": first_frame_paths})
+    for prompt_idx, (prompt, n_prompt, first_frame_path, random_seed) in enumerate(
+            zip(prompts, n_prompts, first_frame_paths, random_seeds)):
         # manually set random seed for reproduction
-        if random_seed != -1: torch.manual_seed(random_seed)
-        else: torch.seed()
+        if random_seed != -1:
+            torch.manual_seed(random_seed)
+        else:
+            torch.seed()
         config.prompt_kwargs.random_seeds.append(torch.initial_seed())
-        
+
         print(f"current seed: {torch.initial_seed()}")
         print(f"sampling {prompt} ...")
         sample = pipeline(
             prompt,
-            negative_prompt       = n_prompt,
-            first_frame_paths     = first_frame_path,
-            num_inference_steps   = config.sampling_kwargs.steps,
-            guidance_scale_txt    = config.sampling_kwargs.guidance_scale_txt,
-            guidance_scale_img    = config.sampling_kwargs.guidance_scale_img,
-            width                 = config.sampling_kwargs.width,
-            height                = config.sampling_kwargs.height,
-            video_length          = config.sampling_kwargs.n_frames,
-            noise_sampling_method = config.unet_additional_kwargs['noise_sampling_method'],
-            noise_alpha           = float(config.unet_additional_kwargs['noise_alpha']),
-            eta                   = config.sampling_kwargs.ddim_eta,
-            frame_stride          = config.sampling_kwargs.frame_stride,
-            guidance_rescale      = config.sampling_kwargs.guidance_rescale,
-            num_videos_per_prompt = config.sampling_kwargs.num_videos_per_prompt,
-            autoregress_steps     = config.sampling_kwargs.autoregress_steps,
-            use_frameinit          = config.frameinit_kwargs.enable,
-            frameinit_noise_level  = config.frameinit_kwargs.noise_level,
+            negative_prompt=n_prompt,
+            first_frame_paths=first_frame_path,
+            num_inference_steps=config.sampling_kwargs.steps,
+            guidance_scale_txt=config.sampling_kwargs.guidance_scale_txt,
+            guidance_scale_img=config.sampling_kwargs.guidance_scale_img,
+            width=config.sampling_kwargs.width,
+            height=config.sampling_kwargs.height,
+            video_length=config.sampling_kwargs.n_frames,
+            noise_sampling_method=config.unet_additional_kwargs['noise_sampling_method'],
+            noise_alpha=float(config.unet_additional_kwargs['noise_alpha']),
+            eta=config.sampling_kwargs.ddim_eta,
+            frame_stride=config.sampling_kwargs.frame_stride,
+            guidance_rescale=config.sampling_kwargs.guidance_rescale,
+            num_videos_per_prompt=config.sampling_kwargs.num_videos_per_prompt,
+            autoregress_steps=config.sampling_kwargs.autoregress_steps,
+            use_frameinit=config.frameinit_kwargs.enable,
+            frameinit_noise_level=config.frameinit_kwargs.noise_level,
         ).videos
         samples.append(sample)
 
         prompt = "-".join((prompt.replace("/", "").split(" ")[:10])).replace(":", "")
         if sample.shape[0] > 1:
             for cnt, samp in enumerate(sample):
-                save_videos_grid(samp.unsqueeze(0), f"{savedir}/sample/{sample_idx}-{cnt + 1}-{prompt}.{args.format}", format=args.format)
+                save_videos_grid(samp.unsqueeze(0), f"{savedir}/sample/{sample_idx}-{cnt + 1}-{prompt}.{args.format}",
+                                 format=args.format)
         else:
             save_videos_grid(sample, f"{savedir}/sample/{sample_idx}-{prompt}.{args.format}", format=args.format)
         print(f"save to {savedir}/sample/{prompt}.{args.format}")
-        
+
         sample_idx += 1
 
     samples = torch.concat(samples)

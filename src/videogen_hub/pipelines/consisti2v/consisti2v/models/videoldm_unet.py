@@ -1,26 +1,14 @@
 import os
 import re
 from typing import Optional, Tuple, Union, Dict, List, Any
-from einops import rearrange, repeat
 
 import torch
 import torch.nn as nn
+from diffusers import __version__
+from diffusers.configuration_utils import register_to_config, ConfigMixin
 from diffusers.loaders import UNet2DConditionLoadersMixin
 from diffusers.models import ModelMixin
-from diffusers.models.unet_2d_condition import UNet2DConditionOutput
-from diffusers.models.unet_2d_blocks import UNetMidBlock2DCrossAttn, UNetMidBlock2DSimpleCrossAttn
-from diffusers.models.embeddings import (
-    GaussianFourierProjection,
-    ImageHintTimeEmbedding,
-    ImageProjection,
-    ImageTimeEmbedding,
-    PositionNet,
-    TextImageProjection,
-    TextImageTimeEmbedding,
-    TextTimeEmbedding,
-    TimestepEmbedding,
-    Timesteps,
-)
+from diffusers.models.activations import get_activation
 from diffusers.models.attention_processor import (
     ADDED_KV_ATTENTION_PROCESSORS,
     CROSS_ATTENTION_PROCESSORS,
@@ -28,113 +16,126 @@ from diffusers.models.attention_processor import (
     AttnAddedKVProcessor,
     AttnProcessor,
 )
-from diffusers.models.activations import get_activation
-from diffusers.configuration_utils import register_to_config, ConfigMixin
+from diffusers.models.embeddings import (
+    GaussianFourierProjection,
+    ImageHintTimeEmbedding,
+    ImageProjection,
+    ImageTimeEmbedding,
+    TextImageProjection,
+    TextImageTimeEmbedding,
+    TextTimeEmbedding,
+    TimestepEmbedding,
+    Timesteps,
+)
 from diffusers.models.modeling_utils import load_state_dict, load_model_dict_into_meta
+
+from videogen_hub import MODEL_PATH
+
+try:
+    from diffusers.models.unet_2d_blocks import UNetMidBlock2DSimpleCrossAttn
+    from diffusers.models.unet_2d_condition import UNet2DConditionOutput
+except:
+    from diffusers.models.unets.unet_2d_blocks import UNetMidBlock2DSimpleCrossAttn
+    from diffusers.models.unets.unet_2d_condition import UNet2DConditionOutput
+
 from diffusers.utils import (
-    CONFIG_NAME,
-    DIFFUSERS_CACHE,
     FLAX_WEIGHTS_NAME,
-    HF_HUB_OFFLINE,
     SAFETENSORS_WEIGHTS_NAME,
     WEIGHTS_NAME,
     _add_variant,
     _get_model_file,
-    deprecate,
     is_accelerate_available,
     is_torch_version,
     logging,
 )
-from diffusers import __version__
+from einops import rearrange, repeat
 
 if is_torch_version(">=", "1.9.0"):
     _LOW_CPU_MEM_USAGE_DEFAULT = True
 else:
     _LOW_CPU_MEM_USAGE_DEFAULT = False
 
-
 if is_accelerate_available():
     import accelerate
-    from accelerate.utils import set_module_tensor_to_device
     from accelerate.utils.versions import is_torch_version
 
-
-
-from .videoldm_unet_blocks import get_down_block, get_up_block, VideoLDMUNetMidBlock2DCrossAttn
+from videogen_hub.pipelines.consisti2v.consisti2v.models.videoldm_unet_blocks import get_down_block, get_up_block, \
+    VideoLDMUNetMidBlock2DCrossAttn
 
 logger = logging.get_logger(__name__)
 
 
 class VideoLDMUNet3DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoadersMixin):
     _supports_gradient_checkpointing = True
+
     @register_to_config
     def __init__(
-        self,
-        sample_size: Optional[int] = None,
-        in_channels: int = 4,
-        out_channels: int = 4,
-        center_input_sample: bool = False,
-        flip_sin_to_cos: bool = True,
-        freq_shift: int = 0,
-        down_block_types: Tuple[str] = (
-            "CrossAttnDownBlock2D", # -> VideoLDMDownBlock
-            "CrossAttnDownBlock2D", # -> VideoLDMDownBlock
-            "CrossAttnDownBlock2D", # -> VideoLDMDownBlock
-            "DownBlock2D",
-        ),
-        mid_block_type: Optional[str] = "UNetMidBlock2DCrossAttn",
-        up_block_types: Tuple[str] = (
-            "UpBlock2D",
-            "CrossAttnUpBlock2D", # -> VideoLDMUpBlock
-            "CrossAttnUpBlock2D", # -> VideoLDMUpBlock
-            "CrossAttnUpBlock2D", # -> VideoLDMUpBlock
-        ),
-        only_cross_attention: Union[bool, Tuple[bool]] = False,
-        block_out_channels: Tuple[int] = (320, 640, 1280, 1280),
-        layers_per_block: Union[int, Tuple[int]] = 2,
-        downsample_padding: int = 1,
-        mid_block_scale_factor: float = 1,
-        dropout: float = 0.0,
-        act_fn: str = "silu",
-        norm_num_groups: Optional[int] = 32,
-        norm_eps: float = 1e-5,
-        cross_attention_dim: Union[int, Tuple[int]] = 1280,
-        transformer_layers_per_block: Union[int, Tuple[int]] = 1,
-        encoder_hid_dim: Optional[int] = None,
-        encoder_hid_dim_type: Optional[str] = None,
-        attention_head_dim: Union[int, Tuple[int]] = 8,
-        num_attention_heads: Optional[Union[int, Tuple[int]]] = None,
-        dual_cross_attention: bool = False,
-        use_linear_projection: bool = False,
-        class_embed_type: Optional[str] = None,
-        addition_embed_type: Optional[str] = None,
-        addition_time_embed_dim: Optional[int] = None,
-        num_class_embeds: Optional[int] = None,
-        upcast_attention: bool = False,
-        resnet_time_scale_shift: str = "default",
-        resnet_skip_time_act: bool = False,
-        resnet_out_scale_factor: int = 1.0,
-        time_embedding_type: str = "positional",
-        time_embedding_dim: Optional[int] = None,
-        time_embedding_act_fn: Optional[str] = None,
-        timestep_post_act: Optional[str] = None,
-        time_cond_proj_dim: Optional[int] = None,
-        conv_in_kernel: int = 3,
-        conv_out_kernel: int = 3,
-        projection_class_embeddings_input_dim: Optional[int] = None,
-        attention_type: str = "default",
-        class_embeddings_concat: bool = False,
-        mid_block_only_cross_attention: Optional[bool] = None,
-        cross_attention_norm: Optional[str] = None,
-        addition_embed_type_num_heads=64,
-        # additional
-        use_temporal: bool = True,
-        n_frames: int = 8,
-        n_temp_heads: int = 8,
-        first_frame_condition_mode: str = "none",
-        augment_temporal_attention: bool = False,
-        temp_pos_embedding: str = "sinusoidal",
-        use_frame_stride_condition: bool = False,
+            self,
+            sample_size: Optional[int] = None,
+            in_channels: int = 4,
+            out_channels: int = 4,
+            center_input_sample: bool = False,
+            flip_sin_to_cos: bool = True,
+            freq_shift: int = 0,
+            down_block_types: Tuple[str] = (
+                    "CrossAttnDownBlock2D",  # -> VideoLDMDownBlock
+                    "CrossAttnDownBlock2D",  # -> VideoLDMDownBlock
+                    "CrossAttnDownBlock2D",  # -> VideoLDMDownBlock
+                    "DownBlock2D",
+            ),
+            mid_block_type: Optional[str] = "UNetMidBlock2DCrossAttn",
+            up_block_types: Tuple[str] = (
+                    "UpBlock2D",
+                    "CrossAttnUpBlock2D",  # -> VideoLDMUpBlock
+                    "CrossAttnUpBlock2D",  # -> VideoLDMUpBlock
+                    "CrossAttnUpBlock2D",  # -> VideoLDMUpBlock
+            ),
+            only_cross_attention: Union[bool, Tuple[bool]] = False,
+            block_out_channels: Tuple[int] = (320, 640, 1280, 1280),
+            layers_per_block: Union[int, Tuple[int]] = 2,
+            downsample_padding: int = 1,
+            mid_block_scale_factor: float = 1,
+            dropout: float = 0.0,
+            act_fn: str = "silu",
+            norm_num_groups: Optional[int] = 32,
+            norm_eps: float = 1e-5,
+            cross_attention_dim: Union[int, Tuple[int]] = 1280,
+            transformer_layers_per_block: Union[int, Tuple[int]] = 1,
+            encoder_hid_dim: Optional[int] = None,
+            encoder_hid_dim_type: Optional[str] = None,
+            attention_head_dim: Union[int, Tuple[int]] = 8,
+            num_attention_heads: Optional[Union[int, Tuple[int]]] = None,
+            dual_cross_attention: bool = False,
+            use_linear_projection: bool = False,
+            class_embed_type: Optional[str] = None,
+            addition_embed_type: Optional[str] = None,
+            addition_time_embed_dim: Optional[int] = None,
+            num_class_embeds: Optional[int] = None,
+            upcast_attention: bool = False,
+            resnet_time_scale_shift: str = "default",
+            resnet_skip_time_act: bool = False,
+            resnet_out_scale_factor: int = 1.0,
+            time_embedding_type: str = "positional",
+            time_embedding_dim: Optional[int] = None,
+            time_embedding_act_fn: Optional[str] = None,
+            timestep_post_act: Optional[str] = None,
+            time_cond_proj_dim: Optional[int] = None,
+            conv_in_kernel: int = 3,
+            conv_out_kernel: int = 3,
+            projection_class_embeddings_input_dim: Optional[int] = None,
+            attention_type: str = "default",
+            class_embeddings_concat: bool = False,
+            mid_block_only_cross_attention: Optional[bool] = None,
+            cross_attention_norm: Optional[str] = None,
+            addition_embed_type_num_heads=64,
+            # additional
+            use_temporal: bool = True,
+            n_frames: int = 8,
+            n_temp_heads: int = 8,
+            first_frame_condition_mode: str = "none",
+            augment_temporal_attention: bool = False,
+            temp_pos_embedding: str = "sinusoidal",
+            use_frame_stride_condition: bool = False,
     ):
         super().__init__()
 
@@ -149,7 +150,8 @@ class VideoLDMUNet3DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoade
         self.use_temporal = use_temporal
         self.augment_temporal_attention = augment_temporal_attention
 
-        assert first_frame_condition_mode in ["none", "concat", "conv2d", "input_only"], f"first_frame_condition_mode: {first_frame_condition_mode} must be one of ['none', 'concat', 'conv2d', 'input_only']"
+        assert first_frame_condition_mode in ["none", "concat", "conv2d",
+                                              "input_only"], f"first_frame_condition_mode: {first_frame_condition_mode} must be one of ['none', 'concat', 'conv2d', 'input_only']"
         self.first_frame_condition_mode = first_frame_condition_mode
         latent_channels = in_channels
 
@@ -159,7 +161,7 @@ class VideoLDMUNet3DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoade
             raise ValueError(
                 "At the moment it is not possible to define the number of attention heads via `num_attention_heads` because of a naming issue as described in https://github.com/huggingface/diffusers/issues/2011#issuecomment-1547958131. Passing `num_attention_heads` will only be supported in diffusers v0.19."
             )
-        
+
         num_attention_heads = num_attention_heads or attention_head_dim
 
         # Check inputs
@@ -541,7 +543,7 @@ class VideoLDMUNet3DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoade
         self.conv_out = nn.Conv2d(
             block_out_channels[0], out_channels, kernel_size=conv_out_kernel, padding=conv_out_padding
         )
-    
+
     @property
     def attn_processors(self) -> Dict[str, AttentionProcessor]:
         r"""
@@ -685,45 +687,45 @@ class VideoLDMUNet3DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoade
             module.gradient_checkpointing = value
 
     def forward(
-        self,
-        sample: torch.FloatTensor,
-        timestep: Union[torch.Tensor, float, int],
-        encoder_hidden_states: torch.Tensor,
-        class_labels: Optional[torch.Tensor] = None,
-        timestep_cond: Optional[torch.Tensor] = None,
-        attention_mask: Optional[torch.Tensor] = None,
-        cross_attention_kwargs: Optional[Dict[str, Any]] = None,
-        added_cond_kwargs: Optional[Dict[str, torch.Tensor]] = None,
-        down_block_additional_residuals: Optional[Tuple[torch.Tensor]] = None,
-        mid_block_additional_residual: Optional[torch.Tensor] = None,
-        encoder_attention_mask: Optional[torch.Tensor] = None,
-        return_dict: bool = True,
-        # additional
-        first_frame_latents: Optional[torch.Tensor] = None,
-        frame_stride: Optional[Union[torch.Tensor, float, int]] = None,
+            self,
+            sample: torch.FloatTensor,
+            timestep: Union[torch.Tensor, float, int],
+            encoder_hidden_states: torch.Tensor,
+            class_labels: Optional[torch.Tensor] = None,
+            timestep_cond: Optional[torch.Tensor] = None,
+            attention_mask: Optional[torch.Tensor] = None,
+            cross_attention_kwargs: Optional[Dict[str, Any]] = None,
+            added_cond_kwargs: Optional[Dict[str, torch.Tensor]] = None,
+            down_block_additional_residuals: Optional[Tuple[torch.Tensor]] = None,
+            mid_block_additional_residual: Optional[torch.Tensor] = None,
+            encoder_attention_mask: Optional[torch.Tensor] = None,
+            return_dict: bool = True,
+            # additional
+            first_frame_latents: Optional[torch.Tensor] = None,
+            frame_stride: Optional[Union[torch.Tensor, float, int]] = None,
     ) -> Union[UNet2DConditionOutput, Tuple]:
         # reshape video data
         assert sample.dim() == 5, f"Expected hidden_states to have ndim=5, but got ndim={sample.dim()}."
         video_length = sample.shape[2]
-        
+
         if first_frame_latents is not None:
             assert self.config.first_frame_condition_mode != "none", "first_frame_latents is not None, but first_frame_condition_mode is 'none'."
-        
+
         if self.config.first_frame_condition_mode != "none":
             sample = torch.cat([first_frame_latents, sample], dim=2)
             video_length += 1
-        
+
         # copy conditioning embeddings for cross attention
         if encoder_hidden_states is not None:
             encoder_hidden_states = repeat(encoder_hidden_states, 'b n c -> (b f) n c', f=video_length)
-        
+
         sample = rearrange(sample, "b c f h w -> (b f) c h w")
 
         # By default samples have to be AT least a multiple of the overall upsampling factor.
         # The overall upsampling factor is equal to 2 ** (# num of upsampling layers).
         # However, the upsampling interpolation output size can be forced to fit any upsampling size
         # on the fly if necessary.
-        default_overall_up_factor = 2**self.num_upsamplers
+        default_overall_up_factor = 2 ** self.num_upsamplers
 
         # upsample size should be forwarded when sample is not a multiple of `default_overall_up_factor`
         forward_upsample_size = False
@@ -937,7 +939,8 @@ class VideoLDMUNet3DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoade
                     **additional_residuals,
                 )
             else:
-                sample, res_samples = downsample_block(hidden_states=sample, temb=emb, scale=lora_scale, first_frame_latents=first_frame_latents,)
+                sample, res_samples = downsample_block(hidden_states=sample, temb=emb, scale=lora_scale,
+                                                       first_frame_latents=first_frame_latents, )
 
                 if is_adapter and len(down_block_additional_residuals) > 0:
                     sample += down_block_additional_residuals.pop(0)
@@ -948,7 +951,7 @@ class VideoLDMUNet3DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoade
             new_down_block_res_samples = ()
 
             for down_block_res_sample, down_block_additional_residual in zip(
-                down_block_res_samples, down_block_additional_residuals
+                    down_block_res_samples, down_block_additional_residuals
             ):
                 down_block_res_sample = down_block_res_sample + down_block_additional_residual
                 new_down_block_res_samples = new_down_block_res_samples + (down_block_res_sample,)
@@ -969,9 +972,9 @@ class VideoLDMUNet3DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoade
             )
             # To support T2I-Adapter-XL
             if (
-                is_adapter
-                and len(down_block_additional_residuals) > 0
-                and sample.shape == down_block_additional_residuals[0].shape
+                    is_adapter
+                    and len(down_block_additional_residuals) > 0
+                    and sample.shape == down_block_additional_residuals[0].shape
             ):
                 sample += down_block_additional_residuals.pop(0)
 
@@ -982,7 +985,7 @@ class VideoLDMUNet3DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoade
         for i, upsample_block in enumerate(self.up_blocks):
             is_final_block = i == len(self.up_blocks) - 1
 
-            res_samples = down_block_res_samples[-len(upsample_block.resnets) :]
+            res_samples = down_block_res_samples[-len(upsample_block.resnets):]
             down_block_res_samples = down_block_res_samples[: -len(upsample_block.resnets)]
 
             # if we have not reached the final block and need to forward the
@@ -1032,15 +1035,15 @@ class VideoLDMUNet3DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoade
 
         kwargs.pop("low_cpu_mem_usage", False)
         kwargs.pop("device_map", None)
-        
-        cache_dir = kwargs.pop("cache_dir", DIFFUSERS_CACHE)
+
+        cache_dir = kwargs.pop("cache_dir", MODEL_PATH)
         ignore_mismatched_sizes = kwargs.pop("ignore_mismatched_sizes", False)
         force_download = kwargs.pop("force_download", False)
         from_flax = kwargs.pop("from_flax", False)
         resume_download = kwargs.pop("resume_download", False)
         proxies = kwargs.pop("proxies", None)
         output_loading_info = kwargs.pop("output_loading_info", False)
-        local_files_only = kwargs.pop("local_files_only", HF_HUB_OFFLINE)
+        local_files_only = kwargs.pop("local_files_only", MODEL_PATH)
         use_auth_token = kwargs.pop("use_auth_token", None)
         revision = kwargs.pop("revision", None)
         torch_dtype = kwargs.pop("torch_dtype", None)
@@ -1304,7 +1307,8 @@ class VideoLDMUNet3DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoade
         logger.info(f"### missing keys: {len(m)}; unexpected keys: {len(u)};")
         # print(f"### missing keys:\n{m}\n### unexpected keys:\n{u}\n")
 
-        spatial_params = [p.numel() if "conv3ds" not in n and "tempo_attns" not in n else 0 for n, p in model.named_parameters()]
+        spatial_params = [p.numel() if "conv3ds" not in n and "tempo_attns" not in n else 0 for n, p in
+                          model.named_parameters()]
         tconv_params = [p.numel() if "conv3ds." in n else 0 for n, p in model.named_parameters()]
         tattn_params = [p.numel() if "tempo_attns." in n else 0 for n, p in model.named_parameters()]
         tffconv_params = [p.numel() if "first_frame_conv." in n else 0 for n, p in model.named_parameters()]
@@ -1320,22 +1324,23 @@ class VideoLDMUNet3DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoade
 
         return model
 
+
 if __name__ == "__main__":
     # test
     from diffusers import AutoencoderKL, DDIMScheduler
     from transformers import CLIPTextModel, CLIPTokenizer
-    from consisti2v.pipelines.pipeline_animation import AnimationPipeline
-    from consisti2v.pipelines.pipeline_conditional_animation import ConditionalAnimationPipeline
-    from consisti2v.utils.util import save_videos_grid
+    from videogen_hub.pipelines.consisti2v.consisti2v.pipelines.pipeline_conditional_animation import \
+        ConditionalAnimationPipeline
+    from videogen_hub.pipelines.consisti2v.consisti2v.utils.util import save_videos_grid
 
     pretrained_model_path = "models/StableDiffusion/stable-diffusion-v1-5"
     prompt = "apply eye makeup"
     first_frame_path = "/ML-A100/home/weiming/datasets/UCF/frames/v_ApplyEyeMakeup_g01_c01_frame_90.jpg"
 
-    tokenizer    = CLIPTokenizer.from_pretrained(pretrained_model_path, subfolder="tokenizer", use_safetensors=True)
+    tokenizer = CLIPTokenizer.from_pretrained(pretrained_model_path, subfolder="tokenizer", use_safetensors=True)
     text_encoder = CLIPTextModel.from_pretrained(pretrained_model_path, subfolder="text_encoder")
-    vae          = AutoencoderKL.from_pretrained(pretrained_model_path, subfolder="vae", use_safetensors=True)            
-    unet         = VideoLDMUNet3DConditionModel.from_pretrained(
+    vae = AutoencoderKL.from_pretrained(pretrained_model_path, subfolder="vae", use_safetensors=True)
+    unet = VideoLDMUNet3DConditionModel.from_pretrained(
         pretrained_model_path,
         subfolder="unet",
         use_safetensors=True
@@ -1343,11 +1348,11 @@ if __name__ == "__main__":
 
     noise_scheduler_kwargs = {
         "num_train_timesteps": 1000,
-        "beta_start":          0.00085,
-        "beta_end":            0.012,
-        "beta_schedule":       "linear",
-        "steps_offset":        1,
-        "clip_sample":         False,
+        "beta_start": 0.00085,
+        "beta_end": 0.012,
+        "beta_schedule": "linear",
+        "steps_offset": 1,
+        "clip_sample": False,
     }
     noise_scheduler = DDIMScheduler(**noise_scheduler_kwargs)
     # latent = torch.randn(1, 4, 8, 64, 64).to("cuda")
@@ -1360,12 +1365,12 @@ if __name__ == "__main__":
     ).to("cuda")
     sample = pipeline(
         prompt,
-        num_inference_steps = 25,
-        guidance_scale      = 8.,
-        video_length        = 8,
-        height              = 256,
-        width               =  256,
-        first_frame_paths   = first_frame_path,
+        num_inference_steps=25,
+        guidance_scale=8.,
+        video_length=8,
+        height=256,
+        width=256,
+        first_frame_paths=first_frame_path,
     ).videos
     print(sample.shape)
     save_videos_grid(sample, f"samples/videoldm.gif")

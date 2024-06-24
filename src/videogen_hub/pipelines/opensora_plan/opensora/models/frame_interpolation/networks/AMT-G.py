@@ -1,10 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from networks.blocks.raft import (
-    coords_grid,
-    BasicUpdateBlock, BidirCorrBlock
-)
 from networks.blocks.feat_enc import (
     LargeEncoder
 )
@@ -17,6 +12,10 @@ from networks.blocks.ifrnet import (
 from networks.blocks.multi_flow import (
     multi_flow_combine,
     MultiFlowDecoder
+)
+from networks.blocks.raft import (
+    coords_grid,
+    BasicUpdateBlock, BidirCorrBlock
 )
 
 

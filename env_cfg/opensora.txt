@@ -4,10 +4,13 @@ diffusers
 ftfy
 gdown
 mmengine
+mmocr
+moviepy
 pandas
 pre-commit
 pyarrow
 pyav
+scenedetect
 tensorboard
 timm
 tqdm

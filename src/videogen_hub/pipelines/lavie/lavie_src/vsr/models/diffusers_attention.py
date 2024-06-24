@@ -17,15 +17,13 @@ from typing import Optional
 
 import torch
 import torch.nn.functional as F
-from torch import nn
-
 from diffusers.configuration_utils import ConfigMixin, register_to_config
-from diffusers.models.modeling_utils import ModelMixin
+from diffusers.models.attention import FeedForward, AdaLayerNorm
 from diffusers.models.embeddings import ImagePositionalEmbeddings
+from diffusers.models.modeling_utils import ModelMixin
 from diffusers.utils import BaseOutput
 from diffusers.utils.import_utils import is_xformers_available
-from diffusers.models.attention import FeedForward, AdaLayerNorm
-from diffusers.models.attention_processor import Attention
+from torch import nn
 
 
 @dataclass

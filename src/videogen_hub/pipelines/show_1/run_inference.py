@@ -16,10 +16,10 @@ class ShowOnePipeline():
         Downloading the necessary models from huggingface and utilize them to load their pipelines,
         https://github.com/showlab/Show-1
         """
-        from .showone.pipelines import TextToVideoIFPipeline, TextToVideoIFInterpPipeline, \
+        from videogen_hub.pipelines.show_1.showone.pipelines import TextToVideoIFPipeline, TextToVideoIFInterpPipeline, \
             TextToVideoIFSuperResolutionPipeline
-        from .showone.pipelines.pipeline_t2v_base_pixel import tensor2vid
-        from .showone.pipelines.pipeline_t2v_sr_pixel_cond import TextToVideoIFSuperResolutionPipeline_Cond
+        from videogen_hub.pipelines.show_1.showone.pipelines.pipeline_t2v_base_pixel import tensor2vid
+        from videogen_hub.pipelines.show_1.showone.pipelines.pipeline_t2v_sr_pixel_cond import TextToVideoIFSuperResolutionPipeline_Cond
 
         self.tensor2vid = tensor2vid
         # Base Model

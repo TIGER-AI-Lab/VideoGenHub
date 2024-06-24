@@ -1,6 +1,7 @@
 import argparse
+
 from caption_refiner import CaptionRefiner
-from gpt_combinator import caption_summary, caption_qa
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="question-answer-generation-using-gpt-3")

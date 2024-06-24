@@ -1,15 +1,16 @@
-import cv2
 import argparse
-from basicsr.test_img import image_sr  
-from os import path as osp
 import os
-import shutil
-from PIL import Image
 import re
-import imageio.v2 as imageio
-import threading
-from concurrent.futures import ThreadPoolExecutor
+import shutil
 import time
+from concurrent.futures import ThreadPoolExecutor
+from os import path as osp
+
+import cv2
+import imageio.v2 as imageio
+
+from basicsr.test_img import image_sr
+
 
 def replace_filename(original_path, suffix):
 

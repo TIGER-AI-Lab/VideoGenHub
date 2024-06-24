@@ -1,7 +1,7 @@
 import torch
 from types import SimpleNamespace
 
-from .lora import (
+from videogen_hub.pipelines.t2v_turbo.utils.lora import (
     extract_lora_ups_down,
     inject_trainable_lora_extended,
     monkeypatch_or_replace_lora_extended,

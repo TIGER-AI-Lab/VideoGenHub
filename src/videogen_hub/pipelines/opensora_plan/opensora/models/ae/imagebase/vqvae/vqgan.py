@@ -1,13 +1,14 @@
+import importlib
+
+import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
-import pytorch_lightning as pl
-import argparse, os, sys, datetime, glob, importlib
 
-from .model import Encoder, Decoder
-from .quantize import VectorQuantizer2 as VectorQuantizer
-from .quantize import GumbelQuantize
-from .quantize import EMAVectorQuantizer
-
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.imagebase.vqvae.model import Encoder, Decoder
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.imagebase.vqvae.quantize import EMAVectorQuantizer
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.imagebase.vqvae.quantize import GumbelQuantize
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.imagebase.vqvae.quantize import \
+    VectorQuantizer2 as VectorQuantizer
 
 
 def get_obj_from_str(string, reload=False):

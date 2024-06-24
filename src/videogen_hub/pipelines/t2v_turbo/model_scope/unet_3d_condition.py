@@ -30,7 +30,7 @@ try:
 except:
     from diffusers.models.transformers.transformer_temporal import TransformerTemporalModelOutput
     from diffusers.models import TransformerTemporalModel
-from .unet_3d_blocks import (
+from videogen_hub.pipelines.t2v_turbo.model_scope.unet_3d_blocks import (
     CrossAttnDownBlock3D,
     CrossAttnUpBlock3D,
     DownBlock3D,

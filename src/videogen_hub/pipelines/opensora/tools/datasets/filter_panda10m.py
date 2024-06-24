@@ -1,12 +1,12 @@
 # TODO: remove this file before releasing
 
 import argparse
-import os
-import pandas as pd
-import json
 import html
-from tqdm import tqdm
+import os
 import re
+
+import pandas as pd
+from tqdm import tqdm
 
 tqdm.pandas()
 

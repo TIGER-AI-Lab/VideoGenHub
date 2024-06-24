@@ -1,18 +1,17 @@
-from .vqvae import (
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vae import (
+    CausalVAEModel, CausalVAEModelWrapper
+)
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vqvae import (
+    CausalVQVAEConfiguration,
+    CausalVQVAETrainer,
+    CausalVQVAEModel, CausalVQVAEModelWrapper
+)
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.vqvae import (
     VQVAEConfiguration,
     VQVAEModel,
     VQVAETrainer,
     VQVAEModelWrapper
 )
-from .causal_vqvae import (
-    CausalVQVAEConfiguration,
-    CausalVQVAETrainer,
-    CausalVQVAEModel, CausalVQVAEModelWrapper
-)
-from .causal_vae import (
-    CausalVAEModel, CausalVAEModelWrapper
-)
-
 
 videobase_ae_stride = {
     'CausalVAEModel_4x8x8': [4, 8, 8],

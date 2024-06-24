@@ -21,8 +21,8 @@ from diffusers.utils import (
 from diffusers.utils.torch_utils import randn_tensor
 from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 
-from ..models import UNet3DConditionModel
-from . import TextToVideoPipelineOutput
+from videogen_hub.pipelines.show_1.showone.pipelines.models import UNet3DConditionModel
+from videogen_hub.pipelines.show_1.showone.pipelines. import TextToVideoPipelineOutput
 
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name

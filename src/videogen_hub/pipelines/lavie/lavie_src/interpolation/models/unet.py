@@ -1,21 +1,15 @@
 # Adapted from https://github.com/huggingface/diffusers/blob/main/src/diffusers/models/unet_2d_condition.py
 
+import json
+import os
 from dataclasses import dataclass
 from typing import List, Optional, Tuple, Union
 
-import os
-import sys
-sys.path.append(os.path.split(sys.path[0])[0])
-
-import json
-
-import torch
 import torch.nn as nn
 import torch.utils.checkpoint
-
 from diffusers.configuration_utils import ConfigMixin, register_to_config
-from diffusers.utils import BaseOutput, logging
 from diffusers.models.embeddings import TimestepEmbedding, Timesteps
+from diffusers.utils import BaseOutput, logging
 
 try:
     from diffusers.models.modeling_utils import ModelMixin
@@ -23,7 +17,7 @@ except:
     from diffusers.modeling_utils import ModelMixin # 0.11.1
 
 try:
-    from .unet_blocks import (
+    from videogen_hub.pipelines.lavie.lavie_src.interpolation.models.unet_blocks import (
         CrossAttnDownBlock3D,
         CrossAttnUpBlock3D,
         DownBlock3D,
@@ -32,7 +26,7 @@ try:
         get_down_block,
         get_up_block,
     )
-    from .resnet import InflatedConv3d
+    from videogen_hub.pipelines.lavie.lavie_src.interpolation.models.resnet import InflatedConv3d
 except:
     from unet_blocks import (
         CrossAttnDownBlock3D,

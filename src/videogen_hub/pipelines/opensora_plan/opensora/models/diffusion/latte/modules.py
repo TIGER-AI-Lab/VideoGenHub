@@ -1,26 +1,23 @@
+from dataclasses import dataclass
 from importlib import import_module
-
-import numpy as np
 from typing import Any, Dict, Optional, Tuple, Callable
-from diffusers.utils import USE_PEFT_BACKEND, BaseOutput, deprecate, is_xformers_available
-from diffusers.models.lora import LoRACompatibleConv, LoRACompatibleLinear
 
 import torch
 import torch.nn.functional as F
-from torch import nn
-from diffusers.utils.torch_utils import maybe_allow_in_graph
-from diffusers.models.embeddings import SinusoidalPositionalEmbedding, TimestepEmbedding, Timesteps
-from diffusers.models.normalization import AdaLayerNorm, AdaLayerNormZero
+from diffusers.models.activations import GEGLU, GELU, ApproximateGELU
 from diffusers.models.attention_processor import SpatialNorm, LORA_ATTENTION_PROCESSORS, \
     CustomDiffusionAttnProcessor, CustomDiffusionXFormersAttnProcessor, CustomDiffusionAttnProcessor2_0, \
     AttnAddedKVProcessor, AttnAddedKVProcessor2_0, SlicedAttnAddedKVProcessor, XFormersAttnAddedKVProcessor, \
     LoRAAttnAddedKVProcessor, LoRAXFormersAttnProcessor, XFormersAttnProcessor, LoRAAttnProcessor2_0, LoRAAttnProcessor, \
     AttnProcessor, SlicedAttnProcessor, logger
-from diffusers.models.activations import GEGLU, GELU, ApproximateGELU
-
-from dataclasses import dataclass
-
-from ..utils.pos_embed import get_2d_sincos_pos_embed, RoPE1D, RoPE2D, LinearScalingRoPE2D, LinearScalingRoPE1D
+from diffusers.models.embeddings import SinusoidalPositionalEmbedding, TimestepEmbedding, Timesteps
+from diffusers.models.lora import LoRACompatibleLinear
+from diffusers.models.normalization import AdaLayerNorm, AdaLayerNormZero
+from diffusers.utils import USE_PEFT_BACKEND, BaseOutput, deprecate, is_xformers_available
+from diffusers.utils.torch_utils import maybe_allow_in_graph
+from torch import nn
+from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.latte.utils.pos_embed import \
+    get_2d_sincos_pos_embed, RoPE1D, RoPE2D, LinearScalingRoPE2D, LinearScalingRoPE1D
 
 if is_xformers_available():
     import xformers

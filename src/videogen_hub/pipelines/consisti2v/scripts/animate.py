@@ -12,11 +12,11 @@ from diffusers import AutoencoderKL, DDIMScheduler
 
 from transformers import CLIPTextModel, CLIPTokenizer
 
-from consisti2v.models.videoldm_unet import VideoLDMUNet3DConditionModel
-from consisti2v.pipelines.pipeline_conditional_animation import (
+from videogen_hub.pipelines.consisti2v.consisti2v.models.videoldm_unet import VideoLDMUNet3DConditionModel
+from videogen_hub.pipelines.consisti2v.consisti2v.pipelines.pipeline_conditional_animation import (
     ConditionalAnimationPipeline,
 )
-from consisti2v.utils.util import save_videos_grid
+from videogen_hub.pipelines.consisti2v.consisti2v.utils.util import save_videos_grid
 from diffusers.utils.import_utils import is_xformers_available
 
 

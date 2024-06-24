@@ -24,7 +24,7 @@ except:
     from diffusers.modeling_utils import ModelMixin # 0.11.1
 
 try:
-    from .unet_blocks import (
+    from videogen_hub.pipelines.seine.models.unet_blocks import (
         CrossAttnDownBlock3D,
         CrossAttnUpBlock3D,
         DownBlock3D,
@@ -33,7 +33,7 @@ try:
         get_down_block,
         get_up_block,
     )
-    from .resnet import InflatedConv3d
+    from videogen_hub.pipelines.seine.models.resnet import InflatedConv3d
 except:
     from unet_blocks import (
         CrossAttnDownBlock3D,

@@ -25,8 +25,8 @@ from diffusers.models.embeddings import TimestepEmbedding, Timesteps
 from diffusers.models.modeling_utils import ModelMixin
 
 # from diffusers.models.transformer_temporal import TransformerTemporalModel
-from .transformer_temporal import TransformerTemporalModel
-from .unet_3d_blocks import (
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.transformer_temporal import TransformerTemporalModel
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.unet_3d_blocks import (
     CrossAttnDownBlock3D,
     CrossAttnUpBlock3D,
     DownBlock3D,
@@ -36,7 +36,7 @@ from .unet_3d_blocks import (
     get_up_block,
     transformer_g_c,
 )
-from .conditioning import ConditionalModel
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.conditioning import ConditionalModel
 from einops import rearrange
 from videogen_hub.pipelines.streamingt2v.model.layers.conv_channel_extension import (
     Conv2D_ExtendedChannels,

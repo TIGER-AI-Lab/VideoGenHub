@@ -22,7 +22,7 @@ from diffusers.utils.import_utils import is_xformers_available
 
 # from diffusers.models.attention_processor import Attention
 # from t2v_enhanced.model.diffusers_conditional.models.controlnet.attention import Attention
-from .attention_processor import Attention
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.attention_processor import Attention
 from diffusers.models.embeddings import CombinedTimestepLabelEmbeddings
 
 # from t2v_enhanced.model.diffusers_conditional.models.controlnet.attention_processor import Attention

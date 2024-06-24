@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import math
 import numpy as np
 import torch
+from diffusers import UNet3DConditionModel
 from tqdm import tqdm
 
 from torchvision import transforms as T
@@ -31,8 +32,7 @@ from diffusers.utils import deprecate, logging, BaseOutput
 
 from einops import rearrange, repeat
 
-from ..models.unet import UNet3DConditionModel
-from ..utils.frameinit_utils import freq_mix_3d, get_freq_filter
+from videogen_hub.pipelines.consisti2v.consisti2v.utils.frameinit_utils import freq_mix_3d, get_freq_filter
 
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name

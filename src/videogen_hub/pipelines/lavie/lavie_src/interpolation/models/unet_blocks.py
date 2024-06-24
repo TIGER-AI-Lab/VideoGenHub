@@ -1,17 +1,10 @@
 # Adapted from https://github.com/huggingface/diffusers/blob/main/src/diffusers/models/unet_2d_blocks.py
-import os
-import sys
-sys.path.append(os.path.split(sys.path[0])[0])
 
 import torch
 from torch import nn
 
-try:
-    from .attention import Transformer3DModel
-    from .resnet import Downsample3D, ResnetBlock3D, Upsample3D
-except:
-    from attention import Transformer3DModel
-    from resnet import Downsample3D, ResnetBlock3D, Upsample3D
+from videogen_hub.pipelines.lavie.lavie_src.interpolation.models.attention import Transformer3DModel
+from videogen_hub.pipelines.lavie.lavie_src.interpolation.models.resnet import Downsample3D, ResnetBlock3D, Upsample3D
 
 
 def get_down_block(

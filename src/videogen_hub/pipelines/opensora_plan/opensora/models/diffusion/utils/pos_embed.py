@@ -78,7 +78,7 @@ def get_1d_sincos_pos_embed_from_grid(embed_dim, pos):
 # ----------------------------------------------------------
 
 try:
-    from .curope import cuRoPE2D
+    from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.utils.curope import cuRoPE2D
 
     RoPE2D = cuRoPE2D
 except ImportError:
@@ -149,7 +149,7 @@ class LinearScalingRoPE2D(RoPE2D):
 
 
 try:
-    from .curope import cuRoPE1D
+    from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.utils.curope import cuRoPE1D
 
     RoPE1D = cuRoPE1D
 except ImportError:

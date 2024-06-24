@@ -1,13 +1,14 @@
-import torch
-from diffusers import ModelMixin, ConfigMixin
-from torch import nn
-import os
+import glob
 import json
+import os
+from typing import Optional, Union
+
 import pytorch_lightning as pl
+import torch
 from diffusers.configuration_utils import ConfigMixin
 from diffusers.models.modeling_utils import ModelMixin
-from typing import Optional, Union
-import glob
+from torch import nn
+
 
 class VideoBaseAE(nn.Module):
     _supports_gradient_checkpointing = False

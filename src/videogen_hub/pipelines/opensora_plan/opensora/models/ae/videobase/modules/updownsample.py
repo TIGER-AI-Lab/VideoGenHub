@@ -1,14 +1,17 @@
 from typing import Union, Tuple
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .resnet_block import ResnetBlock3D
-from .attention import TemporalAttnBlock
-from .normalize import Normalize
-from .ops import cast_tuple, video_to_image
-from .conv import CausalConv3d
 from einops import rearrange
-from .block import Block
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.attention import TemporalAttnBlock
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.block import Block
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.conv import CausalConv3d
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.normalize import Normalize
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.ops import cast_tuple, video_to_image
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.resnet_block import ResnetBlock3D
+
 
 class Upsample(Block):
     def __init__(self, in_channels, out_channels):

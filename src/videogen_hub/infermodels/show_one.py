@@ -4,7 +4,7 @@ import os
 from videogen_hub import MODEL_PATH
 
 
-class ShowOne():
+class ShowOne:
     def __init__(self):
         """
         Initialize the Pipeline, which download all necessary models.
