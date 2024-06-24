@@ -56,12 +56,12 @@ class ControlNetOutput(BaseOutput):
 
 class Merger(nn.Module):
     def __init__(
-        self,
-        n_frames_condition: int = 8,
-        n_frames_sample: int = 16,
-        merge_mode: str = "addition",
-        input_channels=0,
-        frame_expansion="last_frame",
+            self,
+            n_frames_condition: int = 8,
+            n_frames_sample: int = 16,
+            merge_mode: str = "addition",
+            input_channels=0,
+            frame_expansion="last_frame",
     ) -> None:
         super().__init__()
         self.merge_mode = merge_mode
@@ -113,7 +113,7 @@ class Merger(nn.Module):
 
 class ZeroConv(nn.Module):
     def __init__(
-        self, channels: int, mode: str = "2d", num_frames: int = 8, zero_init=True
+            self, channels: int, mode: str = "2d", num_frames: int = 8, zero_init=True
     ):
         super().__init__()
         mode_parts = mode.split("_")
@@ -152,17 +152,17 @@ class ControlNetConditioningEmbedding(nn.Module):
     # TODO why not 2 x2 stride?
 
     def __init__(
-        self,
-        conditioning_embedding_channels: int,
-        conditioning_channels: int = 3,
-        block_out_channels: Tuple[int] = (16, 32, 96, 256),
-        downsample: bool = True,
-        final_3d_conv: bool = False,
-        num_frame_conditioning: int = 8,
-        num_frames: int = 16,
-        zero_init: bool = True,
-        use_controlnet_mask: bool = False,
-        use_normalization: bool = False,
+            self,
+            conditioning_embedding_channels: int,
+            conditioning_channels: int = 3,
+            block_out_channels: Tuple[int] = (16, 32, 96, 256),
+            downsample: bool = True,
+            final_3d_conv: bool = False,
+            num_frame_conditioning: int = 8,
+            num_frames: int = 16,
+            zero_init: bool = True,
+            use_controlnet_mask: bool = False,
+            use_normalization: bool = False,
     ):
         super().__init__()
         self.num_frame_conditioning = num_frame_conditioning
@@ -282,48 +282,48 @@ class ControlNetModel(ModelMixin, ConfigMixin):
 
     @register_to_config
     def __init__(
-        self,
-        in_channels: int = 4,
-        flip_sin_to_cos: bool = True,
-        freq_shift: int = 0,
-        down_block_types: Tuple[str] = (
-            "CrossAttnDownBlock3D",
-            "CrossAttnDownBlock3D",
-            "CrossAttnDownBlock3D",
-            "DownBlock3D",
-        ),
-        only_cross_attention: Union[bool, Tuple[bool]] = False,
-        block_out_channels: Tuple[int] = (320, 640, 1280, 1280),
-        layers_per_block: int = 2,
-        downsample_padding: int = 1,
-        mid_block_scale_factor: float = 1,
-        act_fn: str = "silu",
-        norm_num_groups: Optional[int] = 32,
-        norm_eps: float = 1e-5,
-        cross_attention_dim: int = 1280,
-        attention_head_dim: Union[int, Tuple[int]] = 8,
-        use_linear_projection: bool = False,
-        class_embed_type: Optional[str] = None,
-        num_class_embeds: Optional[int] = None,
-        upcast_attention: bool = False,
-        resnet_time_scale_shift: str = "default",
-        projection_class_embeddings_input_dim: Optional[int] = None,
-        controlnet_conditioning_channel_order: str = "rgb",
-        conditioning_embedding_out_channels: Optional[Tuple[int]] = (16, 32, 96, 256),
-        global_pool_conditions: bool = False,
-        downsample_controlnet_cond: bool = True,
-        frame_expansion: str = "zero",
-        condition_encoder: str = "",
-        num_frames: int = 16,
-        num_frame_conditioning: int = 8,
-        num_tranformers: int = 1,
-        vae=None,
-        merging_mode: str = "addition",
-        zero_conv_mode: str = "2d",
-        use_controlnet_mask: bool = False,
-        use_image_embedding: bool = False,
-        use_image_encoder_normalization: bool = False,
-        unet_params=None,
+            self,
+            in_channels: int = 4,
+            flip_sin_to_cos: bool = True,
+            freq_shift: int = 0,
+            down_block_types: Tuple[str] = (
+                    "CrossAttnDownBlock3D",
+                    "CrossAttnDownBlock3D",
+                    "CrossAttnDownBlock3D",
+                    "DownBlock3D",
+            ),
+            only_cross_attention: Union[bool, Tuple[bool]] = False,
+            block_out_channels: Tuple[int] = (320, 640, 1280, 1280),
+            layers_per_block: int = 2,
+            downsample_padding: int = 1,
+            mid_block_scale_factor: float = 1,
+            act_fn: str = "silu",
+            norm_num_groups: Optional[int] = 32,
+            norm_eps: float = 1e-5,
+            cross_attention_dim: int = 1280,
+            attention_head_dim: Union[int, Tuple[int]] = 8,
+            use_linear_projection: bool = False,
+            class_embed_type: Optional[str] = None,
+            num_class_embeds: Optional[int] = None,
+            upcast_attention: bool = False,
+            resnet_time_scale_shift: str = "default",
+            projection_class_embeddings_input_dim: Optional[int] = None,
+            controlnet_conditioning_channel_order: str = "rgb",
+            conditioning_embedding_out_channels: Optional[Tuple[int]] = (16, 32, 96, 256),
+            global_pool_conditions: bool = False,
+            downsample_controlnet_cond: bool = True,
+            frame_expansion: str = "zero",
+            condition_encoder: str = "",
+            num_frames: int = 16,
+            num_frame_conditioning: int = 8,
+            num_tranformers: int = 1,
+            vae=None,
+            merging_mode: str = "addition",
+            zero_conv_mode: str = "2d",
+            use_controlnet_mask: bool = False,
+            use_image_embedding: bool = False,
+            use_image_encoder_normalization: bool = False,
+            unet_params=None,
     ):
         super().__init__()
         self.gradient_checkpointing = False
@@ -334,14 +334,14 @@ class ControlNetModel(ModelMixin, ConfigMixin):
             )
 
         if not isinstance(only_cross_attention, bool) and len(
-            only_cross_attention
+                only_cross_attention
         ) != len(down_block_types):
             raise ValueError(
                 f"Must provide the same number of `only_cross_attention` as `down_block_types`. `only_cross_attention`: {only_cross_attention}. `down_block_types`: {down_block_types}."
             )
 
         if not isinstance(attention_head_dim, int) and len(attention_head_dim) != len(
-            down_block_types
+                down_block_types
         ):
             raise ValueError(
                 f"Must provide the same number of `attention_head_dim` as `down_block_types`. `attention_head_dim`: {attention_head_dim}. `down_block_types`: {down_block_types}."
@@ -540,26 +540,26 @@ class ControlNetModel(ModelMixin, ConfigMixin):
 
     @classmethod
     def from_unet(
-        cls,
-        unet: UNet3DConditionModel,
-        controlnet_conditioning_channel_order: str = "rgb",
-        conditioning_embedding_out_channels: Optional[Tuple[int]] = (16, 32, 96, 256),
-        load_weights_from_unet: bool = True,
-        downsample_controlnet_cond: bool = True,
-        num_frames: int = 16,
-        num_frame_conditioning: int = 8,
-        frame_expansion: str = "zero",
-        num_tranformers: int = 1,
-        vae=None,
-        zero_conv_mode: str = "2d",
-        merging_mode: str = "addition",
-        # [spatial,spatial_3DConv,temp_conv_vq]
-        condition_encoder: str = "spatial_3DConv",
-        use_controlnet_mask: bool = False,
-        use_image_embedding: bool = False,
-        use_image_encoder_normalization: bool = False,
-        unet_params=None,
-        **kwargs,
+            cls,
+            unet: UNet3DConditionModel,
+            controlnet_conditioning_channel_order: str = "rgb",
+            conditioning_embedding_out_channels: Optional[Tuple[int]] = (16, 32, 96, 256),
+            load_weights_from_unet: bool = True,
+            downsample_controlnet_cond: bool = True,
+            num_frames: int = 16,
+            num_frame_conditioning: int = 8,
+            frame_expansion: str = "zero",
+            num_tranformers: int = 1,
+            vae=None,
+            zero_conv_mode: str = "2d",
+            merging_mode: str = "addition",
+            # [spatial,spatial_3DConv,temp_conv_vq]
+            condition_encoder: str = "spatial_3DConv",
+            use_controlnet_mask: bool = False,
+            use_image_embedding: bool = False,
+            use_image_encoder_normalization: bool = False,
+            unet_params=None,
+            **kwargs,
     ):
         r"""
         Instantiate Controlnet class from UNet3DConditionModel.
@@ -627,9 +627,9 @@ class ControlNetModel(ModelMixin, ConfigMixin):
         processors = {}
 
         def fn_recursive_add_processors(
-            name: str,
-            module: torch.nn.Module,
-            processors: Dict[str, AttentionProcessor],
+                name: str,
+                module: torch.nn.Module,
+                processors: Dict[str, AttentionProcessor],
         ):
             if hasattr(module, "set_processor"):
                 processors[f"{name}.processor"] = module.processor
@@ -646,7 +646,7 @@ class ControlNetModel(ModelMixin, ConfigMixin):
 
     # Copied from diffusers.models.unet_3d_condition.UNet3DConditionModel.set_attn_processor
     def set_attn_processor(
-        self, processor: Union[AttentionProcessor, Dict[str, AttentionProcessor]]
+            self, processor: Union[AttentionProcessor, Dict[str, AttentionProcessor]]
     ):
         r"""
         Parameters:
@@ -744,7 +744,7 @@ class ControlNetModel(ModelMixin, ConfigMixin):
         # Any children which exposes the set_attention_slice method
         # gets the message
         def fn_recursive_set_attention_slice(
-            module: torch.nn.Module, slice_size: List[int]
+                module: torch.nn.Module, slice_size: List[int]
         ):
             if hasattr(module, "set_attention_slice"):
                 module.set_attention_slice(slice_size.pop())
@@ -762,22 +762,22 @@ class ControlNetModel(ModelMixin, ConfigMixin):
 
     # TODO ADD WEIGHT CONTROL
     def forward(
-        self,
-        sample: torch.FloatTensor,
-        timestep: Union[torch.Tensor, float, int],
-        encoder_hidden_states: torch.Tensor,
-        controlnet_cond: torch.FloatTensor,
-        conditioning_scale: float = 1.0,
-        class_labels: Optional[torch.Tensor] = None,
-        timestep_cond: Optional[torch.Tensor] = None,
-        attention_mask: Optional[torch.Tensor] = None,
-        cross_attention_kwargs: Optional[Dict[str, Any]] = None,
-        guess_mode: bool = False,
-        return_dict: bool = True,
-        weight_control: float = 1.0,
-        weight_control_sample: float = 1.0,
-        controlnet_mask: Optional[torch.Tensor] = None,
-        vq_gan=None,
+            self,
+            sample: torch.FloatTensor,
+            timestep: Union[torch.Tensor, float, int],
+            encoder_hidden_states: torch.Tensor,
+            controlnet_cond: torch.FloatTensor,
+            conditioning_scale: float = 1.0,
+            class_labels: Optional[torch.Tensor] = None,
+            timestep_cond: Optional[torch.Tensor] = None,
+            attention_mask: Optional[torch.Tensor] = None,
+            cross_attention_kwargs: Optional[Dict[str, Any]] = None,
+            guess_mode: bool = False,
+            return_dict: bool = True,
+            weight_control: float = 1.0,
+            weight_control_sample: float = 1.0,
+            controlnet_mask: Optional[torch.Tensor] = None,
+            vq_gan=None,
     ) -> Union[ControlNetOutput, Tuple]:
         # check channel order
         # TODO SET ATTENTION MASK And WEIGHT CONTROL as in CONTROLNET.PY
@@ -875,8 +875,8 @@ class ControlNetModel(ModelMixin, ConfigMixin):
         down_block_res_samples = (sample,)
         for downsample_block in self.down_blocks:
             if (
-                hasattr(downsample_block, "has_cross_attention")
-                and downsample_block.has_cross_attention
+                    hasattr(downsample_block, "has_cross_attention")
+                    and downsample_block.has_cross_attention
             ):
                 sample, res_samples = downsample_block(
                     hidden_states=sample,
@@ -909,7 +909,7 @@ class ControlNetModel(ModelMixin, ConfigMixin):
         controlnet_down_block_res_samples = ()
 
         for down_block_res_sample, controlnet_block in zip(
-            down_block_res_samples, self.controlnet_down_blocks
+                down_block_res_samples, self.controlnet_down_blocks
         ):
             down_block_res_sample = controlnet_block(down_block_res_sample)
             controlnet_down_block_res_samples = controlnet_down_block_res_samples + (

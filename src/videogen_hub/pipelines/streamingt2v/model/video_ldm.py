@@ -39,10 +39,10 @@ from videogen_hub.pipelines.streamingt2v.utils.video_utils import (
 class VideoLDM(pl.LightningModule):
 
     def __init__(
-        self,
-        inference_params: pl_module_params_controlnet.InferenceParams,
-        opt_params: pl_module_params_controlnet.OptimizerParams = None,
-        unet_params: pl_module_params_controlnet.UNetParams = None,
+            self,
+            inference_params: pl_module_params_controlnet.InferenceParams,
+            opt_params: pl_module_params_controlnet.OptimizerParams = None,
+            unet_params: pl_module_params_controlnet.UNetParams = None,
     ):
         super().__init__()
 
@@ -125,7 +125,7 @@ class VideoLDM(pl.LightningModule):
             device_map=None,
             merging_mode=self.unet_params.merging_mode_base,
             use_image_embedding=unet_params.use_resampler
-            and unet_params.use_image_tokens_main,
+                                and unet_params.use_image_tokens_main,
             use_fps_conditioning=self.opt_params.use_fps_conditioning,
             unet_params=unet_params,
         )
@@ -154,8 +154,8 @@ class VideoLDM(pl.LightningModule):
             num_frames=(
                 unet_params.num_frames
                 if (
-                    unet_params.frame_expansion != "none"
-                    or self.unet_params.use_controlnet_mask
+                        unet_params.frame_expansion != "none"
+                        or self.unet_params.use_controlnet_mask
                 )
                 else unet_params.num_control_input_frames
             ),
@@ -171,7 +171,7 @@ class VideoLDM(pl.LightningModule):
             condition_encoder=unet_params.condition_encoder,
             use_controlnet_mask=unet_params.use_controlnet_mask,
             use_image_embedding=unet_params.use_resampler
-            and unet_params.use_image_tokens_ctrl,
+                                and unet_params.use_image_tokens_ctrl,
             unet_params=unet_params,
             use_image_encoder_normalization=unet_params.use_image_encoder_normalization,
         )
@@ -186,9 +186,9 @@ class VideoLDM(pl.LightningModule):
         if unet_params.frame_expansion == "none":
             attention_params = self.unet_params.attention_mask_params
             assert (
-                not attention_params.temporal_self_attention_only_on_conditioning
-                and not attention_params.spatial_attend_on_condition_frames
-                and not attention_params.temp_attend_on_neighborhood_of_condition_frames
+                    not attention_params.temporal_self_attention_only_on_conditioning
+                    and not attention_params.spatial_attend_on_condition_frames
+                    and not attention_params.temp_attend_on_neighborhood_of_condition_frames
             )
 
         self.mask_generator = MaskGenerator(
@@ -277,7 +277,7 @@ class VideoLDM(pl.LightningModule):
             if dataset is not None and hasattr(dataset, "model_id"):
                 pipe_id_data = dataset.model_id
                 assert (
-                    pipe_id_model == pipe_id_data
+                        pipe_id_model == pipe_id_data
                 ), f"Model and Dataloader need the same pipeline path. Found '{pipe_id_model}' and '{dataset_key}.model_id={pipe_id_data}'. Consider setting '--data.{dataset_key}.model_id={pipe_id_data}'"
         self.result_processor.set_logger(self.logger)
 
@@ -310,8 +310,8 @@ class VideoLDM(pl.LightningModule):
         self.inference_generator.manual_seed(self.inference_params.seed)
 
         assert (
-            self.unet_params.num_control_input_frames
-            == self.inference_params.video_length // 2
+                self.unet_params.num_control_input_frames
+                == self.inference_params.video_length // 2
         ), f"currently we assume to have an equal size for and second half of the frame interval, e.g. 16 frames, and we condition on 8. Current setup: {self.unet_params.num_frame_conditioning} and {self.inference_params.video_length}"
 
         chunks_conditional = []
@@ -327,12 +327,12 @@ class VideoLDM(pl.LightningModule):
             if idx > 0:
                 content = sample * 2 - 1
                 content_latent = (
-                    self.vae.encode(content).latent_dist.sample()
-                    * self.vae.config.scaling_factor
+                        self.vae.encode(content).latent_dist.sample()
+                        * self.vae.config.scaling_factor
                 )
                 content_latent = rearrange(content_latent, "F C W H -> 1 C F W H")
                 content_latent = (
-                    content_latent[:, :, self.unet_params.num_control_input_frames :]
+                    content_latent[:, :, self.unet_params.num_control_input_frames:]
                     .detach()
                     .clone()
                 )
@@ -352,8 +352,8 @@ class VideoLDM(pl.LightningModule):
             else:
                 if inference_params.conditioning_type == "fixed":
                     context = chunks_conditional[0][
-                        : self.unet_params.num_frame_conditioning
-                    ]
+                              : self.unet_params.num_frame_conditioning
+                              ]
                     context = [context]
                     context = [2 * sample - 1 for sample in context]
 
@@ -363,7 +363,7 @@ class VideoLDM(pl.LightningModule):
                     )
                 elif inference_params.conditioning_type == "last_chunk":
                     input_frames_conditioning = (
-                        condition_input[:, -self.unet_params.num_frame_conditioning :]
+                        condition_input[:, -self.unet_params.num_frame_conditioning:]
                         .detach()
                         .clone()
                     )
@@ -382,7 +382,7 @@ class VideoLDM(pl.LightningModule):
                     raise NotImplementedError()
 
                 input_frames = (
-                    condition_input[:, self.unet_params.num_control_input_frames :]
+                    condition_input[:, self.unet_params.num_control_input_frames:]
                     .detach()
                     .clone()
                 )
@@ -415,13 +415,13 @@ class VideoLDM(pl.LightningModule):
 
             merged_video = None
             for chunk_idx, (prompt, video) in enumerate(
-                zip(prompts, chunks_conditional)
+                    zip(prompts, chunks_conditional)
             ):
                 if chunk_idx == 0:
                     current_video = IImage_normalized(video)
                 else:
                     current_video = IImage_normalized(
-                        video[self.unet_params.num_control_input_frames :]
+                        video[self.unet_params.num_control_input_frames:]
                     )
 
                 if merged_video is None:
@@ -433,8 +433,8 @@ class VideoLDM(pl.LightningModule):
                 filename = video_naming(prompts[0], save_format, batch_idx, 0)
                 result_file_video = (storage_fol / filename).absolute().as_posix()
                 result_file_video = (
-                    Path(result_file_video).parent
-                    / (result_file_stem + Path(result_file_video).suffix)
+                        Path(result_file_video).parent
+                        / (result_file_stem + Path(result_file_video).suffix)
                 ).as_posix()
                 self.result_processor.save_to_file(
                     video=merged_video.torch(vmin=0, vmax=1),
@@ -444,7 +444,7 @@ class VideoLDM(pl.LightningModule):
                 )
 
     def forward(
-        self, prompt, input_frames=None, input_frames_conditioning=None, latents=None
+            self, prompt, input_frames=None, input_frames_conditioning=None, latents=None
     ):
         call_params = self.inference_params.to_dict()
         print(f"INFERENCE PARAMS = {call_params}")

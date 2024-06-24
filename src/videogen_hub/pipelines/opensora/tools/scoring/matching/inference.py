@@ -7,10 +7,11 @@ import pandas as pd
 import torch
 import torch.distributed as dist
 import torch.nn.functional as F
-from videogen_hub.pipelines.opensora.tools.datasets.utils import extract_frames, is_video
 from torch.utils.data import DataLoader, DistributedSampler
 from torchvision.datasets.folder import pil_loader
 from tqdm import tqdm
+
+from videogen_hub.pipelines.opensora.tools.datasets.utils import extract_frames, is_video
 
 
 class VideoTextDataset(torch.utils.data.Dataset):

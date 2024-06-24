@@ -1,21 +1,19 @@
 # General
-import os
-from os.path import join as opj
 import datetime
+from os.path import join as opj
+
+import imageio
+import numpy as np
 import torch
-from einops import rearrange, repeat
+import torch.nn.functional as F
+import torchvision.transforms as transforms
+from PIL import Image
+from diffusers.utils import load_image
+from einops import rearrange
+from modelscope.outputs import OutputKeys
 
 # Utilities
 from videogen_hub.pipelines.streamingt2v.inference_utils import *
-
-from modelscope.outputs import OutputKeys
-import imageio
-from PIL import Image
-import numpy as np
-
-import torch.nn.functional as F
-import torchvision.transforms as transforms
-from diffusers.utils import load_image
 
 transform = transforms.Compose([transforms.PILToTensor()])
 
@@ -57,7 +55,7 @@ def sdxl_image_gen(prompt, sdxl_model):
 
 
 def svd_short_gen(
-    image, prompt, svd_model, sdxl_model, inference_generator, t=25, device="cuda"
+        image, prompt, svd_model, sdxl_model, inference_generator, t=25, device="cuda"
 ):
     if image is None or image == "":
         image = sdxl_image_gen(prompt, sdxl_model)
@@ -86,16 +84,16 @@ def svd_short_gen(
 
 
 def stream_long_gen(
-    prompt,
-    short_video,
-    n_autoreg_gen,
-    negative_prompt,
-    seed,
-    t,
-    image_guidance,
-    result_file_stem,
-    stream_cli,
-    stream_model,
+        prompt,
+        short_video,
+        n_autoreg_gen,
+        negative_prompt,
+        seed,
+        t,
+        image_guidance,
+        result_file_stem,
+        stream_cli,
+        stream_model,
 ):
     trainer = stream_cli.trainer
     trainer.limit_predict_batches = 1
@@ -161,15 +159,15 @@ def video2video(prompt, video, where_to_log, cfg_v2v, model_v2v, square=True):
 
 # The main functionality for video to video
 def video2video_randomized(
-    prompt,
-    video,
-    where_to_log,
-    cfg_v2v,
-    model_v2v,
-    square=True,
-    chunk_size=24,
-    overlap_size=8,
-    negative_prompt="",
+        prompt,
+        video,
+        where_to_log,
+        cfg_v2v,
+        model_v2v,
+        square=True,
+        chunk_size=24,
+        overlap_size=8,
+        negative_prompt="",
 ):
     downscale = cfg_v2v["downscale"]
     upscale_size = cfg_v2v["upscale_size"]
@@ -177,9 +175,9 @@ def video2video_randomized(
 
     now = datetime.datetime.now()
     name = (
-        prompt[:100].replace(" ", "_")
-        + "_"
-        + str(now.time()).replace(":", "_").replace(".", "_")
+            prompt[:100].replace(" ", "_")
+            + "_"
+            + str(now.time()).replace(":", "_").replace(".", "_")
     )
     enhanced_video_mp4 = opj(where_to_log, name + "_enhanced.mp4")
 

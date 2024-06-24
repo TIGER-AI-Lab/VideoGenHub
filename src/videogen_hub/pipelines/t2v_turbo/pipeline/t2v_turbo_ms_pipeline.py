@@ -2,10 +2,11 @@ from typing import List, Optional, Union
 
 import torch
 from diffusers import DiffusionPipeline
-from diffusers.utils import logging
 from diffusers.models import AutoencoderKL
+from diffusers.utils import logging
 from diffusers.utils.torch_utils import randn_tensor
 from transformers import CLIPTokenizer, CLIPTextModel
+
 from videogen_hub.pipelines.t2v_turbo.scheduler.t2v_turbo_scheduler import T2VTurboScheduler
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
@@ -13,12 +14,12 @@ logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 
 class T2VTurboMSPipeline(DiffusionPipeline):
     def __init__(
-        self,
-        unet,
-        vae: AutoencoderKL,
-        text_encoder: CLIPTextModel,
-        tokenizer: CLIPTokenizer,
-        scheduler: T2VTurboScheduler,
+            self,
+            unet,
+            vae: AutoencoderKL,
+            text_encoder: CLIPTextModel,
+            tokenizer: CLIPTokenizer,
+            scheduler: T2VTurboScheduler,
     ):
         super().__init__()
 
@@ -33,11 +34,11 @@ class T2VTurboMSPipeline(DiffusionPipeline):
         self.vae_scale_factor = 8
 
     def _encode_prompt(
-        self,
-        prompt,
-        device,
-        num_videos_per_prompt,
-        prompt_embeds: None,
+            self,
+            prompt,
+            device,
+            num_videos_per_prompt,
+            prompt_embeds: None,
     ):
         r"""
         Encodes the prompt into text encoder hidden states.
@@ -77,16 +78,16 @@ class T2VTurboMSPipeline(DiffusionPipeline):
         return prompt_embeds
 
     def prepare_latents(
-        self,
-        batch_size,
-        num_channels_latents,
-        frames,
-        height,
-        width,
-        dtype,
-        device,
-        generator,
-        latents=None,
+            self,
+            batch_size,
+            num_channels_latents,
+            frames,
+            height,
+            width,
+            dtype,
+            device,
+            generator,
+            latents=None,
     ):
         shape = (
             batch_size,
@@ -130,19 +131,19 @@ class T2VTurboMSPipeline(DiffusionPipeline):
 
     @torch.no_grad()
     def __call__(
-        self,
-        prompt: Union[str, List[str]] = None,
-        height: Optional[int] = 256,
-        width: Optional[int] = 256,
-        frames: int = 16,
-        guidance_scale: float = 7.5,
-        num_videos_per_prompt: Optional[int] = 1,
-        generator: Optional[Union[torch.Generator, List[torch.Generator]]] = None,
-        latents: Optional[torch.FloatTensor] = None,
-        num_inference_steps: int = 4,
-        lcm_origin_steps: int = 50,
-        prompt_embeds: Optional[torch.FloatTensor] = None,
-        output_type: Optional[str] = "pil",
+            self,
+            prompt: Union[str, List[str]] = None,
+            height: Optional[int] = 256,
+            width: Optional[int] = 256,
+            frames: int = 16,
+            guidance_scale: float = 7.5,
+            num_videos_per_prompt: Optional[int] = 1,
+            generator: Optional[Union[torch.Generator, List[torch.Generator]]] = None,
+            latents: Optional[torch.FloatTensor] = None,
+            num_inference_steps: int = 4,
+            lcm_origin_steps: int = 50,
+            prompt_embeds: Optional[torch.FloatTensor] = None,
+            output_type: Optional[str] = "pil",
     ):
         # 2. Define call parameters
         if prompt is not None and isinstance(prompt, str):
@@ -190,7 +191,6 @@ class T2VTurboMSPipeline(DiffusionPipeline):
         # 7. LCM MultiStep Sampling Loop:
         with self.progress_bar(total=num_inference_steps) as progress_bar:
             for i, t in enumerate(timesteps):
-
                 ts = torch.full((bs,), t, device=device, dtype=torch.long)
 
                 # model prediction (v-prediction, eps, x)

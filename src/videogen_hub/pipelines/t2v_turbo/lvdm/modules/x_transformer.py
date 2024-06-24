@@ -1,12 +1,13 @@
 """shout-out to https://github.com/lucidrains/x-transformers/tree/main/x_transformers"""
 
+from collections import namedtuple
 from functools import partial
 from inspect import isfunction
-from collections import namedtuple
-from einops import rearrange, repeat
+
 import torch
-from torch import nn, einsum
 import torch.nn.functional as F
+from einops import rearrange, repeat
+from torch import nn, einsum
 
 # constants
 DEFAULT_DIM_HEAD = 64
@@ -38,8 +39,8 @@ class FixedPositionalEmbedding(nn.Module):
 
     def forward(self, x, seq_dim=1, offset=0):
         t = (
-            torch.arange(x.shape[seq_dim], device=x.device).type_as(self.inv_freq)
-            + offset
+                torch.arange(x.shape[seq_dim], device=x.device).type_as(self.inv_freq)
+                + offset
         )
         sinusoid_inp = torch.einsum("i , j -> i j", t, self.inv_freq)
         emb = torch.cat((sinusoid_inp.sin(), sinusoid_inp.cos()), dim=-1)
@@ -114,7 +115,7 @@ def groupby_prefix_and_trim(prefix, d):
         partial(string_begins_with, prefix), d
     )
     kwargs_without_prefix = dict(
-        map(lambda x: (x[0][len(prefix) :], x[1]), tuple(kwargs_with_prefix.items()))
+        map(lambda x: (x[0][len(prefix):], x[1]), tuple(kwargs_with_prefix.items()))
     )
     return kwargs_without_prefix, kwargs
 
@@ -145,7 +146,7 @@ class Rezero(nn.Module):
 class ScaleNorm(nn.Module):
     def __init__(self, dim, eps=1e-5):
         super().__init__()
-        self.scale = dim**-0.5
+        self.scale = dim ** -0.5
         self.eps = eps
         self.g = nn.Parameter(torch.ones(1))
 
@@ -157,7 +158,7 @@ class ScaleNorm(nn.Module):
 class RMSNorm(nn.Module):
     def __init__(self, dim, eps=1e-8):
         super().__init__()
-        self.scale = dim**-0.5
+        self.scale = dim ** -0.5
         self.eps = eps
         self.g = nn.Parameter(torch.ones(dim))
 
@@ -219,25 +220,25 @@ class FeedForward(nn.Module):
 # attention.
 class Attention(nn.Module):
     def __init__(
-        self,
-        dim,
-        dim_head=DEFAULT_DIM_HEAD,
-        heads=8,
-        causal=False,
-        mask=None,
-        talking_heads=False,
-        sparse_topk=None,
-        use_entmax15=False,
-        num_mem_kv=0,
-        dropout=0.0,
-        on_attn=False,
+            self,
+            dim,
+            dim_head=DEFAULT_DIM_HEAD,
+            heads=8,
+            causal=False,
+            mask=None,
+            talking_heads=False,
+            sparse_topk=None,
+            use_entmax15=False,
+            num_mem_kv=0,
+            dropout=0.0,
+            on_attn=False,
     ):
         super().__init__()
         if use_entmax15:
             raise NotImplementedError(
                 "Check out entmax activation instead of softmax activation!"
             )
-        self.scale = dim_head**-0.5
+        self.scale = dim_head ** -0.5
         self.heads = heads
         self.causal = causal
         self.mask = mask
@@ -277,15 +278,15 @@ class Attention(nn.Module):
         )
 
     def forward(
-        self,
-        x,
-        context=None,
-        mask=None,
-        context_mask=None,
-        rel_pos=None,
-        sinusoidal_emb=None,
-        prev_attn=None,
-        mem=None,
+            self,
+            x,
+            context=None,
+            mask=None,
+            context_mask=None,
+            rel_pos=None,
+            sinusoidal_emb=None,
+            prev_attn=None,
+            mem=None,
     ):
         b, n, _, h, talking_heads, device = (
             *x.shape,
@@ -392,28 +393,28 @@ class Attention(nn.Module):
 
 class AttentionLayers(nn.Module):
     def __init__(
-        self,
-        dim,
-        depth,
-        heads=8,
-        causal=False,
-        cross_attend=False,
-        only_cross=False,
-        use_scalenorm=False,
-        use_rmsnorm=False,
-        use_rezero=False,
-        rel_pos_num_buckets=32,
-        rel_pos_max_distance=128,
-        position_infused_attn=False,
-        custom_layers=None,
-        sandwich_coef=None,
-        par_ratio=None,
-        residual_attn=False,
-        cross_residual_attn=False,
-        macaron=False,
-        pre_norm=True,
-        gate_residual=False,
-        **kwargs,
+            self,
+            dim,
+            depth,
+            heads=8,
+            causal=False,
+            cross_attend=False,
+            only_cross=False,
+            use_scalenorm=False,
+            use_rmsnorm=False,
+            use_rezero=False,
+            rel_pos_num_buckets=32,
+            rel_pos_max_distance=128,
+            position_infused_attn=False,
+            custom_layers=None,
+            sandwich_coef=None,
+            par_ratio=None,
+            residual_attn=False,
+            cross_residual_attn=False,
+            macaron=False,
+            pre_norm=True,
+            gate_residual=False,
+            **kwargs,
     ):
         super().__init__()
         ff_kwargs, kwargs = groupby_prefix_and_trim("ff_", kwargs)
@@ -432,7 +433,7 @@ class AttentionLayers(nn.Module):
         self.rotary_pos_emb = always(None)
 
         assert (
-            rel_pos_num_buckets <= rel_pos_max_distance
+                rel_pos_num_buckets <= rel_pos_max_distance
         ), "number of relative position buckets must be less than the relative position max distance"
         self.rel_pos = None
 
@@ -466,23 +467,23 @@ class AttentionLayers(nn.Module):
             default_block = tuple(filter(not_equals("f"), default_block))
             par_attn = par_depth // par_ratio
             depth_cut = (
-                par_depth * 2 // 3
+                    par_depth * 2 // 3
             )  # 2 / 3 attention layer cutoff suggested by PAR paper
             par_width = (depth_cut + depth_cut // par_attn) // par_attn
             assert (
-                len(default_block) <= par_width
+                    len(default_block) <= par_width
             ), "default block is too large for par_ratio"
             par_block = default_block + ("f",) * (par_width - len(default_block))
             par_head = par_block * par_attn
             layer_types = par_head + ("f",) * (par_depth - len(par_head))
         elif exists(sandwich_coef):
             assert (
-                sandwich_coef > 0 and sandwich_coef <= depth
+                    sandwich_coef > 0 and sandwich_coef <= depth
             ), "sandwich coefficient should be less than the depth"
             layer_types = (
-                ("a",) * sandwich_coef
-                + default_block * (depth - sandwich_coef)
-                + ("f",) * sandwich_coef
+                    ("a",) * sandwich_coef
+                    + default_block * (depth - sandwich_coef)
+                    + ("f",) * sandwich_coef
             )
         else:
             layer_types = default_block * depth
@@ -512,13 +513,13 @@ class AttentionLayers(nn.Module):
             self.layers.append(nn.ModuleList([norm_fn(), layer, residual_fn]))
 
     def forward(
-        self,
-        x,
-        context=None,
-        mask=None,
-        context_mask=None,
-        mems=None,
-        return_hiddens=False,
+            self,
+            x,
+            context=None,
+            mask=None,
+            context_mask=None,
+            mems=None,
+            return_hiddens=False,
     ):
         hiddens = []
         intermediates = []
@@ -528,7 +529,7 @@ class AttentionLayers(nn.Module):
         mems = mems.copy() if exists(mems) else [None] * self.num_attn_layers
 
         for ind, (layer_type, (norm, block, residual_fn)) in enumerate(
-            zip(self.layer_types, self.layers)
+                zip(self.layer_types, self.layers)
         ):
             is_last = ind == (len(self.layers) - 1)
 
@@ -592,17 +593,17 @@ class Encoder(AttentionLayers):
 
 class TransformerWrapper(nn.Module):
     def __init__(
-        self,
-        *,
-        num_tokens,
-        max_seq_len,
-        attn_layers,
-        emb_dim=None,
-        max_mem_len=0.0,
-        emb_dropout=0.0,
-        num_memory_tokens=None,
-        tie_embedding=False,
-        use_pos_emb=True,
+            self,
+            *,
+            num_tokens,
+            max_seq_len,
+            attn_layers,
+            emb_dim=None,
+            max_mem_len=0.0,
+            emb_dropout=0.0,
+            num_memory_tokens=None,
+            tie_embedding=False,
+            use_pos_emb=True,
     ):
         super().__init__()
         assert isinstance(
@@ -650,14 +651,14 @@ class TransformerWrapper(nn.Module):
         nn.init.normal_(self.token_emb.weight, std=0.02)
 
     def forward(
-        self,
-        x,
-        return_embeddings=False,
-        mask=None,
-        return_mems=False,
-        return_attn=False,
-        mems=None,
-        **kwargs,
+            self,
+            x,
+            return_embeddings=False,
+            mask=None,
+            return_mems=False,
+            return_attn=False,
+            mems=None,
+            **kwargs,
     ):
         b, n, device, num_mem = *x.shape, x.device, self.num_memory_tokens
         x = self.token_emb(x)
@@ -691,7 +692,7 @@ class TransformerWrapper(nn.Module):
                 else hiddens
             )
             new_mems = list(
-                map(lambda t: t[..., -self.max_mem_len :, :].detach(), new_mems)
+                map(lambda t: t[..., -self.max_mem_len:, :].detach(), new_mems)
             )
             return out, new_mems
 

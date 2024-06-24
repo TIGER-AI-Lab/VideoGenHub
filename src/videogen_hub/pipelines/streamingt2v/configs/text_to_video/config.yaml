@@ -8,23 +8,23 @@ trainer:
   # precision: 16-mixed
   logger: null
   callbacks:
-  - class_path: pytorch_lightning.callbacks.RichModelSummary
-    init_args:
-      max_depth: 1
-  - class_path: pytorch_lightning.callbacks.RichProgressBar
-    init_args:
-      refresh_rate: 1
-      leave: false
-      theme:
-        description: white
-        progress_bar: '#6206E0'
-        progress_bar_finished: '#6206E0'
-        progress_bar_pulse: '#6206E0'
-        batch_progress: white
-        time: grey54
-        processing_speed: grey70
-        metrics: white
-      console_kwargs: null
+    - class_path: pytorch_lightning.callbacks.RichModelSummary
+      init_args:
+        max_depth: 1
+    - class_path: pytorch_lightning.callbacks.RichProgressBar
+      init_args:
+        refresh_rate: 1
+        leave: false
+        theme:
+          description: white
+          progress_bar: '#6206E0'
+          progress_bar_finished: '#6206E0'
+          progress_bar_pulse: '#6206E0'
+          batch_progress: white
+          time: grey54
+          processing_speed: grey70
+          metrics: white
+        console_kwargs: null
   fast_dev_run: false
   max_epochs: 5000
   min_epochs: null
@@ -79,9 +79,9 @@ model:
       validation_samples: 80
       conditioning_type: last_chunk
       result_formats:
-      - eval_gif
-      - gif
-      - mp4
+        - eval_gif
+        - gif
+        - mp4
       concat_video: true
   opt_params:
     class_path: t2v_enhanced.model.pl_module_params_controlnet.OptimizerParams
@@ -91,27 +91,27 @@ model:
         class_path: t2v_enhanced.model.requires_grad_setter.LayerConfig
         init_args:
           gradient_setup:
-          - - false
-            - - vae
-          - - false
-            - - text_encoder
-          - - false
-            - - image_encoder
-          - - true
-            - - resampler
-          - - true
-            - - unet
-          - - true
-            - - base_model
-          - - false
-            - - base_model
-              - transformer_in
-          - - false
-            - - base_model
-              - temp_attentions
-          - - false
-            - - base_model
-              - temp_convs
+            - - false
+              - - vae
+            - - false
+              - - text_encoder
+            - - false
+              - - image_encoder
+            - - true
+              - - resampler
+            - - true
+              - - unet
+            - - true
+              - - base_model
+            - - false
+              - - base_model
+                - transformer_in
+            - - false
+              - - base_model
+                - temp_attentions
+            - - false
+              - - base_model
+                - temp_convs
       layers_config_base: null
       use_warmup: false
       warmup_steps: 10000
@@ -154,10 +154,10 @@ model:
     class_path: t2v_enhanced.model.pl_module_params_controlnet.UNetParams
     init_args:
       conditioning_embedding_out_channels:
-      - 32
-      - 96
-      - 256
-      - 512
+        - 32
+        - 96
+        - 256
+        - 512
       ckpt_spatial_layers: ''
       pipeline_repo: damo-vilab/text-to-video-ms-1.7b
       unet_from_diffusers: true

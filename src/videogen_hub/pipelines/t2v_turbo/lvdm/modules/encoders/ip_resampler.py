@@ -1,5 +1,6 @@
 # modified from https://github.com/mlfoundations/open_flamingo/blob/main/open_flamingo/src/helpers.py
 import math
+
 import torch
 import torch.nn as nn
 
@@ -8,10 +9,10 @@ class ImageProjModel(nn.Module):
     """Projection Model"""
 
     def __init__(
-        self,
-        cross_attention_dim=1024,
-        clip_embeddings_dim=1024,
-        clip_extra_context_tokens=4,
+            self,
+            cross_attention_dim=1024,
+            clip_embeddings_dim=1024,
+            clip_extra_context_tokens=4,
     ):
         super().__init__()
         self.cross_attention_dim = cross_attention_dim
@@ -56,7 +57,7 @@ def reshape_tensor(x, heads):
 class PerceiverAttention(nn.Module):
     def __init__(self, *, dim, dim_head=64, heads=8):
         super().__init__()
-        self.scale = dim_head**-0.5
+        self.scale = dim_head ** -0.5
         self.dim_head = dim_head
         self.heads = heads
         inner_dim = dim_head * heads
@@ -104,19 +105,19 @@ class PerceiverAttention(nn.Module):
 
 class Resampler(nn.Module):
     def __init__(
-        self,
-        dim=1024,
-        depth=8,
-        dim_head=64,
-        heads=16,
-        num_queries=8,
-        embedding_dim=768,
-        output_dim=1024,
-        ff_mult=4,
+            self,
+            dim=1024,
+            depth=8,
+            dim_head=64,
+            heads=16,
+            num_queries=8,
+            embedding_dim=768,
+            output_dim=1024,
+            ff_mult=4,
     ):
         super().__init__()
 
-        self.latents = nn.Parameter(torch.randn(1, num_queries, dim) / dim**0.5)
+        self.latents = nn.Parameter(torch.randn(1, num_queries, dim) / dim ** 0.5)
 
         self.proj_in = nn.Linear(embedding_dim, dim)
 

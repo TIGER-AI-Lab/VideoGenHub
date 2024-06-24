@@ -1,13 +1,14 @@
 # pytorch_diffusion + derived encoder decoder
 import math
-import torch
+
 import numpy as np
+import torch
 import torch.nn as nn
 from einops import rearrange
 
 from videogen_hub.pipelines.dynamicrafter.lvdm.distributions import DiagonalGaussianDistribution
-from videogen_hub.pipelines.t2v_turbo.utils.utils import instantiate_from_config
 from videogen_hub.pipelines.t2v_turbo.lvdm.modules.attention import LinearAttention
+from videogen_hub.pipelines.t2v_turbo.utils.utils import instantiate_from_config
 
 
 def nonlinearity(x):
@@ -147,13 +148,13 @@ def get_timestep_embedding(timesteps, embedding_dim):
 
 class ResnetBlock(nn.Module):
     def __init__(
-        self,
-        *,
-        in_channels,
-        out_channels=None,
-        conv_shortcut=False,
-        dropout,
-        temb_channels=512,
+            self,
+            *,
+            in_channels,
+            out_channels=None,
+            conv_shortcut=False,
+            dropout,
+            temb_channels=512,
     ):
         super().__init__()
         self.in_channels = in_channels
@@ -207,20 +208,20 @@ class ResnetBlock(nn.Module):
 
 class Model(nn.Module):
     def __init__(
-        self,
-        *,
-        ch,
-        out_ch,
-        ch_mult=(1, 2, 4, 8),
-        num_res_blocks,
-        attn_resolutions,
-        dropout=0.0,
-        resamp_with_conv=True,
-        in_channels,
-        resolution,
-        use_timestep=True,
-        use_linear_attn=False,
-        attn_type="vanilla",
+            self,
+            *,
+            ch,
+            out_ch,
+            ch_mult=(1, 2, 4, 8),
+            num_res_blocks,
+            attn_resolutions,
+            dropout=0.0,
+            resamp_with_conv=True,
+            in_channels,
+            resolution,
+            use_timestep=True,
+            use_linear_attn=False,
+            attn_type="vanilla",
     ):
         super().__init__()
         if use_linear_attn:
@@ -382,22 +383,22 @@ class Model(nn.Module):
 
 class Encoder(nn.Module):
     def __init__(
-        self,
-        *,
-        ch,
-        out_ch,
-        ch_mult=(1, 2, 4, 8),
-        num_res_blocks,
-        attn_resolutions,
-        dropout=0.0,
-        resamp_with_conv=True,
-        in_channels,
-        resolution,
-        z_channels,
-        double_z=True,
-        use_linear_attn=False,
-        attn_type="vanilla",
-        **ignore_kwargs,
+            self,
+            *,
+            ch,
+            out_ch,
+            ch_mult=(1, 2, 4, 8),
+            num_res_blocks,
+            attn_resolutions,
+            dropout=0.0,
+            resamp_with_conv=True,
+            in_channels,
+            resolution,
+            z_channels,
+            double_z=True,
+            use_linear_attn=False,
+            attn_type="vanilla",
+            **ignore_kwargs,
     ):
         super().__init__()
         if use_linear_attn:
@@ -507,23 +508,23 @@ class Encoder(nn.Module):
 
 class Decoder(nn.Module):
     def __init__(
-        self,
-        *,
-        ch,
-        out_ch,
-        ch_mult=(1, 2, 4, 8),
-        num_res_blocks,
-        attn_resolutions,
-        dropout=0.0,
-        resamp_with_conv=True,
-        in_channels,
-        resolution,
-        z_channels,
-        give_pre_end=False,
-        tanh_out=False,
-        use_linear_attn=False,
-        attn_type="vanilla",
-        **ignorekwargs,
+            self,
+            *,
+            ch,
+            out_ch,
+            ch_mult=(1, 2, 4, 8),
+            num_res_blocks,
+            attn_resolutions,
+            dropout=0.0,
+            resamp_with_conv=True,
+            in_channels,
+            resolution,
+            z_channels,
+            give_pre_end=False,
+            tanh_out=False,
+            use_linear_attn=False,
+            attn_type="vanilla",
+            **ignorekwargs,
     ):
         super().__init__()
         if use_linear_attn:
@@ -692,14 +693,14 @@ class SimpleDecoder(nn.Module):
 
 class UpsampleDecoder(nn.Module):
     def __init__(
-        self,
-        in_channels,
-        out_channels,
-        ch,
-        num_res_blocks,
-        resolution,
-        ch_mult=(2, 2),
-        dropout=0.0,
+            self,
+            in_channels,
+            out_channels,
+            ch,
+            num_res_blocks,
+            resolution,
+            ch_mult=(2, 2),
+            dropout=0.0,
     ):
         super().__init__()
         # upsampling
@@ -806,18 +807,18 @@ class LatentRescaler(nn.Module):
 
 class MergedRescaleEncoder(nn.Module):
     def __init__(
-        self,
-        in_channels,
-        ch,
-        resolution,
-        out_ch,
-        num_res_blocks,
-        attn_resolutions,
-        dropout=0.0,
-        resamp_with_conv=True,
-        ch_mult=(1, 2, 4, 8),
-        rescale_factor=1.0,
-        rescale_module_depth=1,
+            self,
+            in_channels,
+            ch,
+            resolution,
+            out_ch,
+            num_res_blocks,
+            attn_resolutions,
+            dropout=0.0,
+            resamp_with_conv=True,
+            ch_mult=(1, 2, 4, 8),
+            rescale_factor=1.0,
+            rescale_module_depth=1,
     ):
         super().__init__()
         intermediate_chn = ch * ch_mult[-1]
@@ -850,18 +851,18 @@ class MergedRescaleEncoder(nn.Module):
 
 class MergedRescaleDecoder(nn.Module):
     def __init__(
-        self,
-        z_channels,
-        out_ch,
-        resolution,
-        num_res_blocks,
-        attn_resolutions,
-        ch,
-        ch_mult=(1, 2, 4, 8),
-        dropout=0.0,
-        resamp_with_conv=True,
-        rescale_factor=1.0,
-        rescale_module_depth=1,
+            self,
+            z_channels,
+            out_ch,
+            resolution,
+            num_res_blocks,
+            attn_resolutions,
+            ch,
+            ch_mult=(1, 2, 4, 8),
+            dropout=0.0,
+            resamp_with_conv=True,
+            rescale_factor=1.0,
+            rescale_module_depth=1,
     ):
         super().__init__()
         tmp_chn = z_channels * ch_mult[-1]
@@ -952,24 +953,24 @@ class Resize(nn.Module):
 class FirstStagePostProcessor(nn.Module):
 
     def __init__(
-        self,
-        ch_mult: list,
-        in_channels,
-        pretrained_model: nn.Module = None,
-        reshape=False,
-        n_channels=None,
-        dropout=0.0,
-        pretrained_config=None,
+            self,
+            ch_mult: list,
+            in_channels,
+            pretrained_model: nn.Module = None,
+            reshape=False,
+            n_channels=None,
+            dropout=0.0,
+            pretrained_config=None,
     ):
         super().__init__()
         if pretrained_config is None:
             assert (
-                pretrained_model is not None
+                    pretrained_model is not None
             ), 'Either "pretrained_model" or "pretrained_config" must not be None'
             self.pretrained_model = pretrained_model
         else:
             assert (
-                pretrained_config is not None
+                    pretrained_config is not None
             ), 'Either "pretrained_model" or "pretrained_config" must not be None'
             self.instantiate_pretrained(pretrained_config)
 

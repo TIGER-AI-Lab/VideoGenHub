@@ -8,6 +8,7 @@
 # thanks!
 
 import torch.nn as nn
+
 from videogen_hub.pipelines.dynamicrafter.utils import instantiate_from_config
 
 

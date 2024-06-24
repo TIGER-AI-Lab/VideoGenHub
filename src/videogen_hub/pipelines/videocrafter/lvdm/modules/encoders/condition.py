@@ -1,11 +1,13 @@
+import kornia
+import open_clip
 import torch
 import torch.nn as nn
 from torch.utils.checkpoint import checkpoint
-import kornia
-import open_clip
 from transformers import T5Tokenizer, T5EncoderModel, CLIPTokenizer, CLIPTextModel
+
 from videogen_hub.pipelines.videocrafter.lvdm.common import autocast
 from videogen_hub.pipelines.videocrafter.utils import count_params
+
 
 class AbstractEncoder(nn.Module):
     def __init__(self):
@@ -294,7 +296,6 @@ class FrozenOpenCLIPImageEmbedder(AbstractEncoder):
         return self(text)
 
 
-
 class FrozenOpenCLIPImageEmbedderV2(AbstractEncoder):
     """
     Uses the OpenCLIP vision transformer encoder for images
@@ -319,7 +320,6 @@ class FrozenOpenCLIPImageEmbedderV2(AbstractEncoder):
         self.antialias = antialias
         self.register_buffer('mean', torch.Tensor([0.48145466, 0.4578275, 0.40821073]), persistent=False)
         self.register_buffer('std', torch.Tensor([0.26862954, 0.26130258, 0.27577711]), persistent=False)
-
 
     def preprocess(self, x):
         # normalize to [0,1]
@@ -347,7 +347,8 @@ class FrozenOpenCLIPImageEmbedderV2(AbstractEncoder):
         # to patches - whether to use dual patchnorm - https://arxiv.org/abs/2302.01327v1
         if self.model.visual.input_patchnorm:
             # einops - rearrange(x, 'b c (h p1) (w p2) -> b (h w) (c p1 p2)')
-            x = x.reshape(x.shape[0], x.shape[1], self.model.visual.grid_size[0], self.model.visual.patch_size[0], self.model.visual.grid_size[1], self.model.visual.patch_size[1])
+            x = x.reshape(x.shape[0], x.shape[1], self.model.visual.grid_size[0], self.model.visual.patch_size[0],
+                          self.model.visual.grid_size[1], self.model.visual.patch_size[1])
             x = x.permute(0, 2, 4, 1, 3, 5)
             x = x.reshape(x.shape[0], self.model.visual.grid_size[0] * self.model.visual.grid_size[1], -1)
             x = self.model.visual.patchnorm_pre_ln(x)
@@ -359,7 +360,8 @@ class FrozenOpenCLIPImageEmbedderV2(AbstractEncoder):
 
         # class embeddings and positional embeddings
         x = torch.cat(
-            [self.model.visual.class_embedding.to(x.dtype) + torch.zeros(x.shape[0], 1, x.shape[-1], dtype=x.dtype, device=x.device),
+            [self.model.visual.class_embedding.to(x.dtype) + torch.zeros(x.shape[0], 1, x.shape[-1], dtype=x.dtype,
+                                                                         device=x.device),
              x], dim=1)  # shape = [*, grid ** 2 + 1, width]
         x = x + self.model.visual.positional_embedding.to(x.dtype)
 

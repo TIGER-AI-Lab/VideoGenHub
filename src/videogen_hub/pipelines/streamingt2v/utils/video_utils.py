@@ -49,12 +49,12 @@ class ResultProcessor:
         self.logger = logger
 
     def _create_video(
-        self,
-        video,
-        prompt,
-        filename: Union[str, Path],
-        append_video: torch.FloatTensor = None,
-        input_flow=None,
+            self,
+            video,
+            prompt,
+            filename: Union[str, Path],
+            append_video: torch.FloatTensor = None,
+            input_flow=None,
     ):
 
         if video.ndim == 5:
@@ -69,7 +69,7 @@ class ResultProcessor:
             filename = filename.as_posix()
         # assert video.max() <= 1 and video.min() >= 0
         assert (
-            video.max() <= 1.1 and video.min() >= -0.1
+                video.max() <= 1.1 and video.min() >= -0.1
         ), f"video has unexpected range: [{video.min()}, {video.max()}]"
         vid_obj = IImage(video, vmin=0, vmax=1)
 
@@ -118,16 +118,16 @@ class ResultProcessor:
                 file_writer.write(" no_source")
 
     def log_video(
-        self,
-        video: torch.FloatTensor,
-        prompt: str,
-        video_id: str,
-        log_folder: str,
-        input_flow=None,
-        video_path_input: str = None,
-        extension: str = "gif",
-        prompt_on_vid: bool = True,
-        append_video: torch.FloatTensor = None,
+            self,
+            video: torch.FloatTensor,
+            prompt: str,
+            video_id: str,
+            log_folder: str,
+            input_flow=None,
+            video_path_input: str = None,
+            extension: str = "gif",
+            prompt_on_vid: bool = True,
+            append_video: torch.FloatTensor = None,
     ):
 
         with tempfile.TemporaryDirectory() as tmpdirname:
@@ -147,11 +147,11 @@ class ResultProcessor:
 
             if self.logger.experiment.__class__.__name__ == "_DummyExperiment":
                 run_fol = (
-                    Path(self.logger.save_dir)
-                    / self.logger.experiment_id
-                    / self.logger.run_id
-                    / "artifacts"
-                    / log_folder
+                        Path(self.logger.save_dir)
+                        / self.logger.experiment_id
+                        / self.logger.run_id
+                        / "artifacts"
+                        / log_folder
                 )
                 if not run_fol.exists():
                     run_fol.mkdir(parents=True, exist_ok=True)
@@ -168,14 +168,14 @@ class ResultProcessor:
                 )
 
     def save_to_file(
-        self,
-        video: torch.FloatTensor,
-        prompt: str,
-        video_filename: Union[str, Path],
-        input_flow=None,
-        conditional_video_path: str = None,
-        prompt_on_vid: bool = True,
-        conditional_video: torch.FloatTensor = None,
+            self,
+            video: torch.FloatTensor,
+            prompt: str,
+            video_filename: Union[str, Path],
+            input_flow=None,
+            conditional_video_path: str = None,
+            prompt_on_vid: bool = True,
+            conditional_video: torch.FloatTensor = None,
     ):
         self._create_video(
             video,
@@ -188,9 +188,8 @@ class ResultProcessor:
 
 
 def add_text_to_image(
-    image_array, text, position, font_size, text_color, font_path=None
+        image_array, text, position, font_size, text_color, font_path=None
 ):
-
     # Convert the NumPy array to PIL Image
     image_pil = Image.fromarray(image_array)
 
@@ -219,7 +218,6 @@ def add_text_to_image(
 
 
 def add_text_to_video(video_path, prompt):
-
     outputs_with_overlay = []
     with open(video_path, "rb") as f:
         vr = VideoReader(f, ctx=cpu(0))
@@ -240,7 +238,7 @@ def add_text_to_video(video_path, prompt):
 
 
 def save_videos_grid(
-    videos: torch.Tensor, path: str, rescale=False, n_rows=4, fps=30, prompt=None
+        videos: torch.Tensor, path: str, rescale=False, n_rows=4, fps=30, prompt=None
 ):
     videos = rearrange(videos, "b c t h w -> t b c h w")
     outputs = []
@@ -272,7 +270,6 @@ def save_videos_grid(
 
 
 def set_channel_pos(data, shape_dict, channel_pos):
-
     assert data.ndim == 5 or data.ndim == 4
     batch_dim = data.shape[0]
     frame_dim = shape_dict["frame_dim"]
@@ -372,7 +369,6 @@ def apply_spatial_function_to_video_tensor(video, shape, func):
 
 
 def dump_frames(videos, as_mosaik, storage_fol, save_image_kwargs):
-
     # assume videos is in format B F C H W, range [0,1]
     num_frames = videos.shape[1]
     num_videos = videos.shape[0]
@@ -402,7 +398,6 @@ def dump_frames(videos, as_mosaik, storage_fol, save_image_kwargs):
 
 
 def gif_from_videos(videos):
-
     assert videos.dim() == 5
     assert videos.min() >= 0
     assert videos.max() <= 1

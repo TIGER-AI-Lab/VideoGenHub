@@ -1,22 +1,13 @@
 # Adapted from https://github.com/showlab/Tune-A-Video/blob/main/tuneavideo/pipelines/pipeline_tuneavideo.py
 
 import inspect
-from typing import Callable, List, Optional, Union
-from dataclasses import dataclass
-
 import math
+from dataclasses import dataclass
+from typing import Callable, List, Optional, Union
+
 import numpy as np
 import torch
-from tqdm import tqdm
-
-from torchvision import transforms as T
-from torchvision.transforms import functional as F
 from PIL import Image
-
-from diffusers.utils import is_accelerate_available
-from packaging import version
-from transformers import CLIPTextModel, CLIPTokenizer
-
 from diffusers.configuration_utils import FrozenDict
 from diffusers.models import AutoencoderKL
 from diffusers.pipelines.pipeline_utils import DiffusionPipeline
@@ -29,11 +20,15 @@ from diffusers.schedulers import (
     PNDMScheduler,
 )
 from diffusers.utils import deprecate, logging, BaseOutput
-
+from diffusers.utils import is_accelerate_available
 from einops import rearrange, repeat
+from packaging import version
+from torchvision import transforms as T
+from torchvision.transforms import functional as F
+from tqdm import tqdm
+from transformers import CLIPTextModel, CLIPTokenizer
 
 from videogen_hub.pipelines.consisti2v.consisti2v.models.videoldm_unet import VideoLDMUNet3DConditionModel
-
 from videogen_hub.pipelines.consisti2v.consisti2v.utils.frameinit_utils import get_freq_filter, freq_mix_3d
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
@@ -401,7 +396,8 @@ class ConditionalAnimationPipeline(DiffusionPipeline):
     def prepare_latents(self, batch_size, num_channels_latents, video_length, height, width, dtype, device, generator,
                         latents=None, noise_sampling_method="vanilla", noise_alpha=1.0):
         shape = (
-        batch_size, num_channels_latents, video_length, height // self.vae_scale_factor, width // self.vae_scale_factor)
+            batch_size, num_channels_latents, video_length, height // self.vae_scale_factor,
+            width // self.vae_scale_factor)
         if isinstance(generator, list) and len(generator) != batch_size:
             raise ValueError(
                 f"You have passed a list of generators of length {len(generator)}, but requested an effective batch"
@@ -685,8 +681,8 @@ class ConditionalAnimationPipeline(DiffusionPipeline):
                     elif do_classifier_free_guidance == "both":
                         noise_pred_uncond, noise_pred_img, noise_pred_both = noise_pred.chunk(3)
                         noise_pred = noise_pred_uncond + guidance_scale_img * (
-                                    noise_pred_img - noise_pred_uncond) + guidance_scale_txt * (
-                                                 noise_pred_both - noise_pred_img)
+                                noise_pred_img - noise_pred_uncond) + guidance_scale_txt * (
+                                             noise_pred_both - noise_pred_img)
 
                 if do_classifier_free_guidance and guidance_rescale > 0.0:
                     # Based on 3.4. in https://arxiv.org/pdf/2305.08891.pdf

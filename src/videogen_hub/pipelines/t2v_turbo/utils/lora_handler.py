@@ -1,5 +1,6 @@
-import torch
 from types import SimpleNamespace
+
+import torch
 
 from videogen_hub.pipelines.t2v_turbo.utils.lora import (
     extract_lora_ups_down,
@@ -44,14 +45,14 @@ def filter_dict(_dict, keys=[]):
 
 class LoraHandler(object):
     def __init__(
-        self,
-        version: str = LoraVersions.cloneofsimo,
-        use_unet_lora: bool = False,
-        use_text_lora: bool = False,
-        save_for_webui: bool = False,
-        only_for_webui: bool = False,
-        lora_bias: str = "none",
-        unet_replace_modules: list = ["UNet3DConditionModel"],
+            self,
+            version: str = LoraVersions.cloneofsimo,
+            use_unet_lora: bool = False,
+            use_text_lora: bool = False,
+            save_for_webui: bool = False,
+            only_for_webui: bool = False,
+            lora_bias: str = "none",
+            unet_replace_modules: list = ["UNet3DConditionModel"],
     ):
         self.version = version
         assert self.is_cloneofsimo_lora()
@@ -82,7 +83,7 @@ class LoraHandler(object):
         assert "LoRA Version does not exist."
 
     def get_lora_func_args(
-        self, lora_path, use_lora, model, replace_modules, r, dropout, lora_bias
+            self, lora_path, use_lora, model, replace_modules, r, dropout, lora_bias
     ):
         return_dict = lora_args.copy()
 
@@ -99,13 +100,13 @@ class LoraHandler(object):
         return return_dict
 
     def do_lora_injection(
-        self,
-        model,
-        replace_modules,
-        bias="none",
-        dropout=0,
-        r=4,
-        lora_loader_args=None,
+            self,
+            model,
+            replace_modules,
+            bias="none",
+            dropout=0,
+            r=4,
+            lora_loader_args=None,
     ):
         REPLACE_MODULES = replace_modules
 
@@ -116,7 +117,7 @@ class LoraHandler(object):
 
         params, negation = self.lora_injector(**injector_args)
         for _up, _down in extract_lora_ups_down(
-            model, target_replace_module=REPLACE_MODULES
+                model, target_replace_module=REPLACE_MODULES
         ):
 
             if all(x is not None for x in [_up, _down]):
@@ -129,7 +130,7 @@ class LoraHandler(object):
         return params, negation
 
     def add_lora_to_model(
-        self, use_lora, model, replace_modules, dropout=0.0, lora_path=None, r=16
+            self, use_lora, model, replace_modules, dropout=0.0, lora_path=None, r=16
     ):
 
         params = None

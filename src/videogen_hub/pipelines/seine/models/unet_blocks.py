@@ -1,6 +1,7 @@
 # Adapted from https://github.com/huggingface/diffusers/blob/main/src/diffusers/models/unet_2d_blocks.py
 import os
 import sys
+
 sys.path.append(os.path.split(sys.path[0])[0])
 
 import torch
@@ -15,26 +16,26 @@ except:
 
 
 def get_down_block(
-    down_block_type,
-    num_layers,
-    in_channels,
-    out_channels,
-    temb_channels,
-    add_downsample,
-    resnet_eps,
-    resnet_act_fn,
-    attn_num_head_channels,
-    resnet_groups=None,
-    cross_attention_dim=None,
-    downsample_padding=None,
-    dual_cross_attention=False,
-    use_linear_projection=False,
-    only_cross_attention=False,
-    upcast_attention=False,
-    resnet_time_scale_shift="default",
-    use_first_frame=False,
-    use_relative_position=False,
-    rotary_emb=False,
+        down_block_type,
+        num_layers,
+        in_channels,
+        out_channels,
+        temb_channels,
+        add_downsample,
+        resnet_eps,
+        resnet_act_fn,
+        attn_num_head_channels,
+        resnet_groups=None,
+        cross_attention_dim=None,
+        downsample_padding=None,
+        dual_cross_attention=False,
+        use_linear_projection=False,
+        only_cross_attention=False,
+        upcast_attention=False,
+        resnet_time_scale_shift="default",
+        use_first_frame=False,
+        use_relative_position=False,
+        rotary_emb=False,
 ):
     # print(down_block_type)
     # print(use_first_frame)
@@ -80,26 +81,26 @@ def get_down_block(
 
 
 def get_up_block(
-    up_block_type,
-    num_layers,
-    in_channels,
-    out_channels,
-    prev_output_channel,
-    temb_channels,
-    add_upsample,
-    resnet_eps,
-    resnet_act_fn,
-    attn_num_head_channels,
-    resnet_groups=None,
-    cross_attention_dim=None,
-    dual_cross_attention=False,
-    use_linear_projection=False,
-    only_cross_attention=False,
-    upcast_attention=False,
-    resnet_time_scale_shift="default",
-    use_first_frame=False,
-    use_relative_position=False,
-    rotary_emb=False,
+        up_block_type,
+        num_layers,
+        in_channels,
+        out_channels,
+        prev_output_channel,
+        temb_channels,
+        add_upsample,
+        resnet_eps,
+        resnet_act_fn,
+        attn_num_head_channels,
+        resnet_groups=None,
+        cross_attention_dim=None,
+        dual_cross_attention=False,
+        use_linear_projection=False,
+        only_cross_attention=False,
+        upcast_attention=False,
+        resnet_time_scale_shift="default",
+        use_first_frame=False,
+        use_relative_position=False,
+        rotary_emb=False,
 ):
     up_block_type = up_block_type[7:] if up_block_type.startswith("UNetRes") else up_block_type
     if up_block_type == "UpBlock3D":
@@ -144,25 +145,25 @@ def get_up_block(
 
 class UNetMidBlock3DCrossAttn(nn.Module):
     def __init__(
-        self,
-        in_channels: int,
-        temb_channels: int,
-        dropout: float = 0.0,
-        num_layers: int = 1,
-        resnet_eps: float = 1e-6,
-        resnet_time_scale_shift: str = "default",
-        resnet_act_fn: str = "swish",
-        resnet_groups: int = 32,
-        resnet_pre_norm: bool = True,
-        attn_num_head_channels=1,
-        output_scale_factor=1.0,
-        cross_attention_dim=1280,
-        dual_cross_attention=False,
-        use_linear_projection=False,
-        upcast_attention=False,
-        use_first_frame=False,
-        use_relative_position=False,
-        rotary_emb=False,
+            self,
+            in_channels: int,
+            temb_channels: int,
+            dropout: float = 0.0,
+            num_layers: int = 1,
+            resnet_eps: float = 1e-6,
+            resnet_time_scale_shift: str = "default",
+            resnet_act_fn: str = "swish",
+            resnet_groups: int = 32,
+            resnet_pre_norm: bool = True,
+            attn_num_head_channels=1,
+            output_scale_factor=1.0,
+            cross_attention_dim=1280,
+            dual_cross_attention=False,
+            use_linear_projection=False,
+            upcast_attention=False,
+            use_first_frame=False,
+            use_relative_position=False,
+            rotary_emb=False,
     ):
         super().__init__()
 
@@ -226,7 +227,8 @@ class UNetMidBlock3DCrossAttn(nn.Module):
     def forward(self, hidden_states, temb=None, encoder_hidden_states=None, attention_mask=None, use_image_num=None):
         hidden_states = self.resnets[0](hidden_states, temb)
         for attn, resnet in zip(self.attentions, self.resnets[1:]):
-            hidden_states = attn(hidden_states, encoder_hidden_states=encoder_hidden_states, use_image_num=use_image_num).sample
+            hidden_states = attn(hidden_states, encoder_hidden_states=encoder_hidden_states,
+                                 use_image_num=use_image_num).sample
             hidden_states = resnet(hidden_states, temb)
 
         return hidden_states
@@ -234,29 +236,29 @@ class UNetMidBlock3DCrossAttn(nn.Module):
 
 class CrossAttnDownBlock3D(nn.Module):
     def __init__(
-        self,
-        in_channels: int,
-        out_channels: int,
-        temb_channels: int,
-        dropout: float = 0.0,
-        num_layers: int = 1,
-        resnet_eps: float = 1e-6,
-        resnet_time_scale_shift: str = "default",
-        resnet_act_fn: str = "swish",
-        resnet_groups: int = 32,
-        resnet_pre_norm: bool = True,
-        attn_num_head_channels=1,
-        cross_attention_dim=1280,
-        output_scale_factor=1.0,
-        downsample_padding=1,
-        add_downsample=True,
-        dual_cross_attention=False,
-        use_linear_projection=False,
-        only_cross_attention=False,
-        upcast_attention=False,
-        use_first_frame=False,
-        use_relative_position=False,
-        rotary_emb=False,
+            self,
+            in_channels: int,
+            out_channels: int,
+            temb_channels: int,
+            dropout: float = 0.0,
+            num_layers: int = 1,
+            resnet_eps: float = 1e-6,
+            resnet_time_scale_shift: str = "default",
+            resnet_act_fn: str = "swish",
+            resnet_groups: int = 32,
+            resnet_pre_norm: bool = True,
+            attn_num_head_channels=1,
+            cross_attention_dim=1280,
+            output_scale_factor=1.0,
+            downsample_padding=1,
+            add_downsample=True,
+            dual_cross_attention=False,
+            use_linear_projection=False,
+            only_cross_attention=False,
+            upcast_attention=False,
+            use_first_frame=False,
+            use_relative_position=False,
+            rotary_emb=False,
     ):
         super().__init__()
         resnets = []
@@ -331,7 +333,7 @@ class CrossAttnDownBlock3D(nn.Module):
                             return module(*inputs)
 
                     return custom_forward
-                
+
                 def create_custom_forward_attn(module, return_dict=None, use_image_num=None):
                     def custom_forward(*inputs):
                         if return_dict is not None:
@@ -349,7 +351,8 @@ class CrossAttnDownBlock3D(nn.Module):
                 )[0]
             else:
                 hidden_states = resnet(hidden_states, temb)
-                hidden_states = attn(hidden_states, encoder_hidden_states=encoder_hidden_states, use_image_num=use_image_num).sample
+                hidden_states = attn(hidden_states, encoder_hidden_states=encoder_hidden_states,
+                                     use_image_num=use_image_num).sample
 
             output_states += (hidden_states,)
 
@@ -364,20 +367,20 @@ class CrossAttnDownBlock3D(nn.Module):
 
 class DownBlock3D(nn.Module):
     def __init__(
-        self,
-        in_channels: int,
-        out_channels: int,
-        temb_channels: int,
-        dropout: float = 0.0,
-        num_layers: int = 1,
-        resnet_eps: float = 1e-6,
-        resnet_time_scale_shift: str = "default",
-        resnet_act_fn: str = "swish",
-        resnet_groups: int = 32,
-        resnet_pre_norm: bool = True,
-        output_scale_factor=1.0,
-        add_downsample=True,
-        downsample_padding=1,
+            self,
+            in_channels: int,
+            out_channels: int,
+            temb_channels: int,
+            dropout: float = 0.0,
+            num_layers: int = 1,
+            resnet_eps: float = 1e-6,
+            resnet_time_scale_shift: str = "default",
+            resnet_act_fn: str = "swish",
+            resnet_groups: int = 32,
+            resnet_pre_norm: bool = True,
+            output_scale_factor=1.0,
+            add_downsample=True,
+            downsample_padding=1,
     ):
         super().__init__()
         resnets = []
@@ -443,29 +446,29 @@ class DownBlock3D(nn.Module):
 
 class CrossAttnUpBlock3D(nn.Module):
     def __init__(
-        self,
-        in_channels: int,
-        out_channels: int,
-        prev_output_channel: int,
-        temb_channels: int,
-        dropout: float = 0.0,
-        num_layers: int = 1,
-        resnet_eps: float = 1e-6,
-        resnet_time_scale_shift: str = "default",
-        resnet_act_fn: str = "swish",
-        resnet_groups: int = 32,
-        resnet_pre_norm: bool = True,
-        attn_num_head_channels=1,
-        cross_attention_dim=1280,
-        output_scale_factor=1.0,
-        add_upsample=True,
-        dual_cross_attention=False,
-        use_linear_projection=False,
-        only_cross_attention=False,
-        upcast_attention=False,
-        use_first_frame=False,
-        use_relative_position=False,
-        rotary_emb=False
+            self,
+            in_channels: int,
+            out_channels: int,
+            prev_output_channel: int,
+            temb_channels: int,
+            dropout: float = 0.0,
+            num_layers: int = 1,
+            resnet_eps: float = 1e-6,
+            resnet_time_scale_shift: str = "default",
+            resnet_act_fn: str = "swish",
+            resnet_groups: int = 32,
+            resnet_pre_norm: bool = True,
+            attn_num_head_channels=1,
+            cross_attention_dim=1280,
+            output_scale_factor=1.0,
+            add_upsample=True,
+            dual_cross_attention=False,
+            use_linear_projection=False,
+            only_cross_attention=False,
+            upcast_attention=False,
+            use_first_frame=False,
+            use_relative_position=False,
+            rotary_emb=False
     ):
         super().__init__()
         resnets = []
@@ -522,14 +525,14 @@ class CrossAttnUpBlock3D(nn.Module):
         self.gradient_checkpointing = False
 
     def forward(
-        self,
-        hidden_states,
-        res_hidden_states_tuple,
-        temb=None,
-        encoder_hidden_states=None,
-        upsample_size=None,
-        attention_mask=None,
-        use_image_num=None,
+            self,
+            hidden_states,
+            res_hidden_states_tuple,
+            temb=None,
+            encoder_hidden_states=None,
+            upsample_size=None,
+            attention_mask=None,
+            use_image_num=None,
     ):
         for resnet, attn in zip(self.resnets, self.attentions):
             # pop res hidden states
@@ -547,7 +550,7 @@ class CrossAttnUpBlock3D(nn.Module):
                             return module(*inputs)
 
                     return custom_forward
-                
+
                 def create_custom_forward_attn(module, return_dict=None, use_image_num=None):
                     def custom_forward(*inputs):
                         if return_dict is not None:
@@ -565,7 +568,8 @@ class CrossAttnUpBlock3D(nn.Module):
                 )[0]
             else:
                 hidden_states = resnet(hidden_states, temb)
-                hidden_states = attn(hidden_states, encoder_hidden_states=encoder_hidden_states, use_image_num=use_image_num).sample
+                hidden_states = attn(hidden_states, encoder_hidden_states=encoder_hidden_states,
+                                     use_image_num=use_image_num).sample
 
         if self.upsamplers is not None:
             for upsampler in self.upsamplers:
@@ -576,20 +580,20 @@ class CrossAttnUpBlock3D(nn.Module):
 
 class UpBlock3D(nn.Module):
     def __init__(
-        self,
-        in_channels: int,
-        prev_output_channel: int,
-        out_channels: int,
-        temb_channels: int,
-        dropout: float = 0.0,
-        num_layers: int = 1,
-        resnet_eps: float = 1e-6,
-        resnet_time_scale_shift: str = "default",
-        resnet_act_fn: str = "swish",
-        resnet_groups: int = 32,
-        resnet_pre_norm: bool = True,
-        output_scale_factor=1.0,
-        add_upsample=True,
+            self,
+            in_channels: int,
+            prev_output_channel: int,
+            out_channels: int,
+            temb_channels: int,
+            dropout: float = 0.0,
+            num_layers: int = 1,
+            resnet_eps: float = 1e-6,
+            resnet_time_scale_shift: str = "default",
+            resnet_act_fn: str = "swish",
+            resnet_groups: int = 32,
+            resnet_pre_norm: bool = True,
+            output_scale_factor=1.0,
+            add_upsample=True,
     ):
         super().__init__()
         resnets = []

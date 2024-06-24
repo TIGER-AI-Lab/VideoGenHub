@@ -478,7 +478,8 @@ class VideoGenPipeline(DiffusionPipeline):
     def prepare_latents(self, batch_size, num_channels_latents, video_length, height, width, dtype, device, generator,
                         latents=None):
         shape = (
-        batch_size, num_channels_latents, video_length, height // self.vae_scale_factor, width // self.vae_scale_factor)
+            batch_size, num_channels_latents, video_length, height // self.vae_scale_factor,
+            width // self.vae_scale_factor)
         if isinstance(generator, list) and len(generator) != batch_size:
             raise ValueError(
                 f"You have passed a list of generators of length {len(generator)}, but requested an effective batch"

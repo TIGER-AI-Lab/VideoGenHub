@@ -88,8 +88,9 @@ def caption_summary(long_caption, api_key, api_base):
 
     except Exception as e:
         print(f"Error processing file : {e}")
-    
+
     return response_dict
+
 
 if __name__ == "__main__":
     caption_summary()

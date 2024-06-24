@@ -43,10 +43,19 @@
     "UpBlock3D"
   ],
   "use_linear_projection": true,
-
-  "down_temporal_idx": [0, 1, 2, 3],
+  "down_temporal_idx": [
+    0,
+    1,
+    2,
+    3
+  ],
   "mid_temporal": true,
-  "up_temporal_idx": [0, 1, 2, 3],
+  "up_temporal_idx": [
+    0,
+    1,
+    2,
+    3
+  ],
   "temporal_module_config": {
     "num_attention_layers": 1,
     "attention_block_types": [

@@ -1,10 +1,10 @@
-import torch
-from diffusers import DiffusionPipeline
-
 from typing import List, Optional, Union, Dict, Any
 
+import torch
+from diffusers import DiffusionPipeline
 from diffusers.utils import logging
 from diffusers.utils.torch_utils import randn_tensor
+
 from videogen_hub.pipelines.t2v_turbo.lvdm.models.ddpm3d import LatentDiffusion
 from videogen_hub.pipelines.t2v_turbo.scheduler.t2v_turbo_scheduler import T2VTurboScheduler
 
@@ -13,10 +13,10 @@ logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 
 class T2VTurboVC2Pipeline(DiffusionPipeline):
     def __init__(
-        self,
-        pretrained_t2v: LatentDiffusion,
-        scheduler: T2VTurboScheduler,
-        model_config: Dict[str, Any] = None,
+            self,
+            pretrained_t2v: LatentDiffusion,
+            scheduler: T2VTurboScheduler,
+            model_config: Dict[str, Any] = None,
     ):
         super().__init__()
 
@@ -32,11 +32,11 @@ class T2VTurboVC2Pipeline(DiffusionPipeline):
         self.vae_scale_factor = 8
 
     def _encode_prompt(
-        self,
-        prompt,
-        device,
-        num_videos_per_prompt,
-        prompt_embeds: None,
+            self,
+            prompt,
+            device,
+            num_videos_per_prompt,
+            prompt_embeds: None,
     ):
         r"""
         Encodes the prompt into text encoder hidden states.
@@ -52,7 +52,6 @@ class T2VTurboVC2Pipeline(DiffusionPipeline):
                 provided, text embeddings will be generated from `prompt` input argument.
         """
         if prompt_embeds is None:
-
             prompt_embeds = self.text_encoder(prompt)
 
         prompt_embeds = prompt_embeds.to(device=device)
@@ -68,16 +67,16 @@ class T2VTurboVC2Pipeline(DiffusionPipeline):
         return prompt_embeds
 
     def prepare_latents(
-        self,
-        batch_size,
-        num_channels_latents,
-        frames,
-        height,
-        width,
-        dtype,
-        device,
-        generator,
-        latents=None,
+            self,
+            batch_size,
+            num_channels_latents,
+            frames,
+            height,
+            width,
+            dtype,
+            device,
+            generator,
+            latents=None,
     ):
         shape = (
             batch_size,
@@ -121,20 +120,20 @@ class T2VTurboVC2Pipeline(DiffusionPipeline):
 
     @torch.no_grad()
     def __call__(
-        self,
-        prompt: Union[str, List[str]] = None,
-        height: Optional[int] = 320,
-        width: Optional[int] = 512,
-        frames: int = 16,
-        fps: int = 16,
-        guidance_scale: float = 7.5,
-        num_videos_per_prompt: Optional[int] = 1,
-        generator: Optional[Union[torch.Generator, List[torch.Generator]]] = None,
-        latents: Optional[torch.FloatTensor] = None,
-        num_inference_steps: int = 4,
-        lcm_origin_steps: int = 50,
-        prompt_embeds: Optional[torch.FloatTensor] = None,
-        output_type: Optional[str] = "pil",
+            self,
+            prompt: Union[str, List[str]] = None,
+            height: Optional[int] = 320,
+            width: Optional[int] = 512,
+            frames: int = 16,
+            fps: int = 16,
+            guidance_scale: float = 7.5,
+            num_videos_per_prompt: Optional[int] = 1,
+            generator: Optional[Union[torch.Generator, List[torch.Generator]]] = None,
+            latents: Optional[torch.FloatTensor] = None,
+            num_inference_steps: int = 4,
+            lcm_origin_steps: int = 50,
+            prompt_embeds: Optional[torch.FloatTensor] = None,
+            output_type: Optional[str] = "pil",
     ):
         unet_config = self.model_config["params"]["unet_config"]
         # 0. Default height and width to unet
@@ -186,7 +185,6 @@ class T2VTurboVC2Pipeline(DiffusionPipeline):
         # 7. LCM MultiStep Sampling Loop:
         with self.progress_bar(total=num_inference_steps) as progress_bar:
             for i, t in enumerate(timesteps):
-
                 ts = torch.full((bs,), t, device=device, dtype=torch.long)
 
                 # model prediction (v-prediction, eps, x)

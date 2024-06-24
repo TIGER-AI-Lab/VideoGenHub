@@ -1,15 +1,14 @@
-import os
-
 import argparse
 import json
+import os
 from functools import partial
 
+import cv2
 import numpy as np
 import pandas as pd
-from pandarallel import pandarallel
-import cv2
 from mmengine.logging import print_log
 from moviepy.editor import VideoFileClip
+from pandarallel import pandarallel
 from tqdm import tqdm
 
 tqdm.pandas()

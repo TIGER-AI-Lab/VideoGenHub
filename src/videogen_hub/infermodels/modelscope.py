@@ -21,7 +21,7 @@ class ModelScope:
         model_dir = snapshot_download(
             repo_id="ali-vilab/modelscope-damo-text-to-video-synthesis",
             local_dir=os.path.join(MODEL_PATH, "modelscope"),
-            
+
         )
         model = Model.from_pretrained(model_dir)
         self.pipeline = pipeline("text-to-video-synthesis", model=model, device=device)
@@ -44,7 +44,7 @@ class ModelScope:
         """
         from modelscope.outputs import OutputKeys
         from decord import VideoReader
-        from decord import cpu, gpu
+        from decord import cpu
         import io
 
         torch.manual_seed(seed)

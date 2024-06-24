@@ -55,7 +55,7 @@ def pipeline(prompt, size, seconds, fps, seed):
         type=str,
         default=None,
         help="The prompt to guide what to not include in video enhancement. "
-        "By default is the same as --negative_prompt",
+             "By default is the same as --negative_prompt",
     )
     parser.add_argument(
         "--num_steps", type=int, default=50, help="The number of denoising steps."
@@ -140,9 +140,9 @@ def pipeline(prompt, size, seconds, fps, seed):
     # ------------------
     now = datetime.datetime.now()
     name = (
-        args.prompt[:100].replace(" ", "_")
-        + "_"
-        + str(now.time()).replace(":", "_").replace(".", "_")
+            args.prompt[:100].replace(" ", "_")
+            + "_"
+            + str(now.time()).replace(":", "_").replace(".", "_")
     )
 
     inference_generator = torch.Generator(device="cuda")

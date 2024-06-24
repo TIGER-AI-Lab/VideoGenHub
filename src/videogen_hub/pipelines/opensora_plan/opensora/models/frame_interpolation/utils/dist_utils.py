@@ -46,4 +46,3 @@ def get_master_ip():
         return os.environ.get('AZ_BATCHAI_MPI_MASTER_NODE')
     else:
         return "127.0.0.1"
-

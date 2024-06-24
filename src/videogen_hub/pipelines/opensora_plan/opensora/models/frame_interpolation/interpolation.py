@@ -15,10 +15,9 @@ from utils.utils import (
 from utils.build_utils import build_from_cfg
 from utils.utils import InputPadder
 
-
 AMT_G = {
     'name': 'networks.AMT-G.Model',
-    'params':{
+    'params': {
         'corr_radius': 3,
         'corr_lvls': 4,
         'num_flows': 5,
@@ -26,30 +25,28 @@ AMT_G = {
 }
 
 
-
 def init(device="cuda"):
-
     '''
         initialize the device and the anchor resolution.
     '''
 
     if device == 'cuda':
         anchor_resolution = 1024 * 512
-        anchor_memory = 1500 * 1024**2
-        anchor_memory_bias = 2500 * 1024**2
+        anchor_memory = 1500 * 1024 ** 2
+        anchor_memory_bias = 2500 * 1024 ** 2
         vram_avail = torch.cuda.get_device_properties(device).total_memory
         print("VRAM available: {:.1f} MB".format(vram_avail / 1024 ** 2))
     else:
         # Do not resize in cpu mode
-        anchor_resolution = 8192*8192
+        anchor_resolution = 8192 * 8192
         anchor_memory = 1
         anchor_memory_bias = 0
         vram_avail = 1
-    
+
     return anchor_resolution, anchor_memory, anchor_memory_bias, vram_avail
 
-def get_input_video_from_path(input_path, device="cuda"):
 
+def get_input_video_from_path(input_path, device="cuda"):
     '''
         Get the input video from the input_path.
 
@@ -64,8 +61,8 @@ def get_input_video_from_path(input_path, device="cuda"):
 
     anchor_resolution, anchor_memory, anchor_memory_bias, vram_avail = init(device)
 
-    if osp.splitext(input_path)[-1] in ['.mp4', '.avi', '.mov', '.mkv', '.flv', '.wmv', 
-                                        '.webm', '.MP4', '.AVI', '.MOV', '.MKV', '.FLV', 
+    if osp.splitext(input_path)[-1] in ['.mp4', '.avi', '.mov', '.mkv', '.flv', '.wmv',
+                                        '.webm', '.MP4', '.AVI', '.MOV', '.MKV', '.FLV',
                                         '.WMV', '.WEBM']:
 
         vcap = cv2.VideoCapture(input_path)
@@ -91,12 +88,11 @@ def get_input_video_from_path(input_path, device="cuda"):
         print(f'Loading the [video] from {input_path}, the number of frames [{len(inputs)}]')
     else:
         raise TypeError("Input should be a video.")
-    
+
     return inputs, scale, padder
 
 
 def load_model(ckpt_path, device="cuda"):
-
     '''
         load the frame interpolation model.
     '''
@@ -110,8 +106,8 @@ def load_model(ckpt_path, device="cuda"):
     model.eval()
     return model
 
-def interpolater(model, inputs, scale, padder, iters=1):
 
+def interpolater(model, inputs, scale, padder, iters=1):
     '''
         interpolating with the interpolation model.
 
@@ -125,10 +121,10 @@ def interpolater(model, inputs, scale, padder, iters=1):
     '''
 
     print(f'Start frame interpolation:')
-    embt = torch.tensor(1/2).float().view(1, 1, 1, 1).to(device)
+    embt = torch.tensor(1 / 2).float().view(1, 1, 1, 1).to(device)
 
     for i in range(iters):
-        print(f'Iter {i+1}. input_frames={len(inputs)} output_frames={2*len(inputs)-1}')
+        print(f'Iter {i + 1}. input_frames={len(inputs)} output_frames={2 * len(inputs) - 1}')
         outputs = [inputs[0]]
         for in_0, in_1 in zip(inputs[:-1], inputs[1:]):
             in_0 = in_0.to(device)
@@ -142,6 +138,7 @@ def interpolater(model, inputs, scale, padder, iters=1):
 
     return outputs
 
+
 def write(outputs, input_path, output_path, frame_rate=30):
     '''
         write results to the output_path.
@@ -150,20 +147,19 @@ def write(outputs, input_path, output_path, frame_rate=30):
     if osp.exists(output_path) is False:
         os.makedirs(output_path)
 
-    
     size = outputs[0].shape[2:][::-1]
 
     _, file_name_with_extension = os.path.split(input_path)
     file_name, _ = os.path.splitext(file_name_with_extension)
 
     save_video_path = f'{output_path}/output_{file_name}.mp4'
-    writer = cv2.VideoWriter(save_video_path, cv2.VideoWriter_fourcc(*"mp4v"), 
-                        frame_rate, size)
+    writer = cv2.VideoWriter(save_video_path, cv2.VideoWriter_fourcc(*"mp4v"),
+                             frame_rate, size)
 
     for i, imgt_pred in enumerate(outputs):
         imgt_pred = tensor2img(imgt_pred)
         imgt_pred = cv2.cvtColor(imgt_pred, cv2.COLOR_RGB2BGR)
-        writer.write(imgt_pred)        
+        writer.write(imgt_pred)
     print(f"Demo video is saved to [{save_video_path}]")
 
     writer.release()
@@ -171,10 +167,11 @@ def write(outputs, input_path, output_path, frame_rate=30):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--ckpt', type=str, default='amt-g.pth', help="The pretrained model.") 
-    parser.add_argument('--niters', type=int, default=1, help="Iter of Interpolation. The number of frames will be double after per iter.") 
-    parser.add_argument('--input', default="test.mp4", help="Input video.") 
-    parser.add_argument('--output_path', type=str, default='results', help="Output path.") 
+    parser.add_argument('--ckpt', type=str, default='amt-g.pth', help="The pretrained model.")
+    parser.add_argument('--niters', type=int, default=1,
+                        help="Iter of Interpolation. The number of frames will be double after per iter.")
+    parser.add_argument('--input', default="test.mp4", help="Input video.")
+    parser.add_argument('--output_path', type=str, default='results', help="Output path.")
     parser.add_argument('--frame_rate', type=int, default=30, help="Frames rate of the output video.")
 
     args = parser.parse_args()

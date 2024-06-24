@@ -4,7 +4,8 @@ import torch.nn.functional as F
 
 from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.attention import SelfAttnPropagation
 from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.backbone import CNNEncoder
-from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.geometry import compute_flow_with_depth_pose, flow_warp
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.geometry import compute_flow_with_depth_pose, \
+    flow_warp
 from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.matching import (
     correlation_softmax_depth,
     global_correlation_softmax,
@@ -15,20 +16,21 @@ from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.matchin
 )
 from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.reg_refine import BasicUpdateBlock
 from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.transformer import FeatureTransformer
-from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.utils import feature_add_position, normalize_img, upsample_flow_with_mask
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.utils import feature_add_position, \
+    normalize_img, upsample_flow_with_mask
 
 
 class UniMatch(nn.Module):
     def __init__(
-        self,
-        num_scales=1,
-        feature_channels=128,
-        upsample_factor=8,
-        num_head=1,
-        ffn_dim_expansion=4,
-        num_transformer_layers=6,
-        reg_refine=False,  # optional local regression refinement
-        task="flow",
+            self,
+            num_scales=1,
+            feature_channels=128,
+            upsample_factor=8,
+            num_head=1,
+            ffn_dim_expansion=4,
+            num_transformer_layers=6,
+            reg_refine=False,  # optional local regression refinement
+            task="flow",
     ):
         super(UniMatch, self).__init__()
 
@@ -57,7 +59,7 @@ class UniMatch(nn.Module):
             self.upsampler = nn.Sequential(
                 nn.Conv2d(2 + feature_channels, 256, 3, 1, 1),
                 nn.ReLU(inplace=True),
-                nn.Conv2d(256, upsample_factor**2 * 9, 1, 1, 0),
+                nn.Conv2d(256, upsample_factor ** 2 * 9, 1, 1, 0),
             )
             # thus far, all the learnable parameters are task-agnostic
 
@@ -92,7 +94,7 @@ class UniMatch(nn.Module):
         if bilinear:
             multiplier = 1 if is_depth else upsample_factor
             up_flow = (
-                F.interpolate(flow, scale_factor=upsample_factor, mode="bilinear", align_corners=True) * multiplier
+                    F.interpolate(flow, scale_factor=upsample_factor, mode="bilinear", align_corners=True) * multiplier
             )
         else:
             concat = torch.cat((flow, feature), dim=1)
@@ -102,24 +104,24 @@ class UniMatch(nn.Module):
         return up_flow
 
     def forward(
-        self,
-        img0,
-        img1,
-        attn_type=None,
-        attn_splits_list=None,
-        corr_radius_list=None,
-        prop_radius_list=None,
-        num_reg_refine=1,
-        pred_bidir_flow=False,
-        task="flow",
-        intrinsics=None,
-        pose=None,  # relative pose transform
-        min_depth=1.0 / 0.5,  # inverse depth range
-        max_depth=1.0 / 10,
-        num_depth_candidates=64,
-        depth_from_argmax=False,
-        pred_bidir_depth=False,
-        **kwargs,
+            self,
+            img0,
+            img1,
+            attn_type=None,
+            attn_splits_list=None,
+            corr_radius_list=None,
+            prop_radius_list=None,
+            num_reg_refine=1,
+            pred_bidir_flow=False,
+            task="flow",
+            intrinsics=None,
+            pose=None,  # relative pose transform
+            min_depth=1.0 / 0.5,  # inverse depth range
+            max_depth=1.0 / 10,
+            num_depth_candidates=64,
+            depth_from_argmax=False,
+            pred_bidir_depth=False,
+            **kwargs,
     ):
         if pred_bidir_flow:
             assert task == "flow"

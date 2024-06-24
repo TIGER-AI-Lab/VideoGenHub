@@ -58,20 +58,20 @@ class TransformerTemporalModel(ModelMixin, ConfigMixin):
 
     @register_to_config
     def __init__(
-        self,
-        num_attention_heads: int = 16,
-        attention_head_dim: int = 88,
-        in_channels: Optional[int] = None,
-        out_channels: Optional[int] = None,
-        num_layers: int = 1,
-        dropout: float = 0.0,
-        norm_num_groups: int = 32,
-        cross_attention_dim: Optional[int] = None,
-        attention_bias: bool = False,
-        sample_size: Optional[int] = None,
-        activation_fn: str = "geglu",
-        norm_elementwise_affine: bool = True,
-        double_self_attention: bool = True,
+            self,
+            num_attention_heads: int = 16,
+            attention_head_dim: int = 88,
+            in_channels: Optional[int] = None,
+            out_channels: Optional[int] = None,
+            num_layers: int = 1,
+            dropout: float = 0.0,
+            norm_num_groups: int = 32,
+            cross_attention_dim: Optional[int] = None,
+            attention_bias: bool = False,
+            sample_size: Optional[int] = None,
+            activation_fn: str = "geglu",
+            norm_elementwise_affine: bool = True,
+            double_self_attention: bool = True,
     ):
         super().__init__()
         self.num_attention_heads = num_attention_heads
@@ -104,14 +104,14 @@ class TransformerTemporalModel(ModelMixin, ConfigMixin):
         self.proj_out = nn.Linear(inner_dim, in_channels)
 
     def forward(
-        self,
-        hidden_states,
-        encoder_hidden_states=None,
-        timestep=None,
-        class_labels=None,
-        num_frames=1,
-        cross_attention_kwargs=None,
-        return_dict: bool = True,
+            self,
+            hidden_states,
+            encoder_hidden_states=None,
+            timestep=None,
+            class_labels=None,
+            num_frames=1,
+            cross_attention_kwargs=None,
+            return_dict: bool = True,
     ):
         """
         The [`TransformerTemporal`] forward method.

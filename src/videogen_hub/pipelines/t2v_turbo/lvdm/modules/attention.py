@@ -1,8 +1,9 @@
 from functools import partial
+
 import torch
-from torch import nn, einsum
 import torch.nn.functional as F
 from einops import rearrange, repeat
+from torch import nn, einsum
 
 try:
     import xformers
@@ -50,21 +51,21 @@ class RelativePosition(nn.Module):
 class CrossAttention(nn.Module):
 
     def __init__(
-        self,
-        query_dim,
-        context_dim=None,
-        heads=8,
-        dim_head=64,
-        dropout=0.0,
-        relative_position=False,
-        temporal_length=None,
-        img_cross_attention=False,
+            self,
+            query_dim,
+            context_dim=None,
+            heads=8,
+            dim_head=64,
+            dropout=0.0,
+            relative_position=False,
+            temporal_length=None,
+            img_cross_attention=False,
     ):
         super().__init__()
         inner_dim = dim_head * heads
         context_dim = default(context_dim, query_dim)
 
-        self.scale = dim_head**-0.5
+        self.scale = dim_head ** -0.5
         self.heads = heads
         self.dim_head = dim_head
         self.to_q = nn.Linear(query_dim, inner_dim, bias=False)
@@ -104,7 +105,7 @@ class CrossAttention(nn.Module):
         if context is not None and self.img_cross_attention:
             context, context_img = (
                 context[:, : self.text_context_len, :],
-                context[:, self.text_context_len :, :],
+                context[:, self.text_context_len:, :],
             )
             k = self.to_k(context)
             v = self.to_v(context)
@@ -161,7 +162,7 @@ class CrossAttention(nn.Module):
         if context is not None and self.img_cross_attention:
             context, context_img = (
                 context[:, : self.text_context_len, :],
-                context[:, self.text_context_len :, :],
+                context[:, self.text_context_len:, :],
             )
             k = self.to_k(context)
             v = self.to_v(context)
@@ -219,17 +220,17 @@ class CrossAttention(nn.Module):
 class BasicTransformerBlock(nn.Module):
 
     def __init__(
-        self,
-        dim,
-        n_heads,
-        d_head,
-        dropout=0.0,
-        context_dim=None,
-        gated_ff=True,
-        checkpoint=True,
-        disable_self_attn=False,
-        attention_cls=None,
-        img_cross_attention=False,
+            self,
+            dim,
+            n_heads,
+            d_head,
+            dropout=0.0,
+            context_dim=None,
+            gated_ff=True,
+            checkpoint=True,
+            disable_self_attn=False,
+            attention_cls=None,
+            img_cross_attention=False,
     ):
         super().__init__()
         attn_cls = CrossAttention if attention_cls is None else attention_cls
@@ -273,12 +274,12 @@ class BasicTransformerBlock(nn.Module):
 
     def _forward(self, x, context=None, mask=None):
         x = (
-            self.attn1(
-                self.norm1(x),
-                context=context if self.disable_self_attn else None,
-                mask=mask,
-            )
-            + x
+                self.attn1(
+                    self.norm1(x),
+                    context=context if self.disable_self_attn else None,
+                    mask=mask,
+                )
+                + x
         )
         x = self.attn2(self.norm2(x), context=context, mask=mask) + x
         x = self.ff(self.norm3(x)) + x
@@ -296,17 +297,17 @@ class SpatialTransformer(nn.Module):
     """
 
     def __init__(
-        self,
-        in_channels,
-        n_heads,
-        d_head,
-        depth=1,
-        dropout=0.0,
-        context_dim=None,
-        use_checkpoint=True,
-        disable_self_attn=False,
-        use_linear=False,
-        img_cross_attention=False,
+            self,
+            in_channels,
+            n_heads,
+            d_head,
+            depth=1,
+            dropout=0.0,
+            context_dim=None,
+            use_checkpoint=True,
+            disable_self_attn=False,
+            use_linear=False,
+            img_cross_attention=False,
     ):
         super().__init__()
         self.in_channels = in_channels
@@ -372,19 +373,19 @@ class TemporalTransformer(nn.Module):
     """
 
     def __init__(
-        self,
-        in_channels,
-        n_heads,
-        d_head,
-        depth=1,
-        dropout=0.0,
-        context_dim=None,
-        use_checkpoint=True,
-        use_linear=False,
-        only_self_att=True,
-        causal_attention=False,
-        relative_position=False,
-        temporal_length=None,
+            self,
+            in_channels,
+            n_heads,
+            d_head,
+            depth=1,
+            dropout=0.0,
+            context_dim=None,
+            use_checkpoint=True,
+            use_linear=False,
+            only_self_att=True,
+            causal_attention=False,
+            relative_position=False,
+            temporal_length=None,
     ):
         super().__init__()
         self.only_self_att = only_self_att

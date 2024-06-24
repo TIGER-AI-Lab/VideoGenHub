@@ -8,7 +8,7 @@ save_path: "./src/videogen_hub/pipelines/seine/results/i2v/"
 # model config: 
 model: UNet
 num_frames: 16
-image_size: [240, 560]
+image_size: [ 240, 560 ]
 #image_size: [320, 512]
 # image_size: [512, 512]
 
@@ -22,7 +22,7 @@ run_time: 13
 cfg_scale: 8.0
 sample_method: 'ddpm'
 num_sampling_steps: 250
-text_prompt: []
+text_prompt: [ ]
 additional_prompt: ", slow motion."
 negative_prompt: ""
 do_classifier_free_guidance: True

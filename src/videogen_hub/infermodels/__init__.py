@@ -1,28 +1,27 @@
 # ==========================================================
 # Text-to-Video Generation
-from videogen_hub.infermodels.lavie import LaVie
-from videogen_hub.infermodels.videocrafter import VideoCrafter2
-from videogen_hub.infermodels.modelscope import ModelScope
-from videogen_hub.infermodels.streamingt2v import StreamingT2V
-from videogen_hub.infermodels.show_one import ShowOne
-from videogen_hub.infermodels.opensora import OpenSora
-from videogen_hub.infermodels.opensora_plan import OpenSoraPlan
-from videogen_hub.infermodels.t2v_turbo import T2VTurbo
-from videogen_hub.infermodels.opensora_12 import OpenSora12
+import sys
+from functools import partial
 
-# from .cogvideo import CogVideo # Not supporting CogVideo ATM
-
-# ==========================================================
-# Image-to-Video Generation
-from videogen_hub.infermodels.seine import SEINE
 from videogen_hub.infermodels.consisti2v import ConsistI2V
 from videogen_hub.infermodels.dynamicrafter import DynamiCrafter
 from videogen_hub.infermodels.i2vgen_xl import I2VGenXL
-
+from videogen_hub.infermodels.lavie import LaVie
+from videogen_hub.infermodels.modelscope import ModelScope
+from videogen_hub.infermodels.opensora import OpenSora
+from videogen_hub.infermodels.opensora_12 import OpenSora12
+from videogen_hub.infermodels.opensora_plan import OpenSoraPlan
 # ==========================================================
+# Image-to-Video Generation
+from videogen_hub.infermodels.seine import SEINE
+from videogen_hub.infermodels.show_one import ShowOne
+from videogen_hub.infermodels.streamingt2v import StreamingT2V
+from videogen_hub.infermodels.t2v_turbo import T2VTurbo
+from videogen_hub.infermodels.videocrafter import VideoCrafter2
 
-import sys
-from functools import partial
+
+# from .cogvideo import CogVideo # Not supporting CogVideo ATM
+# ==========================================================
 
 
 def get_model(model_name: str = None, init_with_default_params: bool = True):

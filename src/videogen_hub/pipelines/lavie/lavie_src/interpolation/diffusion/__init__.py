@@ -8,15 +8,15 @@ from videogen_hub.pipelines.lavie.lavie_src.interpolation.diffusion.respace impo
 
 
 def create_diffusion(
-    timestep_respacing,
-    noise_schedule="linear", 
-    use_kl=False,
-    sigma_small=False,
-    predict_xstart=False,
-    # learn_sigma=True,
-    learn_sigma=False, # for unet
-    rescale_learned_sigmas=False,
-    diffusion_steps=1000
+        timestep_respacing,
+        noise_schedule="linear",
+        use_kl=False,
+        sigma_small=False,
+        predict_xstart=False,
+        # learn_sigma=True,
+        learn_sigma=False,  # for unet
+        rescale_learned_sigmas=False,
+        diffusion_steps=1000
 ):
     betas = gd.get_named_beta_schedule(noise_schedule, diffusion_steps)
     if use_kl:

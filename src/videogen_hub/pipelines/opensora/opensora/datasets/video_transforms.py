@@ -38,7 +38,7 @@ def crop(clip, i, j, h, w):
     """
     if len(clip.size()) != 4:
         raise ValueError("clip should be a 4D tensor")
-    return clip[..., i : i + h, j : j + w]
+    return clip[..., i: i + h, j: j + w]
 
 
 def resize(clip, target_size, interpolation_mode):
@@ -250,9 +250,9 @@ class CenterCropResizeVideo:
     """
 
     def __init__(
-        self,
-        size,
-        interpolation_mode="bilinear",
+            self,
+            size,
+            interpolation_mode="bilinear",
     ):
         if isinstance(size, tuple):
             if len(size) != 2:
@@ -288,9 +288,9 @@ class UCFCenterCropVideo:
     """
 
     def __init__(
-        self,
-        size,
-        interpolation_mode="bilinear",
+            self,
+            size,
+            interpolation_mode="bilinear",
     ):
         if isinstance(size, tuple):
             if len(size) != 2:
@@ -323,9 +323,9 @@ class KineticsRandomCropResizeVideo:
     """
 
     def __init__(
-        self,
-        size,
-        interpolation_mode="bilinear",
+            self,
+            size,
+            interpolation_mode="bilinear",
     ):
         if isinstance(size, tuple):
             if len(size) != 2:
@@ -344,9 +344,9 @@ class KineticsRandomCropResizeVideo:
 
 class CenterCropVideo:
     def __init__(
-        self,
-        size,
-        interpolation_mode="bilinear",
+            self,
+            size,
+            interpolation_mode="bilinear",
     ):
         if isinstance(size, tuple):
             if len(size) != 2:

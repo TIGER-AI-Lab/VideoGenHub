@@ -1,23 +1,18 @@
-
-from pathlib import Path
-from pytorch_lightning import Callback
 import os
+
 import torch
 from lightning_fabric.utilities.cloud_io import get_filesystem
-from pytorch_lightning.cli import LightningArgumentParser
-from pytorch_lightning import LightningModule, Trainer
 from lightning_utilities.core.imports import RequirementCache
 from omegaconf import OmegaConf
+from pytorch_lightning import Callback
+from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning.cli import LightningArgumentParser
 
 _JSONARGPARSE_SIGNATURES_AVAILABLE = RequirementCache(
     "jsonargparse[signatures]>=4.17.0")
 
 if _JSONARGPARSE_SIGNATURES_AVAILABLE:
-    import docstring_parser
     from jsonargparse import (
-        ActionConfigFile,
-        ArgumentParser,
-        class_from_function,
         Namespace,
         register_unresolvable_import_paths,
         set_config_read_mode,
@@ -46,13 +41,13 @@ class SaveConfigCallback(Callback):
     """
 
     def __init__(
-        self,
-        parser: LightningArgumentParser,
-        config: Namespace,
-        log_dir: str,
-        config_filename: str = "config.yaml",
-        overwrite: bool = False,
-        multifile: bool = False,
+            self,
+            parser: LightningArgumentParser,
+            config: Namespace,
+            log_dir: str,
+            config_filename: str = "config.yaml",
+            overwrite: bool = False,
+            multifile: bool = False,
 
     ) -> None:
         self.parser = parser

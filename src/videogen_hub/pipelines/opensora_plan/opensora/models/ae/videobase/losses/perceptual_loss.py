@@ -17,8 +17,8 @@ def hinge_d_loss(logits_real, logits_fake):
 
 def vanilla_d_loss(logits_real, logits_fake):
     d_loss = 0.5 * (
-        torch.mean(torch.nn.functional.softplus(-logits_real))
-        + torch.mean(torch.nn.functional.softplus(logits_fake))
+            torch.mean(torch.nn.functional.softplus(-logits_real))
+            + torch.mean(torch.nn.functional.softplus(logits_fake))
     )
     return d_loss
 
@@ -59,20 +59,20 @@ def l2(x, y):
 
 class LPIPSWithDiscriminator(nn.Module):
     def __init__(
-        self,
-        disc_start,
-        logvar_init=0.0,
-        kl_weight=1.0,
-        pixelloss_weight=1.0,
-        perceptual_weight=1.0,
-        # --- Discriminator Loss ---
-        disc_num_layers=3,
-        disc_in_channels=3,
-        disc_factor=1.0,
-        disc_weight=1.0,
-        use_actnorm=False,
-        disc_conditional=False,
-        disc_loss="hinge",
+            self,
+            disc_start,
+            logvar_init=0.0,
+            kl_weight=1.0,
+            pixelloss_weight=1.0,
+            perceptual_weight=1.0,
+            # --- Discriminator Loss ---
+            disc_num_layers=3,
+            disc_in_channels=3,
+            disc_factor=1.0,
+            disc_weight=1.0,
+            use_actnorm=False,
+            disc_conditional=False,
+            disc_loss="hinge",
     ):
 
         super().__init__()
@@ -110,16 +110,16 @@ class LPIPSWithDiscriminator(nn.Module):
         return d_weight
 
     def forward(
-        self,
-        inputs,
-        reconstructions,
-        posteriors,
-        optimizer_idx,
-        global_step,
-        split="train",
-        weights=None,
-        last_layer=None,
-        cond=None,
+            self,
+            inputs,
+            reconstructions,
+            posteriors,
+            optimizer_idx,
+            global_step,
+            split="train",
+            weights=None,
+            last_layer=None,
+            cond=None,
     ):
         inputs = rearrange(inputs, "b c t h w -> (b t) c h w").contiguous()
         reconstructions = rearrange(
@@ -166,9 +166,9 @@ class LPIPSWithDiscriminator(nn.Module):
                 self.disc_factor, global_step, threshold=self.discriminator_iter_start
             )
             loss = (
-                weighted_nll_loss
-                + self.kl_weight * kl_loss
-                + d_weight * disc_factor * g_loss
+                    weighted_nll_loss
+                    + self.kl_weight * kl_loss
+                    + d_weight * disc_factor * g_loss
             )
             log = {
                 "{}/total_loss".format(split): loss.clone().detach().mean(),
@@ -209,20 +209,20 @@ class LPIPSWithDiscriminator(nn.Module):
 
 class LPIPSWithDiscriminator3D(nn.Module):
     def __init__(
-        self,
-        disc_start,
-        logvar_init=0.0,
-        kl_weight=1.0,
-        pixelloss_weight=1.0,
-        perceptual_weight=1.0,
-        # --- Discriminator Loss ---
-        disc_num_layers=3,
-        disc_in_channels=3,
-        disc_factor=1.0,
-        disc_weight=1.0,
-        use_actnorm=False,
-        disc_conditional=False,
-        disc_loss="hinge",
+            self,
+            disc_start,
+            logvar_init=0.0,
+            kl_weight=1.0,
+            pixelloss_weight=1.0,
+            perceptual_weight=1.0,
+            # --- Discriminator Loss ---
+            disc_num_layers=3,
+            disc_in_channels=3,
+            disc_factor=1.0,
+            disc_weight=1.0,
+            use_actnorm=False,
+            disc_conditional=False,
+            disc_loss="hinge",
     ):
 
         super().__init__()
@@ -260,16 +260,16 @@ class LPIPSWithDiscriminator3D(nn.Module):
         return d_weight
 
     def forward(
-        self,
-        inputs,
-        reconstructions,
-        posteriors,
-        optimizer_idx,
-        global_step,
-        split="train",
-        weights=None,
-        last_layer=None,
-        cond=None,
+            self,
+            inputs,
+            reconstructions,
+            posteriors,
+            optimizer_idx,
+            global_step,
+            split="train",
+            weights=None,
+            last_layer=None,
+            cond=None,
     ):
         t = inputs.shape[2]
         inputs = rearrange(inputs, "b c t h w -> (b t) c h w").contiguous()
@@ -320,9 +320,9 @@ class LPIPSWithDiscriminator3D(nn.Module):
                 self.disc_factor, global_step, threshold=self.discriminator_iter_start
             )
             loss = (
-                weighted_nll_loss
-                + self.kl_weight * kl_loss
-                + d_weight * disc_factor * g_loss
+                    weighted_nll_loss
+                    + self.kl_weight * kl_loss
+                    + d_weight * disc_factor * g_loss
             )
             log = {
                 "{}/total_loss".format(split): loss.clone().detach().mean(),
@@ -363,12 +363,12 @@ class LPIPSWithDiscriminator3D(nn.Module):
 
 class SimpleLPIPS(nn.Module):
     def __init__(
-        self,
-        logvar_init=0.0,
-        kl_weight=1.0,
-        pixelloss_weight=1.0,
-        perceptual_weight=1.0,
-        disc_loss="hinge",
+            self,
+            logvar_init=0.0,
+            kl_weight=1.0,
+            pixelloss_weight=1.0,
+            perceptual_weight=1.0,
+            disc_loss="hinge",
     ):
 
         super().__init__()
@@ -380,12 +380,12 @@ class SimpleLPIPS(nn.Module):
         self.logvar = nn.Parameter(torch.ones(size=()) * logvar_init)
 
     def forward(
-        self,
-        inputs,
-        reconstructions,
-        posteriors,
-        split="train",
-        weights=None,
+            self,
+            inputs,
+            reconstructions,
+            posteriors,
+            split="train",
+            weights=None,
     ):
         inputs = rearrange(inputs, "b c t h w -> (b t) c h w").contiguous()
         reconstructions = rearrange(

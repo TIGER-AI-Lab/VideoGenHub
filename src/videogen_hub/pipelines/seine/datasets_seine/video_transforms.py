@@ -43,13 +43,14 @@ def crop(clip, i, j, h, w):
     """
     if len(clip.size()) != 4:
         raise ValueError("clip should be a 4D tensor")
-    return clip[..., i : i + h, j : j + w]
+    return clip[..., i: i + h, j: j + w]
 
 
 def resize(clip, target_size, interpolation_mode):
     if len(target_size) != 2:
         raise ValueError(f"target size should be tuple (height, width), instead got {target_size}")
     return torch.nn.functional.interpolate(clip, size=target_size, mode=interpolation_mode, align_corners=False)
+
 
 def resize_scale(clip, target_size, interpolation_mode):
     if len(target_size) != 2:
@@ -58,13 +59,17 @@ def resize_scale(clip, target_size, interpolation_mode):
     scale_ = target_size[0] / min(H, W)
     return torch.nn.functional.interpolate(clip, scale_factor=scale_, mode=interpolation_mode, align_corners=False)
 
+
 def resize_with_scale_factor(clip, scale_factor, interpolation_mode):
-    return torch.nn.functional.interpolate(clip, scale_factor=scale_factor, mode=interpolation_mode, align_corners=False)
+    return torch.nn.functional.interpolate(clip, scale_factor=scale_factor, mode=interpolation_mode,
+                                           align_corners=False)
+
 
 def resize_scale_with_height(clip, target_size, interpolation_mode):
     H, W = clip.size(-2), clip.size(-1)
     scale_ = target_size / H
     return torch.nn.functional.interpolate(clip, scale_factor=scale_, mode=interpolation_mode, align_corners=False)
+
 
 def resize_scale_with_weight(clip, target_size, interpolation_mode):
     H, W = clip.size(-2), clip.size(-1)
@@ -129,13 +134,13 @@ def random_shift_crop(clip):
     if not _is_tensor_video_clip(clip):
         raise ValueError("clip should be a 4D torch.tensor")
     h, w = clip.size(-2), clip.size(-1)
-    
+
     if h <= w:
         long_edge = w
         short_edge = h
     else:
         long_edge = h
-        short_edge =w
+        short_edge = w
 
     th, tw = short_edge, short_edge
 
@@ -209,7 +214,7 @@ class RandomCropVideo:
         """
         i, j, h, w = self.get_params(clip)
         return crop(clip, i, j, h, w)
-    
+
     def get_params(self, clip):
         h, w = clip.shape[-2:]
         th, tw = self.size
@@ -227,16 +232,18 @@ class RandomCropVideo:
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(size={self.size})"
-    
+
+
 class CenterCropResizeVideo:
     '''
     First use the short side for cropping length, 
     center crop video, then resize to the specified size
     '''
+
     def __init__(
-        self,
-        size,
-        interpolation_mode="bilinear",
+            self,
+            size,
+            interpolation_mode="bilinear",
     ):
         if isinstance(size, tuple):
             if len(size) != 2:
@@ -246,7 +253,6 @@ class CenterCropResizeVideo:
             self.size = (size, size)
 
         self.interpolation_mode = interpolation_mode
-       
 
     def __call__(self, clip):
         """
@@ -259,18 +265,19 @@ class CenterCropResizeVideo:
         # print(clip.shape)
         clip_center_crop = center_crop_using_short_edge(clip)
         # print(clip_center_crop.shape) 320 512
-        clip_center_crop_resize = resize(clip_center_crop, target_size=self.size, interpolation_mode=self.interpolation_mode)
+        clip_center_crop_resize = resize(clip_center_crop, target_size=self.size,
+                                         interpolation_mode=self.interpolation_mode)
         return clip_center_crop_resize
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(size={self.size}, interpolation_mode={self.interpolation_mode}"
- 
+
 
 class CenterCropVideo:
     def __init__(
-        self,
-        size,
-        interpolation_mode="bilinear",
+            self,
+            size,
+            interpolation_mode="bilinear",
     ):
         if isinstance(size, tuple):
             if len(size) != 2:
@@ -280,7 +287,6 @@ class CenterCropVideo:
             self.size = (size, size)
 
         self.interpolation_mode = interpolation_mode
-       
 
     def __call__(self, clip):
         """
@@ -295,7 +301,7 @@ class CenterCropVideo:
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(size={self.size}, interpolation_mode={self.interpolation_mode}"
-    
+
 
 class NormalizeVideo:
     """
@@ -349,10 +355,11 @@ class ResizeVideo():
     First use the short side for cropping length, 
     center crop video, then resize to the specified size
     '''
+
     def __init__(
-        self,
-        size,
-        interpolation_mode="bilinear",
+            self,
+            size,
+            interpolation_mode="bilinear",
     ):
         if isinstance(size, tuple):
             if len(size) != 2:
@@ -362,7 +369,6 @@ class ResizeVideo():
             self.size = (size, size)
 
         self.interpolation_mode = interpolation_mode
-       
 
     def __call__(self, clip):
         """
@@ -377,7 +383,7 @@ class ResizeVideo():
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(size={self.size}, interpolation_mode={self.interpolation_mode}"
-    
+
 #  ------------------------------------------------------------
 #  ---------------------  Sampling  ---------------------------
 #  ------------------------------------------------------------

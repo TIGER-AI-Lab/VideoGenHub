@@ -32,7 +32,7 @@ class ResnetBlock2D(Block):
                 self.nin_shortcut = torch.nn.Conv2d(
                     in_channels, out_channels, kernel_size=1, stride=1, padding=0
                 )
-                
+
     @video_to_image
     def forward(self, x):
         h = x
@@ -50,6 +50,7 @@ class ResnetBlock2D(Block):
                 x = self.nin_shortcut(x)
         x = x + h
         return x
+
 
 class ResnetBlock3D(Block):
     def __init__(self, *, in_channels, out_channels=None, conv_shortcut=False, dropout):

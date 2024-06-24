@@ -17,6 +17,7 @@ from diffusers.models.normalization import AdaLayerNorm, AdaLayerNormZero
 from diffusers.utils import USE_PEFT_BACKEND, BaseOutput, deprecate, is_xformers_available
 from diffusers.utils.torch_utils import maybe_allow_in_graph
 from torch import nn
+
 from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.utils.pos_embed import \
     get_2d_sincos_pos_embed, RoPE1D, RoPE2D, LinearScalingRoPE2D, LinearScalingRoPE1D
 
@@ -321,7 +322,7 @@ class Attention(nn.Module):
             linear_cls = LoRACompatibleLinear
 
         assert not (self.use_rope and (
-                    self.compress_kv_factor is not None)), "Can not both enable compressing kv and using rope"
+                self.compress_kv_factor is not None)), "Can not both enable compressing kv and using rope"
         if self.compress_kv_factor is not None:
             self._init_compress()
 

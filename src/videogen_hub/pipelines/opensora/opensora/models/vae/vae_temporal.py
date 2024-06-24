@@ -4,10 +4,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
 
+from videogen_hub.pipelines.opensora.opensora.models.vae.utils import DiagonalGaussianDistribution
 from videogen_hub.pipelines.opensora.opensora.registry import MODELS
 from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import load_checkpoint
-
-from videogen_hub.pipelines.opensora.opensora.models.vae.utils import DiagonalGaussianDistribution
 
 
 def cast_tuple(t, length=1):
@@ -34,13 +33,13 @@ def exists(v):
 
 class CausalConv3d(nn.Module):
     def __init__(
-        self,
-        chan_in,
-        chan_out,
-        kernel_size: Union[int, Tuple[int, int, int]],
-        pad_mode="constant",
-        strides=None,  # allow custom stride
-        **kwargs,
+            self,
+            chan_in,
+            chan_out,
+            kernel_size: Union[int, Tuple[int, int, int]],
+            pad_mode="constant",
+            strides=None,  # allow custom stride
+            **kwargs,
     ):
         super().__init__()
         kernel_size = cast_tuple(kernel_size, 3)
@@ -72,13 +71,13 @@ class CausalConv3d(nn.Module):
 
 class ResBlock(nn.Module):
     def __init__(
-        self,
-        in_channels,  # SCH: added
-        filters,
-        conv_fn,
-        activation_fn=nn.SiLU,
-        use_conv_shortcut=False,
-        num_groups=32,
+            self,
+            in_channels,  # SCH: added
+            filters,
+            conv_fn,
+            activation_fn=nn.SiLU,
+            use_conv_shortcut=False,
+            num_groups=32,
     ):
         super().__init__()
         self.in_channels = in_channels
@@ -124,15 +123,15 @@ class Encoder(nn.Module):
     """Encoder Blocks."""
 
     def __init__(
-        self,
-        in_out_channels=4,
-        latent_embed_dim=512,  # num channels for latent vector
-        filters=128,
-        num_res_blocks=4,
-        channel_multipliers=(1, 2, 2, 4),
-        temporal_downsample=(False, True, True),
-        num_groups=32,  # for nn.GroupNorm
-        activation_fn="swish",
+            self,
+            in_out_channels=4,
+            latent_embed_dim=512,  # num channels for latent vector
+            filters=128,
+            num_res_blocks=4,
+            channel_multipliers=(1, 2, 2, 4),
+            temporal_downsample=(False, True, True),
+            num_groups=32,  # for nn.GroupNorm
+            activation_fn="swish",
     ):
         super().__init__()
         self.filters = filters
@@ -222,15 +221,15 @@ class Decoder(nn.Module):
     """Decoder Blocks."""
 
     def __init__(
-        self,
-        in_out_channels=4,
-        latent_embed_dim=512,
-        filters=128,
-        num_res_blocks=4,
-        channel_multipliers=(1, 2, 2, 4),
-        temporal_downsample=(False, True, True),
-        num_groups=32,  # for nn.GroupNorm
-        activation_fn="swish",
+            self,
+            in_out_channels=4,
+            latent_embed_dim=512,
+            filters=128,
+            num_res_blocks=4,
+            channel_multipliers=(1, 2, 2, 4),
+            temporal_downsample=(False, True, True),
+            num_groups=32,  # for nn.GroupNorm
+            activation_fn="swish",
     ):
         super().__init__()
         self.filters = filters
@@ -325,16 +324,16 @@ class Decoder(nn.Module):
 @MODELS.register_module()
 class VAE_Temporal(nn.Module):
     def __init__(
-        self,
-        in_out_channels=4,
-        latent_embed_dim=4,
-        embed_dim=4,
-        filters=128,
-        num_res_blocks=4,
-        channel_multipliers=(1, 2, 2, 4),
-        temporal_downsample=(True, True, False),
-        num_groups=32,  # for nn.GroupNorm
-        activation_fn="swish",
+            self,
+            in_out_channels=4,
+            latent_embed_dim=4,
+            embed_dim=4,
+            filters=128,
+            num_res_blocks=4,
+            channel_multipliers=(1, 2, 2, 4),
+            temporal_downsample=(True, True, False),
+            num_groups=32,  # for nn.GroupNorm
+            activation_fn="swish",
     ):
         super().__init__()
 

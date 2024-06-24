@@ -1,15 +1,14 @@
 import argparse
 import datetime
-import random
-import os
 import logging
-from omegaconf import OmegaConf
-
-import torch
+import os
+import random
 
 import diffusers
+import torch
 from diffusers import AutoencoderKL, DDIMScheduler
-
+from diffusers.utils.import_utils import is_xformers_available
+from omegaconf import OmegaConf
 from transformers import CLIPTextModel, CLIPTokenizer
 
 from videogen_hub.pipelines.consisti2v.consisti2v.models.videoldm_unet import VideoLDMUNet3DConditionModel
@@ -17,7 +16,6 @@ from videogen_hub.pipelines.consisti2v.consisti2v.pipelines.pipeline_conditional
     ConditionalAnimationPipeline,
 )
 from videogen_hub.pipelines.consisti2v.consisti2v.utils.util import save_videos_grid
-from diffusers.utils.import_utils import is_xformers_available
 
 
 def main(args, config):
@@ -157,7 +155,7 @@ def main(args, config):
         }
     )
     for prompt_idx, (prompt, n_prompt, first_frame_path, random_seed) in enumerate(
-        zip(prompts, n_prompts, first_frame_paths, random_seeds)
+            zip(prompts, n_prompts, first_frame_paths, random_seeds)
     ):
         # manually set random seed for reproduction
         if random_seed != -1:

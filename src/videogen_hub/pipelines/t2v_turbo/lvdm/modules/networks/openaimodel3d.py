@@ -1,12 +1,14 @@
-from functools import partial
 from abc import abstractmethod
+from functools import partial
+
 import torch
 import torch.nn as nn
-from einops import rearrange
 import torch.nn.functional as F
-from videogen_hub.pipelines.videocrafter.lvdm.models.utils_diffusion import timestep_embedding
-from videogen_hub.pipelines.videocrafter.lvdm.common import checkpoint
+from einops import rearrange
+
 from videogen_hub.pipelines.videocrafter.lvdm.basics import zero_module, conv_nd, linear, avg_pool_nd, normalization
+from videogen_hub.pipelines.videocrafter.lvdm.common import checkpoint
+from videogen_hub.pipelines.videocrafter.lvdm.models.utils_diffusion import timestep_embedding
 from videogen_hub.pipelines.videocrafter.lvdm.modules.attention import SpatialTransformer, TemporalTransformer
 
 
@@ -128,19 +130,19 @@ class ResBlock(TimestepBlock):
     """
 
     def __init__(
-        self,
-        channels,
-        emb_channels,
-        dropout,
-        out_channels=None,
-        use_scale_shift_norm=False,
-        dims=2,
-        use_checkpoint=False,
-        use_conv=False,
-        up=False,
-        down=False,
-        use_temporal_conv=False,
-        tempspatial_aware=False,
+            self,
+            channels,
+            emb_channels,
+            dropout,
+            out_channels=None,
+            use_scale_shift_norm=False,
+            dims=2,
+            use_checkpoint=False,
+            use_conv=False,
+            up=False,
+            down=False,
+            use_temporal_conv=False,
+            tempspatial_aware=False,
     ):
         super().__init__()
         self.channels = channels
@@ -221,10 +223,10 @@ class ResBlock(TimestepBlock):
         )
 
     def _forward(
-        self,
-        x,
-        emb,
-        batch_size=None,
+            self,
+            x,
+            emb,
+            batch_size=None,
     ):
         if self.updown:
             in_rest, in_conv = self.in_layers[:-1], self.in_layers[-1]
@@ -260,7 +262,7 @@ class TemporalConvBlock(nn.Module):
     """
 
     def __init__(
-        self, in_channels, out_channels=None, dropout=0.0, spatial_aware=False
+            self, in_channels, out_channels=None, dropout=0.0, spatial_aware=False
     ):
         super(TemporalConvBlock, self).__init__()
         if out_channels is None:
@@ -338,46 +340,46 @@ class UNetModel(nn.Module):
     """
 
     def __init__(
-        self,
-        in_channels,
-        model_channels,
-        out_channels,
-        num_res_blocks,
-        attention_resolutions,
-        dropout=0.0,
-        channel_mult=(1, 2, 4, 8),
-        conv_resample=True,
-        dims=2,
-        context_dim=None,
-        use_scale_shift_norm=False,
-        resblock_updown=False,
-        num_heads=-1,
-        num_head_channels=-1,
-        transformer_depth=1,
-        use_linear=False,
-        use_checkpoint=False,
-        temporal_conv=False,
-        tempspatial_aware=False,
-        temporal_attention=True,
-        temporal_selfatt_only=True,
-        use_relative_position=True,
-        use_causal_attention=False,
-        temporal_length=None,
-        use_fp16=False,
-        addition_attention=False,
-        use_image_attention=False,
-        temporal_transformer_depth=1,
-        fps_cond=False,
-        time_cond_proj_dim=None,
+            self,
+            in_channels,
+            model_channels,
+            out_channels,
+            num_res_blocks,
+            attention_resolutions,
+            dropout=0.0,
+            channel_mult=(1, 2, 4, 8),
+            conv_resample=True,
+            dims=2,
+            context_dim=None,
+            use_scale_shift_norm=False,
+            resblock_updown=False,
+            num_heads=-1,
+            num_head_channels=-1,
+            transformer_depth=1,
+            use_linear=False,
+            use_checkpoint=False,
+            temporal_conv=False,
+            tempspatial_aware=False,
+            temporal_attention=True,
+            temporal_selfatt_only=True,
+            use_relative_position=True,
+            use_causal_attention=False,
+            temporal_length=None,
+            use_fp16=False,
+            addition_attention=False,
+            use_image_attention=False,
+            temporal_transformer_depth=1,
+            fps_cond=False,
+            time_cond_proj_dim=None,
     ):
         super(UNetModel, self).__init__()
         if num_heads == -1:
             assert (
-                num_head_channels != -1
+                    num_head_channels != -1
             ), "Either num_heads or num_head_channels has to be set"
         if num_head_channels == -1:
             assert (
-                num_heads != -1
+                    num_heads != -1
             ), "Either num_heads or num_head_channels has to be set"
 
         self.in_channels = in_channels
@@ -655,14 +657,14 @@ class UNetModel(nn.Module):
         )
 
     def forward(
-        self,
-        x,
-        timesteps,
-        context=None,
-        features_adapter=None,
-        fps=16,
-        timestep_cond=None,
-        **kwargs
+            self,
+            x,
+            timesteps,
+            context=None,
+            features_adapter=None,
+            fps=16,
+            timestep_cond=None,
+            **kwargs
     ):
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
         if timestep_cond is not None:

@@ -14,12 +14,12 @@ def is_video(filename):
 
 
 def extract_frames(
-    video_path,
-    frame_inds=None,
-    points=None,
-    backend="opencv",
-    return_length=False,
-    num_frames=None,
+        video_path,
+        frame_inds=None,
+        points=None,
+        backend="opencv",
+        return_length=False,
+        num_frames=None,
 ):
     """
     Args:

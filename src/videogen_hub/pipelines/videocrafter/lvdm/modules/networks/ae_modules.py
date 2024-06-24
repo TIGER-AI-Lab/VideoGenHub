@@ -1,7 +1,8 @@
 # pytorch_diffusion + derived encoder decoder
 import math
-import torch
+
 import numpy as np
+import torch
 import torch.nn as nn
 from einops import rearrange
 
@@ -700,7 +701,7 @@ class LatentRescaler(nn.Module):
         for block in self.res_block1:
             x = block(x, None)
         x = torch.nn.functional.interpolate(x, size=(
-        int(round(x.shape[2] * self.factor)), int(round(x.shape[3] * self.factor))))
+            int(round(x.shape[2] * self.factor)), int(round(x.shape[3] * self.factor))))
         x = self.attn(x)
         for block in self.res_block2:
             x = block(x, None)

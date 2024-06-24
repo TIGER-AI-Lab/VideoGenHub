@@ -31,7 +31,7 @@ class AutoencoderKL(pl.LightningModule):
         self.decoder = Decoder(**ddconfig)
         self.loss = instantiate_from_config(lossconfig)
         assert ddconfig["double_z"]
-        self.quant_conv = torch.nn.Conv2d(2*ddconfig["z_channels"], 2*embed_dim, 1)
+        self.quant_conv = torch.nn.Conv2d(2 * ddconfig["z_channels"], 2 * embed_dim, 1)
         self.post_quant_conv = torch.nn.Conv2d(embed_dim, ddconfig["z_channels"], 1)
         self.embed_dim = embed_dim
         self.input_dim = input_dim
@@ -39,7 +39,7 @@ class AutoencoderKL(pl.LightningModule):
         self.test_args = test_args
         self.logdir = logdir
         if colorize_nlabels is not None:
-            assert type(colorize_nlabels)==int
+            assert type(colorize_nlabels) == int
             self.register_buffer("colorize", torch.randn(3, colorize_nlabels, 1, 1))
         if monitor is not None:
             self.monitor = monitor
@@ -47,8 +47,8 @@ class AutoencoderKL(pl.LightningModule):
             self.init_from_ckpt(ckpt_path, ignore_keys=ignore_keys)
         if self.test:
             self.init_test()
-    
-    def init_test(self,):
+
+    def init_test(self, ):
         self.test = True
         save_dir = os.path.join(self.logdir, "test")
         if 'ckpt' in self.test_args:
@@ -70,8 +70,8 @@ class AutoencoderKL(pl.LightningModule):
             os.makedirs(self.root_dec, exist_ok=True)
         if self.test_args.save_input:
             os.makedirs(self.root_inputs, exist_ok=True)
-        assert(self.test_args is not None)
-        self.test_maximum = getattr(self.test_args, 'test_maximum', None) 
+        assert (self.test_args is not None)
+        self.test_maximum = getattr(self.test_args, 'test_maximum', None)
         self.count = 0
         self.eval_metrics = {}
         self.decodes = []
@@ -95,7 +95,7 @@ class AutoencoderKL(pl.LightningModule):
         print(f"Restored from {path}")
 
     def encode(self, x, **kwargs):
-        
+
         h = self.encoder(x)
         moments = self.quant_conv(h)
         posterior = DiagonalGaussianDistribution(moments)
@@ -118,9 +118,9 @@ class AutoencoderKL(pl.LightningModule):
     def get_input(self, batch, k):
         x = batch[k]
         if x.dim() == 5 and self.input_dim == 4:
-            b,c,t,h,w = x.shape
+            b, c, t, h, w = x.shape
             self.b = b
-            self.t = t 
+            self.t = t
             x = rearrange(x, 'b c t h w -> (b t) c h w')
 
         return x
@@ -159,12 +159,12 @@ class AutoencoderKL(pl.LightningModule):
         self.log_dict(log_dict_ae)
         self.log_dict(log_dict_disc)
         return self.log_dict
-    
+
     def configure_optimizers(self):
         lr = self.learning_rate
-        opt_ae = torch.optim.Adam(list(self.encoder.parameters())+
-                                  list(self.decoder.parameters())+
-                                  list(self.quant_conv.parameters())+
+        opt_ae = torch.optim.Adam(list(self.encoder.parameters()) +
+                                  list(self.decoder.parameters()) +
+                                  list(self.quant_conv.parameters()) +
                                   list(self.post_quant_conv.parameters()),
                                   lr=lr, betas=(0.5, 0.9))
         opt_disc = torch.optim.Adam(self.loss.discriminator.parameters(),
@@ -196,8 +196,9 @@ class AutoencoderKL(pl.LightningModule):
         if not hasattr(self, "colorize"):
             self.register_buffer("colorize", torch.randn(3, x.shape[1], 1, 1).to(x))
         x = F.conv2d(x, weight=self.colorize)
-        x = 2.*(x-x.min())/(x.max()-x.min()) - 1.
+        x = 2. * (x - x.min()) / (x.max() - x.min()) - 1.
         return x
+
 
 class IdentityFirstStage(torch.nn.Module):
     def __init__(self, *args, vq_interface=False, **kwargs):

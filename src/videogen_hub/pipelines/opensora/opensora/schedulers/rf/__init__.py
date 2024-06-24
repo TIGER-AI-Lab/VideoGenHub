@@ -1,21 +1,20 @@
 import torch
 from tqdm import tqdm
 
-
-from videogen_hub.pipelines.opensora.opensora.schedulers.rf.rectified_flow import RFlowScheduler, timestep_transform
 from videogen_hub.pipelines.opensora.opensora.registry import SCHEDULERS
+from videogen_hub.pipelines.opensora.opensora.schedulers.rf.rectified_flow import RFlowScheduler, timestep_transform
 
 
 @SCHEDULERS.register_module("rflow")
 class RFLOW:
     def __init__(
-        self,
-        num_sampling_steps=10,
-        num_timesteps=1000,
-        cfg_scale=4.0,
-        use_discrete_timesteps=False,
-        use_timestep_transform=False,
-        **kwargs,
+            self,
+            num_sampling_steps=10,
+            num_timesteps=1000,
+            cfg_scale=4.0,
+            use_discrete_timesteps=False,
+            use_timestep_transform=False,
+            **kwargs,
     ):
         self.num_sampling_steps = num_sampling_steps
         self.num_timesteps = num_timesteps
@@ -32,16 +31,16 @@ class RFLOW:
         )
 
     def sample(
-        self,
-        model,
-        text_encoder,
-        z,
-        prompts,
-        device,
-        additional_args=None,
-        mask=None,
-        guidance_scale=None,
-        progress=True,
+            self,
+            model,
+            text_encoder,
+            z,
+            prompts,
+            device,
+            additional_args=None,
+            mask=None,
+            guidance_scale=None,
+            progress=True,
     ):
         # if no specific guidance scale is provided, use the default scale when initializing the scheduler
         if guidance_scale is None:

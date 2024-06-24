@@ -1,30 +1,30 @@
 import os
-from contextlib import contextmanager
-import torch
-import numpy as np
-from einops import rearrange
-import torch.nn.functional as F
+
 import pytorch_lightning as pl
-from videogen_hub.pipelines.t2v_turbo.lvdm.modules.networks.ae_modules import Encoder, Decoder
+import torch
+import torch.nn.functional as F
+from einops import rearrange
+
 from videogen_hub.pipelines.t2v_turbo.lvdm.distributions import DiagonalGaussianDistribution
+from videogen_hub.pipelines.t2v_turbo.lvdm.modules.networks.ae_modules import Encoder, Decoder
 from videogen_hub.pipelines.t2v_turbo.utils.utils import instantiate_from_config
 
 
 class AutoencoderKL(pl.LightningModule):
     def __init__(
-        self,
-        ddconfig,
-        lossconfig,
-        embed_dim,
-        ckpt_path=None,
-        ignore_keys=[],
-        image_key="image",
-        colorize_nlabels=None,
-        monitor=None,
-        test=False,
-        logdir=None,
-        input_dim=4,
-        test_args=None,
+            self,
+            ddconfig,
+            lossconfig,
+            embed_dim,
+            ckpt_path=None,
+            ignore_keys=[],
+            image_key="image",
+            colorize_nlabels=None,
+            monitor=None,
+            test=False,
+            logdir=None,
+            input_dim=4,
+            test_args=None,
     ):
         super().__init__()
         self.image_key = image_key
@@ -50,14 +50,14 @@ class AutoencoderKL(pl.LightningModule):
             self.init_test()
 
     def init_test(
-        self,
+            self,
     ):
         self.test = True
         save_dir = os.path.join(self.logdir, "test")
         if "ckpt" in self.test_args:
             ckpt_name = (
-                os.path.basename(self.test_args.ckpt).split(".ckpt")[0]
-                + f"_epoch{self._cur_epoch}"
+                    os.path.basename(self.test_args.ckpt).split(".ckpt")[0]
+                    + f"_epoch{self._cur_epoch}"
             )
             self.root = os.path.join(save_dir, ckpt_name)
         else:

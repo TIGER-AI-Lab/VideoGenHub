@@ -1,7 +1,8 @@
+import os
+from pathlib import Path
+
 import torch
 from huggingface_hub import hf_hub_download
-from pathlib import Path
-import os
 
 from videogen_hub import MODEL_PATH
 

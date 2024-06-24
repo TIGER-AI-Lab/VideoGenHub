@@ -1,8 +1,8 @@
 import importlib
 import os
 
-import numpy as np
 import cv2
+import numpy as np
 import torch
 import torch.distributed as dist
 
@@ -10,7 +10,7 @@ import torch.distributed as dist
 def count_params(model, verbose=False):
     total_params = sum(p.numel() for p in model.parameters())
     if verbose:
-        print(f"{model.__class__.__name__} has {total_params*1.e-6:.2f} M params.")
+        print(f"{model.__class__.__name__} has {total_params * 1.e-6:.2f} M params.")
     return total_params
 
 
@@ -19,7 +19,7 @@ def check_istarget(name, para_list):
     name: full name of source para
     para_list: partial name of target para 
     """
-    istarget=False
+    istarget = False
     for para in para_list:
         if para in name:
             return True
@@ -53,7 +53,7 @@ def load_npz_from_dir(data_dir):
 def load_npz_from_paths(data_paths):
     data = [np.load(data_path)['arr_0'] for data_path in data_paths]
     data = np.concatenate(data, axis=0)
-    return data   
+    return data
 
 
 def resize_numpy_image(image, max_resolution=512 * 512, resize_short_edge=None):
@@ -62,7 +62,7 @@ def resize_numpy_image(image, max_resolution=512 * 512, resize_short_edge=None):
         k = resize_short_edge / min(h, w)
     else:
         k = max_resolution / (h * w)
-        k = k**0.5
+        k = k ** 0.5
     h = int(np.round(h * k / 64)) * 64
     w = int(np.round(w * k / 64)) * 64
     image = cv2.resize(image, (w, h), interpolation=cv2.INTER_LANCZOS4)

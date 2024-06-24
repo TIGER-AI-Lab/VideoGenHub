@@ -47,9 +47,9 @@ class Codebook(nn.Module):
             self._init_embeddings(z)
         flat_inputs = shift_dim(z, 1, -1).flatten(end_dim=-2)
         distances = (
-            (flat_inputs**2).sum(dim=1, keepdim=True)
-            - 2 * flat_inputs @ self.embeddings.t()
-            + (self.embeddings.t() ** 2).sum(dim=0, keepdim=True)
+                (flat_inputs ** 2).sum(dim=1, keepdim=True)
+                - 2 * flat_inputs @ self.embeddings.t()
+                + (self.embeddings.t() ** 2).sum(dim=0, keepdim=True)
         )
 
         encoding_indices = torch.argmin(distances, dim=1)

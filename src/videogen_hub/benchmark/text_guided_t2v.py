@@ -1,9 +1,9 @@
 import argparse
+import json
 import os
 from typing import Optional
 
 import cv2
-import json
 import numpy as np
 from moviepy.editor import ImageSequenceClip
 from tqdm import tqdm
@@ -13,12 +13,12 @@ from videogen_hub.utils.file_helper import get_file_path
 
 
 def infer_text_guided_vg_bench(
-    model,
-    result_folder: str = "results",
-    experiment_name: str = "Exp_Text-Guided_VG",
-    overwrite_model_outputs: bool = False,
-    overwrite_inputs: bool = False,
-    limit_videos_amount: Optional[int] = None,
+        model,
+        result_folder: str = "results",
+        experiment_name: str = "Exp_Text-Guided_VG",
+        overwrite_model_outputs: bool = False,
+        overwrite_inputs: bool = False,
+        limit_videos_amount: Optional[int] = None,
 ):
     """
     Performs inference on the VideogenHub dataset using the provided text-guided video generation model.
@@ -75,7 +75,7 @@ def infer_text_guided_vg_bench(
             frames = model.infer_one_video(prompt=prompt["prompt_en"])
             print("======> frames.shape", frames.shape)
 
-            #special_treated_list = ["LaVie", "ModelScope", "T2VTurbo"]
+            # special_treated_list = ["LaVie", "ModelScope", "T2VTurbo"]
             special_treated_list = []
             if model.__class__.__name__ in special_treated_list:
                 print("======> Saved through cv2.VideoWriter_fourcc")
@@ -104,18 +104,18 @@ def infer_text_guided_vg_bench(
                     """
                     # Ensure the tensor is on the CPU and convert to NumPy array
                     tensor = tensor.cpu().numpy()
-                    
+
                     # Normalize the tensor values to [0, 1]
                     tensor_min = tensor.min()
                     tensor_max = tensor.max()
                     tensor = (tensor - tensor_min) / (tensor_max - tensor_min)
-                    
+
                     # Permute dimensions from (T, C, H, W) to (T, H, W, C) and scale to [0, 255]
                     video_frames = (tensor.transpose(0, 2, 3, 1) * 255).astype(np.uint8)
-                    
+
                     # Create a video clip from the frames
                     clip = ImageSequenceClip(list(video_frames), fps=fps)
-                    
+
                     # Write the video file
                     clip.write_videofile(output_path, codec='libx264')
 
@@ -136,6 +136,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Load a model by name")
     parser.add_argument("--model_name", type=str, required=True, help="Name of the model to load")
     args = parser.parse_args()
-    
+
     model = load_model(args.model_name)
     infer_text_guided_vg_bench(model)

@@ -35,13 +35,13 @@ def load_prompts(prompt_path, start_idx=None, end_idx=None):
 
 
 def get_save_path_name(
-    save_dir,
-    sample_name=None,  # prefix
-    sample_idx=None,  # sample index
-    prompt=None,  # used prompt
-    prompt_as_path=False,  # use prompt as path
-    num_sample=1,  # number of samples to generate for one prompt
-    k=None,  # kth sample
+        save_dir,
+        sample_name=None,  # prefix
+        sample_idx=None,  # sample index
+        prompt=None,  # used prompt
+        prompt_as_path=False,  # use prompt as path
+        num_sample=1,  # number of samples to generate for one prompt
+        k=None,  # kth sample
 ):
     if sample_name is None:
         sample_name = "" if prompt_as_path else "sample"
@@ -195,8 +195,8 @@ def apply_mask_strategy(z, refs_x, mask_strategys, loop_i, align=None):
                 m_ref_start = find_nearest_point(m_ref_start, align, ref.shape[1])
                 m_target_start = find_nearest_point(m_target_start, align, z.shape[2])
             m_length = min(m_length, z.shape[2] - m_target_start, ref.shape[1] - m_ref_start)
-            z[i, :, m_target_start : m_target_start + m_length] = ref[:, m_ref_start : m_ref_start + m_length]
-            mask[m_target_start : m_target_start + m_length] = edit_ratio
+            z[i, :, m_target_start: m_target_start + m_length] = ref[:, m_ref_start: m_ref_start + m_length]
+            mask[m_target_start: m_target_start + m_length] = edit_ratio
         masks.append(mask)
     if no_mask:
         return None
@@ -217,7 +217,7 @@ def append_generated(vae, generated_video, refs_x, mask_strategy, loop_i, condit
             mask_strategy[j] += ";"
         mask_strategy[
             j
-        ] += f"{loop_i},{len(refs)-1},-{condition_frame_length},0,{condition_frame_length},{condition_frame_edit}"
+        ] += f"{loop_i},{len(refs) - 1},-{condition_frame_length},0,{condition_frame_length},{condition_frame_edit}"
     return refs_x, mask_strategy
 
 
@@ -310,7 +310,7 @@ def refine_prompts_by_openai(prompts):
 
 
 def add_watermark(
-    input_video_path, watermark_image_path="./assets/images/watermark/watermark.png", output_video_path=None
+        input_video_path, watermark_image_path="./assets/images/watermark/watermark.png", output_video_path=None
 ):
     # execute this command in terminal with subprocess
     # return if the process is successful

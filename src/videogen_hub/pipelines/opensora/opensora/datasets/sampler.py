@@ -7,7 +7,6 @@ import torch
 import torch.distributed as dist
 from torch.utils.data import Dataset, DistributedSampler
 
-
 from videogen_hub.pipelines.opensora.opensora.datasets.aspect import get_num_pixels
 from videogen_hub.pipelines.opensora.opensora.datasets.bucket import Bucket
 from videogen_hub.pipelines.opensora.opensora.datasets.datasets import VariableVideoTextDataset
@@ -28,13 +27,13 @@ def apply(data, method=None, frame_interval=None, seed=None, num_bucket=None):
 
 class StatefulDistributedSampler(DistributedSampler):
     def __init__(
-        self,
-        dataset: Dataset,
-        num_replicas: Optional[int] = None,
-        rank: Optional[int] = None,
-        shuffle: bool = True,
-        seed: int = 0,
-        drop_last: bool = False,
+            self,
+            dataset: Dataset,
+            num_replicas: Optional[int] = None,
+            rank: Optional[int] = None,
+            shuffle: bool = True,
+            seed: int = 0,
+            drop_last: bool = False,
     ) -> None:
         super().__init__(dataset, num_replicas, rank, shuffle, seed, drop_last)
         self.start_index: int = 0
@@ -42,7 +41,7 @@ class StatefulDistributedSampler(DistributedSampler):
     def __iter__(self) -> Iterator:
         iterator = super().__iter__()
         indices = list(iterator)
-        indices = indices[self.start_index :]
+        indices = indices[self.start_index:]
         return iter(indices)
 
     def __len__(self) -> int:
@@ -60,16 +59,16 @@ class StatefulDistributedSampler(DistributedSampler):
 
 class VariableVideoBatchSampler(DistributedSampler):
     def __init__(
-        self,
-        dataset: VariableVideoTextDataset,
-        bucket_config: dict,
-        num_replicas: Optional[int] = None,
-        rank: Optional[int] = None,
-        shuffle: bool = True,
-        seed: int = 0,
-        drop_last: bool = False,
-        verbose: bool = False,
-        num_bucket_build_workers: int = 1,
+            self,
+            dataset: VariableVideoTextDataset,
+            bucket_config: dict,
+            num_replicas: Optional[int] = None,
+            rank: Optional[int] = None,
+            shuffle: bool = True,
+            seed: int = 0,
+            drop_last: bool = False,
+            verbose: bool = False,
+            num_bucket_build_workers: int = 1,
     ) -> None:
         super().__init__(
             dataset=dataset, num_replicas=num_replicas, rank=rank, shuffle=shuffle, seed=seed, drop_last=drop_last
@@ -159,7 +158,7 @@ class VariableVideoBatchSampler(DistributedSampler):
                 bucket_last_consumed[bucket_id] = bucket_bs
 
         for i in range(start_iter_idx, num_iters):
-            bucket_access_list = bucket_id_access_order[i * self.num_replicas : (i + 1) * self.num_replicas]
+            bucket_access_list = bucket_id_access_order[i * self.num_replicas: (i + 1) * self.num_replicas]
             self.last_micro_batch_access_index += self.num_replicas
 
             # compute the data samples consumed by each access
@@ -178,7 +177,7 @@ class VariableVideoBatchSampler(DistributedSampler):
             # compute the range of data accessed by each GPU
             bucket_id = bucket_access_list[self.rank]
             boundary = bucket_access_boundaries[self.rank]
-            cur_micro_batch = bucket_sample_dict[bucket_id][boundary[0] : boundary[1]]
+            cur_micro_batch = bucket_sample_dict[bucket_id][boundary[0]: boundary[1]]
 
             # encode t, h, w into the sample index
             real_t, real_h, real_w = self.bucket.get_thw(bucket_id)

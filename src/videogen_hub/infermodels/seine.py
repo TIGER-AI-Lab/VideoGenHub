@@ -15,7 +15,8 @@ class SEINE:
         """
         from videogen_hub.pipelines.seine.SEINEPipeline import SEINEPipeline
 
-        seine_path = hf_hub_download(repo_id="Vchitect/SEINE", filename="seine.pt", local_dir=os.path.join(MODEL_PATH, "SEINE"))
+        seine_path = hf_hub_download(repo_id="Vchitect/SEINE", filename="seine.pt",
+                                     local_dir=os.path.join(MODEL_PATH, "SEINE"))
         pretrained_model_path = snapshot_download(repo_id="CompVis/stable-diffusion-v1-4",
                                                   local_dir=os.path.join(MODEL_PATH, "SEINE", "stable-diffusion-v1-4"),
                                                   ignore_patterns=["*pytorch_model.bin", "*fp16*", "*non_ema*"])

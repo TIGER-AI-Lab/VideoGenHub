@@ -2,7 +2,6 @@ from collections import OrderedDict
 
 import numpy as np
 
-
 from videogen_hub.pipelines.opensora.opensora.datasets.aspect import ASPECT_RATIOS, get_closest_ratio
 from videogen_hub.pipelines.opensora.opensora.utils.misc import get_logger
 

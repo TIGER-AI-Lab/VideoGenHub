@@ -12,11 +12,12 @@ from transformers import T5EncoderModel, AutoTokenizer
 
 
 class T5Embedder:
-
     available_models = ['t5-v1_1-xxl']
-    bad_punct_regex = re.compile(r'['+'#®•©™&@·º½¾¿¡§~'+'\)'+'\('+'\]'+'\['+'\}'+'\{'+'\|'+'\\'+'\/'+'\*' + r']{1,}')  # noqa
+    bad_punct_regex = re.compile(
+        r'[' + '#®•©™&@·º½¾¿¡§~' + '\)' + '\(' + '\]' + '\[' + '\}' + '\{' + '\|' + '\\' + '\/' + '\*' + r']{1,}')  # noqa
 
-    def __init__(self, device, dir_or_name='t5-v1_1-xxl', *, cache_dir='./cache_dir', hf_token=None, use_text_preprocessing=True,
+    def __init__(self, device, dir_or_name='t5-v1_1-xxl', *, cache_dir='./cache_dir', hf_token=None,
+                 use_text_preprocessing=True,
                  t5_model_kwargs=None, torch_dtype=None, model_max_length=120):
         self.device = torch.device(device)
         self.torch_dtype = torch_dtype or torch.bfloat16
@@ -30,7 +31,8 @@ class T5Embedder:
         self.dir_or_name = dir_or_name
         cache_dir = os.path.join(self.cache_dir, 't5-v1_1-xxl')
         for filename in ['config.json', 'special_tokens_map.json', 'spiece.model', 'tokenizer_config.json',
-                         'pytorch_model-00001-of-00002.bin', 'pytorch_model-00002-of-00002.bin', 'pytorch_model.bin.index.json']:
+                         'pytorch_model-00001-of-00002.bin', 'pytorch_model-00002-of-00002.bin',
+                         'pytorch_model.bin.index.json']:
             hf_hub_download(repo_id='DeepFloyd/t5-v1_1-xxl', filename=filename, cache_dir=cache_dir,
                             force_filename=filename, token=self.hf_token)
 
@@ -84,10 +86,12 @@ class T5Embedder:
         caption = re.sub('<person>', 'person', caption)
         # urls:
         caption = re.sub(
-            r'\b((?:https?:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))',  # noqa
+            r'\b((?:https?:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))',
+            # noqa
             '', caption)  # regex for urls
         caption = re.sub(
-            r'\b((?:www:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))',  # noqa
+            r'\b((?:www:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))',
+            # noqa
             '', caption)  # regex for urls
         # html:
         caption = BeautifulSoup(caption, features='html.parser').text
@@ -113,7 +117,8 @@ class T5Embedder:
 
         # все виды тире / all types of dash --> "-"
         caption = re.sub(
-            r'[\u002D\u058A\u05BE\u1400\u1806\u2010-\u2015\u2E17\u2E1A\u2E3A\u2E3B\u2E40\u301C\u3030\u30A0\uFE31\uFE32\uFE58\uFE63\uFF0D]+',  # noqa
+            r'[\u002D\u058A\u05BE\u1400\u1806\u2010-\u2015\u2E17\u2E1A\u2E3A\u2E3B\u2E40\u301C\u3030\u30A0\uFE31\uFE32\uFE58\uFE63\uFF0D]+',
+            # noqa
             '-', caption)
 
         # кавычки к одному стандарту
@@ -184,6 +189,7 @@ class T5Embedder:
 
         return caption.strip()
 
+
 if __name__ == '__main__':
     t5 = T5Embedder(device="cuda", cache_dir='./cache_dir', torch_dtype=torch.float)
     device = t5.device
@@ -194,5 +200,7 @@ if __name__ == '__main__':
             'caption_feature': caption_embs.float().cpu().data.numpy(),
             'attention_mask': emb_masks.cpu().data.numpy(),
         }
-    import ipdb;ipdb.set_trace()
+    import ipdb;
+
+    ipdb.set_trace()
     print()

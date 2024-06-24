@@ -10,15 +10,15 @@ from diffusers.models.modeling_utils import ModelMixin
 from diffusers.utils import USE_PEFT_BACKEND, deprecate
 from einops import rearrange, repeat
 from torch import nn
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.latte.modules import PatchEmbed, \
+    BasicTransformerBlock, BasicTransformerBlock_, AdaLayerNormSingle, \
+    Transformer3DModelOutput, CaptionProjection
 # from opensora_plan.models.diffusion.utils.pos_embed import get_1d_sincos_pos_embed, PositionGetter1D, PositionGetter2D
 # from opensora_plan.models.diffusion.latte.modules import PatchEmbed, BasicTransformerBlock, BasicTransformerBlock_, AdaLayerNormSingle, \
 #    Transformer3DModelOutput, CaptionProjection
 from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.utils.pos_embed import \
     get_1d_sincos_pos_embed, PositionGetter1D, PositionGetter2D
-
-from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.latte.modules import PatchEmbed, \
-    BasicTransformerBlock, BasicTransformerBlock_, AdaLayerNormSingle, \
-    Transformer3DModelOutput, CaptionProjection
 
 
 class LatteT2V(ModelMixin, ConfigMixin):

@@ -1,20 +1,21 @@
 import torch
 import torch.nn.functional as F
 
-from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.geometry import coords_grid, generate_window_grid, normalize_coords
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.geometry import coords_grid, \
+    generate_window_grid, normalize_coords
 
 
 def global_correlation_softmax(
-    feature0,
-    feature1,
-    pred_bidir_flow=False,
+        feature0,
+        feature1,
+        pred_bidir_flow=False,
 ):
     # global correlation
     b, c, h, w = feature0.shape
     feature0 = feature0.view(b, c, -1).permute(0, 2, 1)  # [B, H*W, C]
     feature1 = feature1.view(b, c, -1)  # [B, C, H*W]
 
-    correlation = torch.matmul(feature0, feature1).view(b, h, w, h, w) / (c**0.5)  # [B, H, W, H, W]
+    correlation = torch.matmul(feature0, feature1).view(b, h, w, h, w) / (c ** 0.5)  # [B, H, W, H, W]
 
     # flow from softmax
     init_grid = coords_grid(b, h, w).to(correlation.device)  # [B, 2, H, W]
@@ -39,10 +40,10 @@ def global_correlation_softmax(
 
 
 def local_correlation_softmax(
-    feature0,
-    feature1,
-    local_radius,
-    padding_mode="zeros",
+        feature0,
+        feature1,
+        local_radius,
+        padding_mode="zeros",
 ):
     b, c, h, w = feature0.size()
     coords_init = coords_grid(b, h, w).to(feature0.device)  # [B, 2, H, W]
@@ -72,7 +73,7 @@ def local_correlation_softmax(
     )  # [B, H*W, C, (2R+1)^2]
     feature0_view = feature0.permute(0, 2, 3, 1).view(b, h * w, 1, c)  # [B, H*W, 1, C]
 
-    corr = torch.matmul(feature0_view, window_feature).view(b, h * w, -1) / (c**0.5)  # [B, H*W, (2R+1)^2]
+    corr = torch.matmul(feature0_view, window_feature).view(b, h * w, -1) / (c ** 0.5)  # [B, H*W, (2R+1)^2]
 
     # mask invalid locations
     corr[~valid] = -1e9
@@ -90,12 +91,12 @@ def local_correlation_softmax(
 
 
 def local_correlation_with_flow(
-    feature0,
-    feature1,
-    flow,
-    local_radius,
-    padding_mode="zeros",
-    dilation=1,
+        feature0,
+        feature1,
+        flow,
+        local_radius,
+        padding_mode="zeros",
+        dilation=1,
 ):
     b, c, h, w = feature0.size()
     coords_init = coords_grid(b, h, w).to(feature0.device)  # [B, 2, H, W]
@@ -123,7 +124,7 @@ def local_correlation_with_flow(
     )  # [B, H*W, C, (2R+1)^2]
     feature0_view = feature0.permute(0, 2, 3, 1).view(b, h * w, 1, c)  # [B, H*W, 1, C]
 
-    corr = torch.matmul(feature0_view, window_feature).view(b, h * w, -1) / (c**0.5)  # [B, H*W, (2R+1)^2]
+    corr = torch.matmul(feature0_view, window_feature).view(b, h * w, -1) / (c ** 0.5)  # [B, H*W, (2R+1)^2]
 
     corr = corr.view(b, h, w, -1).permute(0, 3, 1, 2).contiguous()  # [B, (2R+1)^2, H, W]
 
@@ -131,8 +132,8 @@ def local_correlation_with_flow(
 
 
 def global_correlation_softmax_stereo(
-    feature0,
-    feature1,
+        feature0,
+        feature1,
 ):
     # global correlation on horizontal direction
     b, c, h, w = feature0.shape
@@ -142,7 +143,7 @@ def global_correlation_softmax_stereo(
     feature0 = feature0.permute(0, 2, 3, 1)  # [B, H, W, C]
     feature1 = feature1.permute(0, 2, 1, 3)  # [B, H, C, W]
 
-    correlation = torch.matmul(feature0, feature1) / (c**0.5)  # [B, H, W, W]
+    correlation = torch.matmul(feature0, feature1) / (c ** 0.5)  # [B, H, W, W]
 
     # mask subsequent positions to make disparity positive
     mask = torch.triu(torch.ones((w, w)), diagonal=1).type_as(feature0)  # [W, W]
@@ -161,9 +162,9 @@ def global_correlation_softmax_stereo(
 
 
 def local_correlation_softmax_stereo(
-    feature0,
-    feature1,
-    local_radius,
+        feature0,
+        feature1,
+        local_radius,
 ):
     b, c, h, w = feature0.size()
     coords_init = coords_grid(b, h, w).to(feature0.device)  # [B, 2, H, W]
@@ -193,7 +194,7 @@ def local_correlation_softmax_stereo(
     )  # [B, H*W, C, (2R+1)]
     feature0_view = feature0.permute(0, 2, 3, 1).contiguous().view(b, h * w, 1, c)  # [B, H*W, 1, C]
 
-    corr = torch.matmul(feature0_view, window_feature).view(b, h * w, -1) / (c**0.5)  # [B, H*W, (2R+1)]
+    corr = torch.matmul(feature0_view, window_feature).view(b, h * w, -1) / (c ** 0.5)  # [B, H*W, (2R+1)]
 
     # mask invalid locations
     corr[~valid] = -1e9
@@ -217,17 +218,17 @@ def local_correlation_softmax_stereo(
 
 
 def correlation_softmax_depth(
-    feature0,
-    feature1,
-    intrinsics,
-    pose,
-    depth_candidates,
-    depth_from_argmax=False,
-    pred_bidir_depth=False,
+        feature0,
+        feature1,
+        intrinsics,
+        pose,
+        depth_candidates,
+        depth_from_argmax=False,
+        pred_bidir_depth=False,
 ):
     b, c, h, w = feature0.size()
     assert depth_candidates.dim() == 4  # [B, D, H, W]
-    scale_factor = c**0.5
+    scale_factor = c ** 0.5
 
     if pred_bidir_depth:
         feature0, feature1 = torch.cat((feature0, feature1), dim=0), torch.cat((feature1, feature0), dim=0)
@@ -258,11 +259,11 @@ def correlation_softmax_depth(
 
 
 def warp_with_pose_depth_candidates(
-    feature1,
-    intrinsics,
-    pose,
-    depth,
-    clamp_min_depth=1e-3,
+        feature1,
+        intrinsics,
+        pose,
+        depth,
+        clamp_min_depth=1e-3,
 ):
     """
     feature1: [B, C, H, W]

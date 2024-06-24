@@ -2,26 +2,25 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-
+from videogen_hub.pipelines.opensora.opensora.registry import SCHEDULERS
 from videogen_hub.pipelines.opensora.opensora.schedulers.iddpm import gaussian_diffusion as gd
 from videogen_hub.pipelines.opensora.opensora.schedulers.iddpm.respace import SpacedDiffusion, space_timesteps
-from videogen_hub.pipelines.opensora.opensora.registry import SCHEDULERS
 
 
 @SCHEDULERS.register_module("iddpm-speed")
 class SpeeDiffusion(SpacedDiffusion):
     def __init__(
-        self,
-        num_sampling_steps=None,
-        timestep_respacing=None,
-        noise_schedule="linear",
-        use_kl=False,
-        sigma_small=False,
-        predict_xstart=False,
-        learn_sigma=True,
-        rescale_learned_sigmas=False,
-        diffusion_steps=1000,
-        cfg_scale=4.0,
+            self,
+            num_sampling_steps=None,
+            timestep_respacing=None,
+            noise_schedule="linear",
+            use_kl=False,
+            sigma_small=False,
+            predict_xstart=False,
+            learn_sigma=True,
+            rescale_learned_sigmas=False,
+            diffusion_steps=1000,
+            cfg_scale=4.0,
     ):
         betas = gd.get_named_beta_schedule(noise_schedule, diffusion_steps)
         if use_kl:

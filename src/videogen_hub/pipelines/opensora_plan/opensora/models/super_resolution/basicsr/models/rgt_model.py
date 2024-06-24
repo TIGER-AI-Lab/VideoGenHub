@@ -1,4 +1,5 @@
 import torch
+
 from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.models.sr_model import SRModel
 from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.registry import MODEL_REGISTRY
 
@@ -27,17 +28,17 @@ class RGTModel(SRModel):
 
             patch_size_tmp_h = split_token_h
             patch_size_tmp_w = split_token_w
-            
+
             # padding
             mod_pad_h, mod_pad_w = 0, 0
             if h % patch_size_tmp_h != 0:
                 mod_pad_h = patch_size_tmp_h - h % patch_size_tmp_h
             if w % patch_size_tmp_w != 0:
                 mod_pad_w = patch_size_tmp_w - w % patch_size_tmp_w
-                
+
             img = self.lq
-            img = torch.cat([img, torch.flip(img, [2])], 2)[:, :, :h+mod_pad_h, :]
-            img = torch.cat([img, torch.flip(img, [3])], 3)[:, :, :, :w+mod_pad_w]
+            img = torch.cat([img, torch.flip(img, [2])], 2)[:, :, :h + mod_pad_h, :]
+            img = torch.cat([img, torch.flip(img, [3])], 3)[:, :, :, :w + mod_pad_w]
 
             _, _, H, W = img.size()
             split_h = H // split_token_h  # height of each partition
@@ -55,19 +56,19 @@ class RGTModel(SRModel):
                     if i == 0 and i == ral - 1:
                         top = slice(i * split_h, (i + 1) * split_h)
                     elif i == 0:
-                        top = slice(i*split_h, (i+1)*split_h+shave_h)
+                        top = slice(i * split_h, (i + 1) * split_h + shave_h)
                     elif i == ral - 1:
-                        top = slice(i*split_h-shave_h, (i+1)*split_h)
+                        top = slice(i * split_h - shave_h, (i + 1) * split_h)
                     else:
-                        top = slice(i*split_h-shave_h, (i+1)*split_h+shave_h)
+                        top = slice(i * split_h - shave_h, (i + 1) * split_h + shave_h)
                     if j == 0 and j == row - 1:
-                        left = slice(j*split_w, (j+1)*split_w)
+                        left = slice(j * split_w, (j + 1) * split_w)
                     elif j == 0:
-                        left = slice(j*split_w, (j+1)*split_w+shave_w)
+                        left = slice(j * split_w, (j + 1) * split_w + shave_w)
                     elif j == row - 1:
-                        left = slice(j*split_w-shave_w, (j+1)*split_w)
+                        left = slice(j * split_w - shave_w, (j + 1) * split_w)
                     else:
-                        left = slice(j*split_w-shave_w, (j+1)*split_w+shave_w)
+                        left = slice(j * split_w - shave_w, (j + 1) * split_w + shave_w)
                     temp = (top, left)
                     slices.append(temp)
             img_chops = []  # list of partitions
@@ -90,11 +91,11 @@ class RGTModel(SRModel):
                             if i == 0:
                                 _top = slice(0, split_h * scale)
                             else:
-                                _top = slice(shave_h*scale, (shave_h+split_h)*scale)
+                                _top = slice(shave_h * scale, (shave_h + split_h) * scale)
                             if j == 0:
-                                _left = slice(0, split_w*scale)
+                                _left = slice(0, split_w * scale)
                             else:
-                                _left = slice(shave_w*scale, (shave_w+split_w)*scale)
+                                _left = slice(shave_w * scale, (shave_w + split_w) * scale)
                             _img[..., top, left] = outputs[i * row + j][..., _top, _left]
                     self.output = _img
             else:

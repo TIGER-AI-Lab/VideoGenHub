@@ -8,6 +8,7 @@
 # thanks!
 
 import torch.nn as nn
+
 from videogen_hub.pipelines.t2v_turbo.utils.utils import instantiate_from_config
 
 

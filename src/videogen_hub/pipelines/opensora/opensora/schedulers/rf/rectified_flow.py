@@ -3,17 +3,18 @@ from torch.distributions import LogisticNormal
 
 from videogen_hub.pipelines.opensora.opensora.schedulers.iddpm.gaussian_diffusion import _extract_into_tensor, mean_flat
 
+
 # some code are inspired by https://github.com/magic-research/piecewise-rectified-flow/blob/main/scripts/train_perflow.py
 # and https://github.com/magic-research/piecewise-rectified-flow/blob/main/src/scheduler_perflow.py
 
 
 def timestep_transform(
-    t,
-    model_kwargs,
-    base_resolution=512 * 512,
-    base_num_frames=1,
-    scale=1.0,
-    num_timesteps=1,
+        t,
+        model_kwargs,
+        base_resolution=512 * 512,
+        base_num_frames=1,
+        scale=1.0,
+        num_timesteps=1,
 ):
     t = t / num_timesteps
     resolution = model_kwargs["height"] * model_kwargs["width"]
@@ -35,15 +36,15 @@ def timestep_transform(
 
 class RFlowScheduler:
     def __init__(
-        self,
-        num_timesteps=1000,
-        num_sampling_steps=10,
-        use_discrete_timesteps=False,
-        sample_method="uniform",
-        loc=0.0,
-        scale=1.0,
-        use_timestep_transform=False,
-        transform_scale=1.0,
+            self,
+            num_timesteps=1000,
+            num_sampling_steps=10,
+            use_discrete_timesteps=False,
+            sample_method="uniform",
+            loc=0.0,
+            scale=1.0,
+            use_timestep_transform=False,
+            transform_scale=1.0,
     ):
         self.num_timesteps = num_timesteps
         self.num_sampling_steps = num_sampling_steps
@@ -52,7 +53,7 @@ class RFlowScheduler:
         # sample method
         assert sample_method in ["uniform", "logit-normal"]
         assert (
-            sample_method == "uniform" or not use_discrete_timesteps
+                sample_method == "uniform" or not use_discrete_timesteps
         ), "Only uniform sampling is supported for discrete timesteps"
         self.sample_method = sample_method
         if sample_method == "logit-normal":
@@ -105,10 +106,10 @@ class RFlowScheduler:
         return terms
 
     def add_noise(
-        self,
-        original_samples: torch.FloatTensor,
-        noise: torch.FloatTensor,
-        timesteps: torch.IntTensor,
+            self,
+            original_samples: torch.FloatTensor,
+            noise: torch.FloatTensor,
+            timesteps: torch.IntTensor,
     ) -> torch.FloatTensor:
         """
         compatible with diffusers add_noise()

@@ -6,12 +6,13 @@ https://github.com/CompVis/taming-transformers
 -- merci
 """
 
-from functools import partial
-from contextlib import contextmanager
-import numpy as np
-from tqdm import tqdm
-from einops import rearrange, repeat
 import logging
+from contextlib import contextmanager
+from functools import partial
+
+import numpy as np
+from einops import rearrange, repeat
+from tqdm import tqdm
 
 mainlogger = logging.getLogger('mainlogger')
 import torch

@@ -12,7 +12,6 @@ from torchvision.transforms.functional import pil_to_tensor
 from tqdm import tqdm
 
 from videogen_hub.pipelines.opensora.tools.datasets.utils import extract_frames
-
 from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch import UniMatch
 
 

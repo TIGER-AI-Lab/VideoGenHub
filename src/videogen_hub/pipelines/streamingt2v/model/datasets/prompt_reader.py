@@ -6,6 +6,7 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 from pytorch_lightning.utilities.types import EVAL_DATALOADERS
+
 from videogen_hub.pipelines.streamingt2v.model.datasets.video_dataset import Annotations
 
 
@@ -39,20 +40,17 @@ class CustomPromptsDataset(torch.utils.data.Dataset):
                     lines = [line.rstrip() for line in f]
                 self.prompts = lines
             elif file.suffix == ".json":
-                with open(prompt_cfg["content"],"r") as file:
+                with open(prompt_cfg["content"], "r") as file:
                     metadata = json.load(file)
                 if "videos_root" in prompt_cfg:
                     videos_root = Path(prompt_cfg["videos_root"])
                     video_path = [str(videos_root / sample["page_dir"] /
-                                  f"{sample['videoid']}.mp4") for sample in metadata]
+                                      f"{sample['videoid']}.mp4") for sample in metadata]
                 else:
                     video_path = [str(sample["page_dir"] /
-                                  f"{sample['videoid']}.mp4") for sample in metadata]
+                                      f"{sample['videoid']}.mp4") for sample in metadata]
                 self.prompts = [sample["prompt"] for sample in metadata]
                 self.video_path = video_path
-
-
-
 
         transformed_prompts = []
         for prompt in self.prompts:
@@ -65,7 +63,7 @@ class CustomPromptsDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         output = {"prompt": self.prompts[index]}
-        if hasattr(self,"video_path"):
+        if hasattr(self, "video_path"):
             output["video"] = self.video_path[index]
         return output
 
@@ -76,4 +74,5 @@ class PromptReader(pl.LightningDataModule):
         self.predict_dataset = CustomPromptsDataset(prompt_cfg)
 
     def predict_dataloader(self) -> EVAL_DATALOADERS:
-        return torch.utils.data.DataLoader(self.predict_dataset, batch_size=1, pin_memory=False, shuffle=False, drop_last=False)
+        return torch.utils.data.DataLoader(self.predict_dataset, batch_size=1, pin_memory=False, shuffle=False,
+                                           drop_last=False)

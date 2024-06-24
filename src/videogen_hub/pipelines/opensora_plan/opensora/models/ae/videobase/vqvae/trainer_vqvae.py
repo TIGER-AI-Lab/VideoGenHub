@@ -15,4 +15,3 @@ class VQVAETrainer(VideoBaseTrainer):
         commitment_loss = vq_output['commitment_loss']
         loss = recon_loss + commitment_loss
         return loss
-

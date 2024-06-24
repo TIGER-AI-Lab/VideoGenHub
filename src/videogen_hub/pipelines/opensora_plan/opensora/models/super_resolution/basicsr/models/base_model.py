@@ -4,10 +4,12 @@ from collections import OrderedDict
 from copy import deepcopy
 
 import torch
-from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.models import lr_scheduler as lr_scheduler
+from torch.nn.parallel import DataParallel, DistributedDataParallel
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.models import \
+    lr_scheduler as lr_scheduler
 from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils import get_root_logger
 from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.dist_util import master_only
-from torch.nn.parallel import DataParallel, DistributedDataParallel
 
 
 class BaseModel():

@@ -14,7 +14,8 @@ class ShowOnePipeline():
         """
         from videogen_hub.pipelines.show_1.showone.pipelines import TextToVideoIFPipeline, TextToVideoIFInterpPipeline
         from videogen_hub.pipelines.show_1.showone.pipelines.pipeline_t2v_base_pixel import tensor2vid
-        from videogen_hub.pipelines.show_1.showone.pipelines.pipeline_t2v_sr_pixel_cond import TextToVideoIFSuperResolutionPipeline_Cond
+        from videogen_hub.pipelines.show_1.showone.pipelines.pipeline_t2v_sr_pixel_cond import \
+            TextToVideoIFSuperResolutionPipeline_Cond
 
         self.tensor2vid = tensor2vid
         # Base Model

@@ -1,7 +1,7 @@
 import os
 
-from huggingface_hub import hf_hub_download
 from PIL import Image
+from huggingface_hub import hf_hub_download
 
 from videogen_hub import MODEL_PATH
 
@@ -75,12 +75,12 @@ class DynamiCrafter:
         self.pipeline = DynamiCrafterPipeline(self.arg_list)
 
     def infer_one_video(
-        self,
-        input_image: Image.Image,
-        prompt: str = None,
-        seconds: int = 2,
-        fps: int = 8,
-        seed: int = 42,
+            self,
+            input_image: Image.Image,
+            prompt: str = None,
+            seconds: int = 2,
+            fps: int = 8,
+            seed: int = 42,
     ):
         """
         Generates a single video based on a textual prompt and first frame image, using either a provided image or an image path as the starting point. The output is a tensor representing the video.

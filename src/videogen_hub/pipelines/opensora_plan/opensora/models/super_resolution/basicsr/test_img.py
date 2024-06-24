@@ -1,9 +1,11 @@
-import logging
-import torch
 from os import path as osp
-from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.data import build_dataloader, build_dataset
+
+import torch
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.data import build_dataloader, \
+    build_dataset
 from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.models import build_model
-from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.options import dict2str, parse_options
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.options import parse_options
 
 
 def image_sr(args):
@@ -16,14 +18,14 @@ def image_sr(args):
     test_loaders = []
     for _, dataset_opt in sorted(opt['datasets'].items()):
         dataset_opt['dataroot_lq'] = osp.join(args.output_dir, f'temp_LR')
-        if args.SR == 'x4': 
+        if args.SR == 'x4':
             opt['upscale'] = opt['network_g']['upscale'] = 4
             opt['val']['suffix'] = 'x4'
             opt['path']['pretrain_network_g'] = osp.join(args.root_path, f'experiments/pretrained_models/RGT_x4.pth')
-        if args.SR == 'x2': 
+        if args.SR == 'x2':
             opt['upscale'] = opt['network_g']['upscale'] = 2
             opt['val']['suffix'] = 'x2'
-            
+
         test_set = build_dataset(dataset_opt)
         test_loader = build_dataloader(
             test_set, dataset_opt, num_gpu=opt['num_gpu'], dist=opt['dist'], sampler=None, seed=opt['manual_seed'])

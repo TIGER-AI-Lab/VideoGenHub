@@ -41,12 +41,12 @@ class ResBlock(nn.Module):
         out = self.conv1(x)
 
         res_feat = out[:, : -self.side_channels, ...]
-        side_feat = out[:, -self.side_channels :, :, :]
+        side_feat = out[:, -self.side_channels:, :, :]
         side_feat = self.conv2(side_feat)
         out = self.conv3(torch.cat([res_feat, side_feat], 1))
 
         res_feat = out[:, : -self.side_channels, ...]
-        side_feat = out[:, -self.side_channels :, :, :]
+        side_feat = out[:, -self.side_channels:, :, :]
         side_feat = self.conv4(side_feat)
         out = self.conv5(torch.cat([res_feat, side_feat], 1))
 
@@ -70,7 +70,7 @@ class Encoder(nn.Module):
     def forward(self, in_x):
         fs = []
         for idx in range(len(self.channels)):
-            out_x = getattr(self, f"pyramid{idx+1}")(in_x)
+            out_x = getattr(self, f"pyramid{idx + 1}")(in_x)
             fs.append(out_x)
             in_x = out_x
         return fs

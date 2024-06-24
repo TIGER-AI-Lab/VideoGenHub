@@ -11,7 +11,8 @@ from timm.models.vision_transformer import Mlp
 from transformers import PretrainedConfig, PreTrainedModel
 
 from videogen_hub.pipelines.opensora.opensora.acceleration.checkpoint import auto_grad_checkpoint
-from videogen_hub.pipelines.opensora.opensora.acceleration.communications import gather_forward_split_backward, split_forward_gather_backward
+from videogen_hub.pipelines.opensora.opensora.acceleration.communications import gather_forward_split_backward, \
+    split_forward_gather_backward
 from videogen_hub.pipelines.opensora.opensora.acceleration.parallel_states import get_sequence_parallel_group
 from videogen_hub.pipelines.opensora.opensora.models.layers.blocks import (
     Attention,
@@ -34,17 +35,17 @@ from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import load_check
 
 class STDiT3Block(nn.Module):
     def __init__(
-        self,
-        hidden_size,
-        num_heads,
-        mlp_ratio=4.0,
-        drop_path=0.0,
-        rope=None,
-        qk_norm=False,
-        temporal=False,
-        enable_flash_attn=False,
-        enable_layernorm_kernel=False,
-        enable_sequence_parallelism=False,
+            self,
+            hidden_size,
+            num_heads,
+            mlp_ratio=4.0,
+            drop_path=0.0,
+            rope=None,
+            qk_norm=False,
+            temporal=False,
+            enable_flash_attn=False,
+            enable_layernorm_kernel=False,
+            enable_sequence_parallelism=False,
     ):
         super().__init__()
         self.temporal = temporal
@@ -74,7 +75,7 @@ class STDiT3Block(nn.Module):
             in_features=hidden_size, hidden_features=int(hidden_size * mlp_ratio), act_layer=approx_gelu, drop=0
         )
         self.drop_path = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
-        self.scale_shift_table = nn.Parameter(torch.randn(6, hidden_size) / hidden_size**0.5)
+        self.scale_shift_table = nn.Parameter(torch.randn(6, hidden_size) / hidden_size ** 0.5)
 
     def t_mask_select(self, x_mask, x, masked_x, T, S):
         # x: [B, (T, S), C]
@@ -87,24 +88,24 @@ class STDiT3Block(nn.Module):
         return x
 
     def forward(
-        self,
-        x,
-        y,
-        t,
-        mask=None,  # text mask
-        x_mask=None,  # temporal mask
-        t0=None,  # t with timestamp=0
-        T=None,  # number of frames
-        S=None,  # number of pixel patches
+            self,
+            x,
+            y,
+            t,
+            mask=None,  # text mask
+            x_mask=None,  # temporal mask
+            t0=None,  # t with timestamp=0
+            T=None,  # number of frames
+            S=None,  # number of pixel patches
     ):
         # prepare modulate parameters
         B, N, C = x.shape
         shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = (
-            self.scale_shift_table[None] + t.reshape(B, 6, -1)
+                self.scale_shift_table[None] + t.reshape(B, 6, -1)
         ).chunk(6, dim=1)
         if x_mask is not None:
             shift_msa_zero, scale_msa_zero, gate_msa_zero, shift_mlp_zero, scale_mlp_zero, gate_mlp_zero = (
-                self.scale_shift_table[None] + t0.reshape(B, 6, -1)
+                    self.scale_shift_table[None] + t0.reshape(B, 6, -1)
             ).chunk(6, dim=1)
 
         # modulate (attention)
@@ -160,28 +161,28 @@ class STDiT3Config(PretrainedConfig):
     model_type = "STDiT3"
 
     def __init__(
-        self,
-        input_size=(None, None, None),
-        input_sq_size=512,
-        in_channels=4,
-        patch_size=(1, 2, 2),
-        hidden_size=1152,
-        depth=28,
-        num_heads=16,
-        mlp_ratio=4.0,
-        class_dropout_prob=0.1,
-        pred_sigma=True,
-        drop_path=0.0,
-        caption_channels=4096,
-        model_max_length=300,
-        qk_norm=True,
-        enable_flash_attn=False,
-        enable_layernorm_kernel=False,
-        enable_sequence_parallelism=False,
-        only_train_temporal=False,
-        freeze_y_embedder=False,
-        skip_y_embedder=False,
-        **kwargs,
+            self,
+            input_size=(None, None, None),
+            input_sq_size=512,
+            in_channels=4,
+            patch_size=(1, 2, 2),
+            hidden_size=1152,
+            depth=28,
+            num_heads=16,
+            mlp_ratio=4.0,
+            class_dropout_prob=0.1,
+            pred_sigma=True,
+            drop_path=0.0,
+            caption_channels=4096,
+            model_max_length=300,
+            qk_norm=True,
+            enable_flash_attn=False,
+            enable_layernorm_kernel=False,
+            enable_sequence_parallelism=False,
+            only_train_temporal=False,
+            freeze_y_embedder=False,
+            skip_y_embedder=False,
+            **kwargs,
     ):
         self.input_size = input_size
         self.input_sq_size = input_sq_size
@@ -362,7 +363,7 @@ class STDiT3(PreTrainedModel):
         _, _, Tx, Hx, Wx = x.size()
         T, H, W = self.get_dynamic_size(x)
         S = H * W
-        base_size = round(S**0.5)
+        base_size = round(S ** 0.5)
         resolution_sq = (height[0].item() * width[0].item()) ** 0.5
         scale = resolution_sq / self.input_sq_size
         pos_emb = self.pos_embed(x, H, W, scale=scale, base_size=base_size)

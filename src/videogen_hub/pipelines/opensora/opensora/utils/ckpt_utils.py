@@ -25,11 +25,11 @@ pretrained_models = {
     "OpenSora-v1-HQ-16x256x256.pth": hf_endpoint + "/hpcai-tech/Open-Sora/resolve/main/OpenSora-v1-HQ-16x256x256.pth",
     "OpenSora-v1-HQ-16x512x512.pth": hf_endpoint + "/hpcai-tech/Open-Sora/resolve/main/OpenSora-v1-HQ-16x512x512.pth",
     "PixArt-Sigma-XL-2-256x256.pth": hf_endpoint
-    + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-256x256.pth",
+                                     + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-256x256.pth",
     "PixArt-Sigma-XL-2-512-MS.pth": hf_endpoint
-    + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-512-MS.pth",
+                                    + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-512-MS.pth",
     "PixArt-Sigma-XL-2-1024-MS.pth": hf_endpoint
-    + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-1024-MS.pth",
+                                     + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-1024-MS.pth",
     "PixArt-Sigma-XL-2-2K-MS.pth": hf_endpoint + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-2K-MS.pth",
 }
 
@@ -223,5 +223,3 @@ def load_checkpoint(model, ckpt_path, save_as_pt=False, model_name="model", stri
             get_logger().info("Model checkpoint saved to %s", save_path)
     else:
         raise ValueError(f"Invalid checkpoint path: {ckpt_path}")
-
-

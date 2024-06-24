@@ -7,16 +7,17 @@ from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.attenti
     single_head_split_window_attention,
     single_head_split_window_attention_1d,
 )
-from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.utils import generate_shift_window_attn_mask, generate_shift_window_attn_mask_1d
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.utils import generate_shift_window_attn_mask, \
+    generate_shift_window_attn_mask_1d
 
 
 class TransformerLayer(nn.Module):
     def __init__(
-        self,
-        d_model=128,
-        nhead=1,
-        no_ffn=False,
-        ffn_dim_expansion=4,
+            self,
+            d_model=128,
+            nhead=1,
+            no_ffn=False,
+            ffn_dim_expansion=4,
     ):
         super(TransformerLayer, self).__init__()
 
@@ -45,16 +46,16 @@ class TransformerLayer(nn.Module):
             self.norm2 = nn.LayerNorm(d_model)
 
     def forward(
-        self,
-        source,
-        target,
-        height=None,
-        width=None,
-        shifted_window_attn_mask=None,
-        shifted_window_attn_mask_1d=None,
-        attn_type="swin",
-        with_shift=False,
-        attn_num_splits=None,
+            self,
+            source,
+            target,
+            height=None,
+            width=None,
+            shifted_window_attn_mask=None,
+            shifted_window_attn_mask_1d=None,
+            attn_type="swin",
+            with_shift=False,
+            attn_num_splits=None,
     ):
         # source, target: [B, L, C]
         query, key, value = source, target, target
@@ -174,10 +175,10 @@ class TransformerBlock(nn.Module):
     """self attention + cross attention + FFN"""
 
     def __init__(
-        self,
-        d_model=128,
-        nhead=1,
-        ffn_dim_expansion=4,
+            self,
+            d_model=128,
+            nhead=1,
+            ffn_dim_expansion=4,
     ):
         super(TransformerBlock, self).__init__()
 
@@ -195,16 +196,16 @@ class TransformerBlock(nn.Module):
         )
 
     def forward(
-        self,
-        source,
-        target,
-        height=None,
-        width=None,
-        shifted_window_attn_mask=None,
-        shifted_window_attn_mask_1d=None,
-        attn_type="swin",
-        with_shift=False,
-        attn_num_splits=None,
+            self,
+            source,
+            target,
+            height=None,
+            width=None,
+            shifted_window_attn_mask=None,
+            shifted_window_attn_mask_1d=None,
+            attn_type="swin",
+            with_shift=False,
+            attn_num_splits=None,
     ):
         # source, target: [B, L, C]
 
@@ -238,11 +239,11 @@ class TransformerBlock(nn.Module):
 
 class FeatureTransformer(nn.Module):
     def __init__(
-        self,
-        num_layers=6,
-        d_model=128,
-        nhead=1,
-        ffn_dim_expansion=4,
+            self,
+            num_layers=6,
+            d_model=128,
+            nhead=1,
+            ffn_dim_expansion=4,
     ):
         super(FeatureTransformer, self).__init__()
 
@@ -265,12 +266,12 @@ class FeatureTransformer(nn.Module):
                 nn.init.xavier_uniform_(p)
 
     def forward(
-        self,
-        feature0,
-        feature1,
-        attn_type="swin",
-        attn_num_splits=None,
-        **kwargs,
+            self,
+            feature0,
+            feature1,
+            attn_type="swin",
+            attn_num_splits=None,
+            **kwargs,
     ):
         b, c, h, w = feature0.shape
         assert self.d_model == c

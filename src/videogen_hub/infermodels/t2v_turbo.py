@@ -1,7 +1,7 @@
 import os
 
-from huggingface_hub import hf_hub_download, snapshot_download
 import torch
+from huggingface_hub import hf_hub_download, snapshot_download
 
 from videogen_hub import MODEL_PATH
 

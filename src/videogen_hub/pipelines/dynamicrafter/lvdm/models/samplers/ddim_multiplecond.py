@@ -227,7 +227,7 @@ class DDIMSampler(object):
             e_t_uncond_img = self.model.apply_model(x, t, unconditional_conditioning_img_nonetext, **kwargs)
             # text cfg
             model_output = e_t_uncond + cfg_img * (e_t_uncond_img - e_t_uncond) + unconditional_guidance_scale * (
-                        e_t_cond - e_t_uncond_img)
+                    e_t_cond - e_t_uncond_img)
             if guidance_rescale > 0.0:
                 model_output = rescale_noise_cfg(model_output, e_t_cond, guidance_rescale=guidance_rescale)
 

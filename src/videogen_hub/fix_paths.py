@@ -1,6 +1,6 @@
+import argparse
 import os
 import re
-import argparse
 
 
 def find_python_files(directory):

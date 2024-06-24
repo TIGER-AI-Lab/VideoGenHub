@@ -33,9 +33,9 @@ def normalize_img(img0, img1):
 
 
 def split_feature(
-    feature,
-    num_splits=2,
-    channel_last=False,
+        feature,
+        num_splits=2,
+        channel_last=False,
 ):
     if channel_last:  # [B, H, W, C]
         b, h, w, c = feature.size()
@@ -68,9 +68,9 @@ def split_feature(
 
 
 def merge_splits(
-    splits,
-    num_splits=2,
-    channel_last=False,
+        splits,
+        num_splits=2,
+        channel_last=False,
 ):
     if channel_last:  # [B*K*K, H/K, W/K, C]
         b, h, w, c = splits.size()
@@ -93,7 +93,7 @@ def merge_splits(
 
 
 def generate_shift_window_attn_mask(
-    input_resolution, window_size_h, window_size_w, shift_size_h, shift_size_w, device=torch.device("cuda")
+        input_resolution, window_size_h, window_size_w, shift_size_h, shift_size_w, device=torch.device("cuda")
 ):
     # ref: https://github.com/microsoft/Swin-Transformer/blob/main/models/swin_transformer.py
     # calculate attention mask for SW-MSA
@@ -159,8 +159,8 @@ def upsample_flow_with_mask(flow, up_mask, upsample_factor, is_depth=False):
 
 
 def split_feature_1d(
-    feature,
-    num_splits=2,
+        feature,
+        num_splits=2,
 ):
     # feature: [B, W, C]
     b, w, c = feature.size()
@@ -175,9 +175,9 @@ def split_feature_1d(
 
 
 def merge_splits_1d(
-    splits,
-    h,
-    num_splits=2,
+        splits,
+        h,
+        num_splits=2,
 ):
     b, w, c = splits.size()
     new_b = b // num_splits // h

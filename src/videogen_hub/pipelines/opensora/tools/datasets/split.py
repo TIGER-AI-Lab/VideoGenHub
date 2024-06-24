@@ -8,11 +8,11 @@ from videogen_hub.pipelines.opensora.opensora.datasets.bucket import Bucket
 
 
 def split_by_bucket(
-    bucket: Bucket,
-    input_files: List[str],
-    output_path: str,
-    limit: int,
-    frame_interval: int,
+        bucket: Bucket,
+        input_files: List[str],
+        output_path: str,
+        limit: int,
+        frame_interval: int,
 ):
     print(f"Split {len(input_files)} files into {len(bucket)} buckets")
     total_limit = len(bucket) * limit

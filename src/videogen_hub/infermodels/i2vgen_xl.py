@@ -1,8 +1,8 @@
 import os
-from typing import Union
+
 import torch
-from huggingface_hub import snapshot_download, hf_hub_download
 from PIL import Image
+from huggingface_hub import snapshot_download
 
 from videogen_hub import MODEL_PATH
 

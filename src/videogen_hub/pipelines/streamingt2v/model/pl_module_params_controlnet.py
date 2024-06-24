@@ -20,10 +20,10 @@ def auto_str(cls):
 
 class LayerConfig:
     def __init__(
-        self,
-        update_with_full_lr: Optional[Union[List[str], List[List[str]]]] = None,
-        exclude: Optional[List[str]] = None,
-        deactivate_all_grads: bool = True,
+            self,
+            update_with_full_lr: Optional[Union[List[str], List[List[str]]]] = None,
+            exclude: Optional[List[str]] = None,
+            deactivate_all_grads: bool = True,
     ) -> None:
         self.deactivate_all_grads = deactivate_all_grads
         if exclude is not None:
@@ -42,51 +42,51 @@ class LayerConfig:
 
 class OptimizerParams:
     def __init__(
-        self,
-        learning_rate: float,
-        # Default value due to legacy
-        layers_config: Union[LayerConfig, LayerConfigNew] = None,
-        layers_config_base: LayerConfig = None,  # Default value due to legacy
-        use_warmup: bool = False,
-        warmup_steps: int = 10000,
-        warmup_start_factor: float = 1e-5,
-        learning_rate_spatial: float = 0.0,
-        use_8_bit_adam: bool = False,
-        noise_generator: Union[
-            pl_module_extension.NoiseGenerator, video_noise_generator.NoiseGenerator
-        ] = None,
-        noise_decomposition: pl_module_extension.NoiseDecomposition = None,
-        perceptual_loss: bool = False,
-        noise_offset: float = 0.0,
-        split_opt_by_node: bool = False,
-        reset_prediction_type_to_eps: bool = False,
-        train_val_sampler_may_differ: bool = False,
-        measure_similarity: bool = False,
-        similarity_loss: bool = False,
-        similarity_loss_weight: float = 1.0,
-        loss_conditional_weight: float = 0.0,
-        loss_conditional_weight_convex: bool = False,
-        loss_conditional_change_after_step: int = 0,
-        mask_conditional_frames: bool = False,
-        sample_from_noise: bool = True,
-        mask_alternating: bool = False,
-        uncondition_freq: int = -1,
-        no_text_condition_control: bool = False,
-        inject_image_into_input: bool = False,
-        inject_at_T: bool = False,
-        resampling_steps: int = 1,
-        control_freq_in_resample: int = 1,
-        resample_to_T: bool = False,
-        adaptive_loss_reweight: bool = False,
-        load_resampler_from_ckpt: str = "",
-        skip_controlnet_branch: bool = False,
-        use_fps_conditioning: bool = False,
-        num_frame_embeddings_range: int = 16,
-        start_frame_training: int = 0,
-        start_frame_ctrl: int = 0,
-        load_trained_base_model_and_resampler_from_ckpt: str = "",
-        load_trained_controlnet_from_ckpt: str = "",
-        # fill_up_frame_to_video: bool = False,
+            self,
+            learning_rate: float,
+            # Default value due to legacy
+            layers_config: Union[LayerConfig, LayerConfigNew] = None,
+            layers_config_base: LayerConfig = None,  # Default value due to legacy
+            use_warmup: bool = False,
+            warmup_steps: int = 10000,
+            warmup_start_factor: float = 1e-5,
+            learning_rate_spatial: float = 0.0,
+            use_8_bit_adam: bool = False,
+            noise_generator: Union[
+                pl_module_extension.NoiseGenerator, video_noise_generator.NoiseGenerator
+            ] = None,
+            noise_decomposition: pl_module_extension.NoiseDecomposition = None,
+            perceptual_loss: bool = False,
+            noise_offset: float = 0.0,
+            split_opt_by_node: bool = False,
+            reset_prediction_type_to_eps: bool = False,
+            train_val_sampler_may_differ: bool = False,
+            measure_similarity: bool = False,
+            similarity_loss: bool = False,
+            similarity_loss_weight: float = 1.0,
+            loss_conditional_weight: float = 0.0,
+            loss_conditional_weight_convex: bool = False,
+            loss_conditional_change_after_step: int = 0,
+            mask_conditional_frames: bool = False,
+            sample_from_noise: bool = True,
+            mask_alternating: bool = False,
+            uncondition_freq: int = -1,
+            no_text_condition_control: bool = False,
+            inject_image_into_input: bool = False,
+            inject_at_T: bool = False,
+            resampling_steps: int = 1,
+            control_freq_in_resample: int = 1,
+            resample_to_T: bool = False,
+            adaptive_loss_reweight: bool = False,
+            load_resampler_from_ckpt: str = "",
+            skip_controlnet_branch: bool = False,
+            use_fps_conditioning: bool = False,
+            num_frame_embeddings_range: int = 16,
+            start_frame_training: int = 0,
+            start_frame_ctrl: int = 0,
+            load_trained_base_model_and_resampler_from_ckpt: str = "",
+            load_trained_controlnet_from_ckpt: str = "",
+            # fill_up_frame_to_video: bool = False,
     ) -> None:
         self.use_warmup = use_warmup
         self.warmup_steps = warmup_steps
@@ -152,10 +152,10 @@ class OptimizerParams:
 # Legacy class
 class SchedulerParams:
     def __init__(
-        self,
-        use_warmup: bool = False,
-        warmup_steps: int = 10000,
-        warmup_start_factor: float = 1e-5,
+            self,
+            use_warmup: bool = False,
+            warmup_steps: int = 10000,
+            warmup_start_factor: float = 1e-5,
     ) -> None:
         self.use_warmup = use_warmup
         self.warmup_steps = warmup_steps
@@ -171,27 +171,27 @@ class CrossFrameAttentionParams:
 
 class InferenceParams:
     def __init__(
-        self,
-        width: int,
-        height: int,
-        video_length: int,
-        guidance_scale: float = 7.5,
-        use_dec_scaling: bool = True,
-        frame_rate: int = 2,
-        num_inference_steps: int = 50,
-        eta: float = 0.0,
-        n_autoregressive_generations: int = 1,
-        mode: str = "long_video",
-        start_from_real_input: bool = True,
-        eval_loss_metrics: bool = False,
-        scheduler_cls: str = "",
-        negative_prompt: str = "",
-        conditioning_from_all_past: bool = False,
-        validation_samples: int = 80,
-        conditioning_type: str = "last_chunk",
-        result_formats: List[str] = ["eval_gif", "gif", "mp4"],
-        concat_video: bool = True,
-        seed: int = 33,
+            self,
+            width: int,
+            height: int,
+            video_length: int,
+            guidance_scale: float = 7.5,
+            use_dec_scaling: bool = True,
+            frame_rate: int = 2,
+            num_inference_steps: int = 50,
+            eta: float = 0.0,
+            n_autoregressive_generations: int = 1,
+            mode: str = "long_video",
+            start_from_real_input: bool = True,
+            eval_loss_metrics: bool = False,
+            scheduler_cls: str = "",
+            negative_prompt: str = "",
+            conditioning_from_all_past: bool = False,
+            validation_samples: int = 80,
+            conditioning_type: str = "last_chunk",
+            result_formats: List[str] = ["eval_gif", "gif", "mp4"],
+            concat_video: bool = True,
+            seed: int = 33,
     ):
         self.width = width
         self.height = height
@@ -217,7 +217,6 @@ class InferenceParams:
         self.seed = seed
 
     def to_dict(self):
-
         keys = [
             entry
             for entry in dir(self)
@@ -234,12 +233,12 @@ class InferenceParams:
 class AttentionMaskParams:
 
     def __init__(
-        self,
-        temporal_self_attention_only_on_conditioning: bool = False,
-        temporal_self_attention_mask_included_itself: bool = False,
-        spatial_attend_on_condition_frames: bool = False,
-        temp_attend_on_neighborhood_of_condition_frames: bool = False,
-        temp_attend_on_uncond_include_past: bool = False,
+            self,
+            temporal_self_attention_only_on_conditioning: bool = False,
+            temporal_self_attention_mask_included_itself: bool = False,
+            spatial_attend_on_condition_frames: bool = False,
+            temp_attend_on_neighborhood_of_condition_frames: bool = False,
+            temp_attend_on_uncond_include_past: bool = False,
     ) -> None:
         self.temporal_self_attention_mask_included_itself = (
             temporal_self_attention_mask_included_itself
@@ -254,65 +253,65 @@ class AttentionMaskParams:
         self.temp_attend_on_uncond_include_past = temp_attend_on_uncond_include_past
 
         assert (
-            not temp_attend_on_neighborhood_of_condition_frames
-            or not temporal_self_attention_only_on_conditioning
+                not temp_attend_on_neighborhood_of_condition_frames
+                or not temporal_self_attention_only_on_conditioning
         )
 
 
 class UNetParams:
 
     def __init__(
-        self,
-        conditioning_embedding_out_channels: List[int],
-        ckpt_spatial_layers: str = "",
-        pipeline_repo: str = "",
-        unet_from_diffusers: bool = True,
-        spatial_latent_input: bool = False,
-        num_frame_conditioning: int = 1,
-        pipeline_class: str = "t2v_enhanced.model.model.controlnet.pipeline_text_to_video_w_controlnet_synth.TextToVideoSDPipeline",
-        frame_expansion: str = "last_frame",
-        downsample_controlnet_cond: bool = True,
-        num_frames: int = 1,
-        pre_transformer_in_cond: bool = False,
-        num_tranformers: int = 1,
-        zero_conv_3d: bool = False,
-        merging_mode: str = "addition",
-        compute_only_conditioned_frames: bool = False,
-        condition_encoder: str = "",
-        zero_conv_mode: str = "2d",
-        clean_model: bool = False,
-        merging_mode_base: str = "addition",
-        attention_mask_params: AttentionMaskParams = None,
-        attention_mask_params_base: AttentionMaskParams = None,
-        modelscope_input_format: bool = True,
-        temporal_self_attention_only_on_conditioning: bool = False,
-        temporal_self_attention_mask_included_itself: bool = False,
-        use_post_merger_zero_conv: bool = False,
-        weight_control_sample: float = 1.0,
-        use_controlnet_mask: bool = False,
-        random_mask_shift: bool = False,
-        random_mask: bool = False,
-        use_resampler: bool = False,
-        unet_from_pipe: bool = False,
-        unet_operates_on_2d: bool = False,
-        image_encoder: str = "CLIP",
-        use_standard_attention_processor: bool = True,
-        num_frames_before_chunk: int = 0,
-        resampler_type: str = "single_frame",
-        resampler_cls: str = "",
-        resampler_merging_layers: int = 1,
-        image_encoder_obj: AbstractEncoder = None,
-        cfg_text_image: bool = False,
-        aggregation: str = "last_out",
-        resampler_random_shift: bool = False,
-        img_cond_alpha_per_frame: bool = False,
-        num_control_input_frames: int = -1,
-        use_image_encoder_normalization: bool = False,
-        use_of: bool = False,
-        ema_param: float = -1.0,
-        concat: bool = False,
-        use_image_tokens_main: bool = True,
-        use_image_tokens_ctrl: bool = False,
+            self,
+            conditioning_embedding_out_channels: List[int],
+            ckpt_spatial_layers: str = "",
+            pipeline_repo: str = "",
+            unet_from_diffusers: bool = True,
+            spatial_latent_input: bool = False,
+            num_frame_conditioning: int = 1,
+            pipeline_class: str = "t2v_enhanced.model.model.controlnet.pipeline_text_to_video_w_controlnet_synth.TextToVideoSDPipeline",
+            frame_expansion: str = "last_frame",
+            downsample_controlnet_cond: bool = True,
+            num_frames: int = 1,
+            pre_transformer_in_cond: bool = False,
+            num_tranformers: int = 1,
+            zero_conv_3d: bool = False,
+            merging_mode: str = "addition",
+            compute_only_conditioned_frames: bool = False,
+            condition_encoder: str = "",
+            zero_conv_mode: str = "2d",
+            clean_model: bool = False,
+            merging_mode_base: str = "addition",
+            attention_mask_params: AttentionMaskParams = None,
+            attention_mask_params_base: AttentionMaskParams = None,
+            modelscope_input_format: bool = True,
+            temporal_self_attention_only_on_conditioning: bool = False,
+            temporal_self_attention_mask_included_itself: bool = False,
+            use_post_merger_zero_conv: bool = False,
+            weight_control_sample: float = 1.0,
+            use_controlnet_mask: bool = False,
+            random_mask_shift: bool = False,
+            random_mask: bool = False,
+            use_resampler: bool = False,
+            unet_from_pipe: bool = False,
+            unet_operates_on_2d: bool = False,
+            image_encoder: str = "CLIP",
+            use_standard_attention_processor: bool = True,
+            num_frames_before_chunk: int = 0,
+            resampler_type: str = "single_frame",
+            resampler_cls: str = "",
+            resampler_merging_layers: int = 1,
+            image_encoder_obj: AbstractEncoder = None,
+            cfg_text_image: bool = False,
+            aggregation: str = "last_out",
+            resampler_random_shift: bool = False,
+            img_cond_alpha_per_frame: bool = False,
+            num_control_input_frames: int = -1,
+            use_image_encoder_normalization: bool = False,
+            use_of: bool = False,
+            ema_param: float = -1.0,
+            concat: bool = False,
+            use_image_tokens_main: bool = True,
+            use_image_tokens_ctrl: bool = False,
     ):
 
         self.ckpt_spatial_layers = ckpt_spatial_layers

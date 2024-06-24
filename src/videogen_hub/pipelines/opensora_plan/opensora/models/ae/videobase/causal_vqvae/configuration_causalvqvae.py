@@ -4,17 +4,17 @@ from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.configura
 
 class CausalVQVAEConfiguration(VideoBaseConfiguration):
     def __init__(
-        self,
-        embedding_dim: int = 256,
-        n_codes: int = 2048,
-        n_hiddens: int = 240,
-        n_res_layers: int = 4,
-        resolution: int = 128,
-        sequence_length: int = 16,
-        time_downsample: int = 4,
-        spatial_downsample: int = 8,
-        no_pos_embd: bool = True,
-        **kwargs,
+            self,
+            embedding_dim: int = 256,
+            n_codes: int = 2048,
+            n_hiddens: int = 240,
+            n_res_layers: int = 4,
+            resolution: int = 128,
+            sequence_length: int = 16,
+            time_downsample: int = 4,
+            spatial_downsample: int = 8,
+            no_pos_embd: bool = True,
+            **kwargs,
     ):
         super().__init__(**kwargs)
 

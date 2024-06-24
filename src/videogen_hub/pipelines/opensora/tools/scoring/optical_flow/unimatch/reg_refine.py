@@ -5,10 +5,10 @@ import torch.nn.functional as F
 
 class FlowHead(nn.Module):
     def __init__(
-        self,
-        input_dim=128,
-        hidden_dim=256,
-        out_dim=2,
+            self,
+            input_dim=128,
+            hidden_dim=256,
+            out_dim=2,
     ):
         super(FlowHead, self).__init__()
 
@@ -24,10 +24,10 @@ class FlowHead(nn.Module):
 
 class SepConvGRU(nn.Module):
     def __init__(
-        self,
-        hidden_dim=128,
-        input_dim=192 + 128,
-        kernel_size=5,
+            self,
+            hidden_dim=128,
+            input_dim=192 + 128,
+            kernel_size=5,
     ):
         padding = (kernel_size - 1) // 2
 
@@ -60,9 +60,9 @@ class SepConvGRU(nn.Module):
 
 class BasicMotionEncoder(nn.Module):
     def __init__(
-        self,
-        corr_channels=324,
-        flow_channels=2,
+            self,
+            corr_channels=324,
+            flow_channels=2,
     ):
         super(BasicMotionEncoder, self).__init__()
 
@@ -85,13 +85,13 @@ class BasicMotionEncoder(nn.Module):
 
 class BasicUpdateBlock(nn.Module):
     def __init__(
-        self,
-        corr_channels=324,
-        hidden_dim=128,
-        context_dim=128,
-        downsample_factor=8,
-        flow_dim=2,
-        bilinear_up=False,
+            self,
+            corr_channels=324,
+            hidden_dim=128,
+            context_dim=128,
+            downsample_factor=8,
+            flow_dim=2,
+            bilinear_up=False,
     ):
         super(BasicUpdateBlock, self).__init__()
 
@@ -114,7 +114,7 @@ class BasicUpdateBlock(nn.Module):
             self.mask = nn.Sequential(
                 nn.Conv2d(hidden_dim, 256, 3, padding=1),
                 nn.ReLU(inplace=True),
-                nn.Conv2d(256, downsample_factor**2 * 9, 1, padding=0),
+                nn.Conv2d(256, downsample_factor ** 2 * 9, 1, padding=0),
             )
 
     def forward(self, net, inp, corr, flow):

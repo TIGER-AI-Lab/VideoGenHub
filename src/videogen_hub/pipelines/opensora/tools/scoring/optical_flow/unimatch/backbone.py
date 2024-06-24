@@ -5,12 +5,12 @@ from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.trident
 
 class ResidualBlock(nn.Module):
     def __init__(
-        self,
-        in_planes,
-        planes,
-        norm_layer=nn.InstanceNorm2d,
-        stride=1,
-        dilation=1,
+            self,
+            in_planes,
+            planes,
+            norm_layer=nn.InstanceNorm2d,
+            stride=1,
+            dilation=1,
     ):
         super(ResidualBlock, self).__init__()
 
@@ -43,11 +43,11 @@ class ResidualBlock(nn.Module):
 
 class CNNEncoder(nn.Module):
     def __init__(
-        self,
-        output_dim=128,
-        norm_layer=nn.InstanceNorm2d,
-        num_output_scales=1,
-        **kwargs,
+            self,
+            output_dim=128,
+            norm_layer=nn.InstanceNorm2d,
+            num_output_scales=1,
+            **kwargs,
     ):
         super(CNNEncoder, self).__init__()
         self.num_branch = num_output_scales

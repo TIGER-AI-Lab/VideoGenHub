@@ -1,8 +1,8 @@
 import math
+
 import numpy as np
-from einops import repeat
 import torch
-import torch.nn.functional as F
+from einops import repeat
 
 
 def timestep_embedding(timesteps, dim, max_period=10000, repeat_only=False):

@@ -1,7 +1,8 @@
+import torch
+
 from videogen_hub.pipelines.streamingt2v.model.pl_module_params_controlnet import (
     AttentionMaskParams,
 )
-import torch
 
 
 class MaskGenerator:
@@ -24,7 +25,7 @@ class MaskGenerator:
                     device=device,
                 )
                 for frame in range(self.num_frame_conditioning, self.num_frames):
-                    attention_mask[:, frame, self.num_frame_conditioning :] = float(
+                    attention_mask[:, frame, self.num_frame_conditioning:] = float(
                         "-inf"
                     )
                     if params.temporal_self_attention_mask_included_itself:

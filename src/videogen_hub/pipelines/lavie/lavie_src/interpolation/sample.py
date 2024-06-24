@@ -17,9 +17,8 @@ from einops import rearrange
 from omegaconf import OmegaConf
 from torchvision import transforms
 
-from videogen_hub.pipelines.lavie.lavie_src.base.models import get_models
-
 from models.clip import TextEmbedder
+from videogen_hub.pipelines.lavie.lavie_src.base.models import get_models
 from videogen_hub.pipelines.lavie.lavie_src.interpolation.datasets import video_transforms
 from videogen_hub.pipelines.lavie.lavie_src.interpolation.diffusion import create_diffusion
 from videogen_hub.pipelines.lavie.lavie_src.interpolation.download import find_model

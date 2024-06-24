@@ -502,7 +502,8 @@ class VideoGenPipeline(DiffusionPipeline):
         shape = (
             batch_size,
             num_channels_latents,
-            (math.ceil((int(num_frames) - 1) / self.vae.vae_scale_factor[0]) + 1) if int(num_frames) % 2 == 1 else math.ceil(int(num_frames) / self.vae.vae_scale_factor[0]), 
+            (math.ceil((int(num_frames) - 1) / self.vae.vae_scale_factor[0]) + 1) if int(
+                num_frames) % 2 == 1 else math.ceil(int(num_frames) / self.vae.vae_scale_factor[0]),
             math.ceil(int(height) / self.vae.vae_scale_factor[1]),
             math.ceil(int(width) / self.vae.vae_scale_factor[2]),
         )
@@ -752,7 +753,7 @@ class VideoGenPipeline(DiffusionPipeline):
         return VideoPipelineOutput(video=video)
 
     def decode_latents(self, latents):
-        video = self.vae.decode(latents) # b t c h w
+        video = self.vae.decode(latents)  # b t c h w
         # b t c h w -> b t h w c
         video = ((video / 2.0 + 0.5).clamp(0, 1) * 255).to(dtype=torch.uint8).cpu().permute(0, 1, 3, 4, 2).contiguous()
         return video

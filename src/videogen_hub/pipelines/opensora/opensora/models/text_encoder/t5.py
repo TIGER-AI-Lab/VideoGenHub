@@ -35,18 +35,18 @@ class T5Embedder:
     available_models = ["DeepFloyd/t5-v1_1-xxl"]
 
     def __init__(
-        self,
-        device,
-        from_pretrained=None,
-        *,
-        cache_dir=None,
-        hf_token=None,
-        use_text_preprocessing=True,
-        t5_model_kwargs=None,
-        torch_dtype=None,
-        use_offload_folder=None,
-        model_max_length=120,
-        local_files_only=False,
+            self,
+            device,
+            from_pretrained=None,
+            *,
+            cache_dir=None,
+            hf_token=None,
+            use_text_preprocessing=True,
+            t5_model_kwargs=None,
+            torch_dtype=None,
+            use_offload_folder=None,
+            model_max_length=120,
+            local_files_only=False,
     ):
         self.device = torch.device(device)
         self.torch_dtype = torch_dtype or torch.bfloat16
@@ -137,14 +137,14 @@ class T5Embedder:
 @MODELS.register_module("t5")
 class T5Encoder:
     def __init__(
-        self,
-        from_pretrained=None,
-        model_max_length=120,
-        device="cuda",
-        dtype=torch.float,
-        cache_dir=None,
-        shardformer=False,
-        local_files_only=False,
+            self,
+            from_pretrained=None,
+            model_max_length=120,
+            device="cuda",
+            dtype=torch.float,
+            cache_dir=None,
+            shardformer=False,
+            local_files_only=False,
     ):
         assert from_pretrained is not None, "Please specify the path to the T5 model"
 
@@ -176,7 +176,8 @@ class T5Encoder:
             # noinspection PyUnresolvedReferences
             from colossalai.shardformer import ShardConfig, ShardFormer
             # noinspection PyUnresolvedReferences
-            from videogen_hub.pipelines.opensora.opensora.models.acceleration.shardformer.policy.t5_encoder import T5EncoderPolicy
+            from videogen_hub.pipelines.opensora.opensora.models.acceleration.shardformer.policy.t5_encoder import \
+                T5EncoderPolicy
             # noinspection PyUnresolvedReferences
             from videogen_hub.pipelines.opensora.opensora.models.utils.misc import requires_grad
         except:
@@ -230,12 +231,14 @@ def clean_caption(caption):
     caption = re.sub("<person>", "person", caption)
     # urls:
     caption = re.sub(
-        r"\b((?:https?:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",  # noqa
+        r"\b((?:https?:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",
+        # noqa
         "",
         caption,
     )  # regex for urls
     caption = re.sub(
-        r"\b((?:www:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",  # noqa
+        r"\b((?:www:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",
+        # noqa
         "",
         caption,
     )  # regex for urls
@@ -263,7 +266,8 @@ def clean_caption(caption):
 
     # все виды тире / all types of dash --> "-"
     caption = re.sub(
-        r"[\u002D\u058A\u05BE\u1400\u1806\u2010-\u2015\u2E17\u2E1A\u2E3A\u2E3B\u2E40\u301C\u3030\u30A0\uFE31\uFE32\uFE58\uFE63\uFF0D]+",  # noqa
+        r"[\u002D\u058A\u05BE\u1400\u1806\u2010-\u2015\u2E17\u2E1A\u2E3A\u2E3B\u2E40\u301C\u3030\u30A0\uFE31\uFE32\uFE58\uFE63\uFF0D]+",
+        # noqa
         "-",
         caption,
     )

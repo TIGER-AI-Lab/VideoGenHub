@@ -3,6 +3,7 @@
 ## Fast and High-Quality Text-to-video Generation 🚀
 
 ### 4-Step Results
+
 <table class="center">
   <td><img src=assets/demo_videos/4steps/0273.gif width="320"></td></td>
   <td><img src=assets/demo_videos/4steps/0054.gif width="320"></td></td>
@@ -65,22 +66,27 @@ pip install git+https://github.com/iejMac/video2dataset.git
 
 conda install xformers
 ```
+
 ## 🛞 Model Checkpoints
 
-|Model|Resolution|Checkpoints|
-|:---------|:---------|:--------|
-|T2V-Turbo (VC2)|320x512|[![HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue)](https://huggingface.co/jiachenli-ucsb/T2V-Turbo-VC2/blob/main/unet_lora.pt)
-|T2V-Turbo (MS)|256x256|[![HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue)](https://huggingface.co/jiachenli-ucsb/T2V-Turbo-MS/blob/main/unet_lora.pt)
-
+| Model           | Resolution | Checkpoints                                                                                                                                                         |
+|:----------------|:-----------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| T2V-Turbo (VC2) | 320x512    | [![HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue)](https://huggingface.co/jiachenli-ucsb/T2V-Turbo-VC2/blob/main/unet_lora.pt) 
+| T2V-Turbo (MS)  | 256x256    | [![HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue)](https://huggingface.co/jiachenli-ucsb/T2V-Turbo-MS/blob/main/unet_lora.pt)  
 
 ## 🚀 Inference
 
-We provide local demo codes supported with gradio (For MacOS users, need to set the device="mps" in app.py; For Intel GPU users, set device="xpu" in app.py).
-1. Download the `unet_lora.pt` of our T2V-Turbo (VC2) [here](https://huggingface.co/jiachenli-ucsb/T2V-Turbo-VC2/blob/main/unet_lora.pt).
+We provide local demo codes supported with gradio (For MacOS users, need to set the device="mps" in app.py; For Intel
+GPU users, set device="xpu" in app.py).
 
-2. Download the model checkpoint of VideoCrafter2 [here](https://huggingface.co/VideoCrafter/VideoCrafter2/blob/main/model.ckpt).
+1. Download the `unet_lora.pt` of our T2V-Turbo (
+   VC2) [here](https://huggingface.co/jiachenli-ucsb/T2V-Turbo-VC2/blob/main/unet_lora.pt).
+
+2. Download the model checkpoint of
+   VideoCrafter2 [here](https://huggingface.co/VideoCrafter/VideoCrafter2/blob/main/model.ckpt).
 
 3. Launch the gradio demo with the following command:
+
 ```
 pip install gradio==3.48.0
 python app.py --unet_dir PATH_TO_UNET_LORA.pt --base_model_dir PATH_TO_VideoCrafter2_MODEL_CKPT

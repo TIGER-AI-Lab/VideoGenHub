@@ -10,6 +10,7 @@ from diffusers.models.embeddings import PatchEmbed
 from diffusers.models.lora import LoRACompatibleConv
 from diffusers.models.lora import LoRACompatibleLinear
 from diffusers.models.modeling_utils import ModelMixin
+
 try:
     from diffusers.models.transformer_2d import Transformer2DModelOutput
 except ImportError:
@@ -26,33 +27,33 @@ from videogen_hub.pipelines.consisti2v.consisti2v.models.videoldm_attention impo
 class Transformer2DConditionModel(ModelMixin, ConfigMixin):
     @register_to_config
     def __init__(
-        self,
-        num_attention_heads: int = 16,
-        attention_head_dim: int = 88,
-        in_channels: Optional[int] = None,
-        out_channels: Optional[int] = None,
-        num_layers: int = 1,
-        dropout: float = 0.0,
-        norm_num_groups: int = 32,
-        cross_attention_dim: Optional[int] = None,
-        attention_bias: bool = False,
-        sample_size: Optional[int] = None,
-        num_vector_embeds: Optional[int] = None,
-        patch_size: Optional[int] = None,
-        activation_fn: str = "geglu",
-        num_embeds_ada_norm: Optional[int] = None,
-        use_linear_projection: bool = False,
-        only_cross_attention: bool = False,
-        double_self_attention: bool = False,
-        upcast_attention: bool = False,
-        norm_type: str = "layer_norm",
-        norm_elementwise_affine: bool = True,
-        attention_type: str = "default",
-        # additional
-        n_frames: int = 8,
-        is_temporal: bool = False,
-        augment_temporal_attention: bool = False,
-        rotary_emb=False,
+            self,
+            num_attention_heads: int = 16,
+            attention_head_dim: int = 88,
+            in_channels: Optional[int] = None,
+            out_channels: Optional[int] = None,
+            num_layers: int = 1,
+            dropout: float = 0.0,
+            norm_num_groups: int = 32,
+            cross_attention_dim: Optional[int] = None,
+            attention_bias: bool = False,
+            sample_size: Optional[int] = None,
+            num_vector_embeds: Optional[int] = None,
+            patch_size: Optional[int] = None,
+            activation_fn: str = "geglu",
+            num_embeds_ada_norm: Optional[int] = None,
+            use_linear_projection: bool = False,
+            only_cross_attention: bool = False,
+            double_self_attention: bool = False,
+            upcast_attention: bool = False,
+            norm_type: str = "layer_norm",
+            norm_elementwise_affine: bool = True,
+            attention_type: str = "default",
+            # additional
+            n_frames: int = 8,
+            is_temporal: bool = False,
+            augment_temporal_attention: bool = False,
+            rotary_emb=False,
     ):
         super().__init__()
         self.use_linear_projection = use_linear_projection
@@ -180,16 +181,16 @@ class Transformer2DConditionModel(ModelMixin, ConfigMixin):
         self.gradient_checkpointing = False
 
     def forward(
-        self,
-        hidden_states: torch.Tensor,
-        encoder_hidden_states: Optional[torch.Tensor] = None,
-        timestep: Optional[torch.LongTensor] = None,
-        class_labels: Optional[torch.LongTensor] = None,
-        cross_attention_kwargs: Dict[str, Any] = None,
-        attention_mask: Optional[torch.Tensor] = None,
-        encoder_attention_mask: Optional[torch.Tensor] = None,
-        return_dict: bool = True,
-        condition_on_first_frame: bool = False,
+            self,
+            hidden_states: torch.Tensor,
+            encoder_hidden_states: Optional[torch.Tensor] = None,
+            timestep: Optional[torch.LongTensor] = None,
+            class_labels: Optional[torch.LongTensor] = None,
+            cross_attention_kwargs: Dict[str, Any] = None,
+            attention_mask: Optional[torch.Tensor] = None,
+            encoder_attention_mask: Optional[torch.Tensor] = None,
+            return_dict: bool = True,
+            condition_on_first_frame: bool = False,
     ):
         input_states = hidden_states
         input_height, input_width = hidden_states.shape[-2:]
@@ -320,28 +321,29 @@ class Transformer2DConditionModel(ModelMixin, ConfigMixin):
 @maybe_allow_in_graph
 class BasicConditionalTransformerBlock(nn.Module):
     """ transformer block with first frame conditioning """
+
     def __init__(
-        self,
-        dim: int,
-        num_attention_heads: int,
-        attention_head_dim: int,
-        dropout=0.0,
-        cross_attention_dim: Optional[int] = None,
-        activation_fn: str = "geglu",
-        num_embeds_ada_norm: Optional[int] = None,
-        attention_bias: bool = False,
-        only_cross_attention: bool = False,
-        double_self_attention: bool = False,
-        upcast_attention: bool = False,
-        norm_elementwise_affine: bool = True,
-        norm_type: str = "layer_norm",
-        final_dropout: bool = False,
-        attention_type: str = "default",
-        # additional
-        n_frames: int = 8,
-        is_temporal: bool = False,
-        augment_temporal_attention: bool = False,
-        rotary_emb=False,
+            self,
+            dim: int,
+            num_attention_heads: int,
+            attention_head_dim: int,
+            dropout=0.0,
+            cross_attention_dim: Optional[int] = None,
+            activation_fn: str = "geglu",
+            num_embeds_ada_norm: Optional[int] = None,
+            attention_bias: bool = False,
+            only_cross_attention: bool = False,
+            double_self_attention: bool = False,
+            upcast_attention: bool = False,
+            norm_elementwise_affine: bool = True,
+            norm_type: str = "layer_norm",
+            final_dropout: bool = False,
+            attention_type: str = "default",
+            # additional
+            n_frames: int = 8,
+            is_temporal: bool = False,
+            augment_temporal_attention: bool = False,
+            rotary_emb=False,
     ):
         super().__init__()
         self.n_frames = n_frames
@@ -366,7 +368,7 @@ class BasicConditionalTransformerBlock(nn.Module):
             self.norm1 = AdaLayerNormZero(dim, num_embeds_ada_norm)
         else:
             self.norm1 = nn.LayerNorm(dim, elementwise_affine=norm_elementwise_affine)
-        
+
         if not is_temporal:
             self.attn1 = ConditionalAttention(
                 query_dim=dim,
@@ -446,17 +448,17 @@ class BasicConditionalTransformerBlock(nn.Module):
         self._chunk_dim = dim
 
     def forward(
-        self,
-        hidden_states: torch.FloatTensor,
-        attention_mask: Optional[torch.FloatTensor] = None,
-        encoder_hidden_states: Optional[torch.FloatTensor] = None,
-        encoder_attention_mask: Optional[torch.FloatTensor] = None,
-        timestep: Optional[torch.LongTensor] = None,
-        cross_attention_kwargs: Dict[str, Any] = None,
-        class_labels: Optional[torch.LongTensor] = None,
-        condition_on_first_frame: bool = False,
-        input_height: Optional[int] = None,
-        input_width: Optional[int] = None,
+            self,
+            hidden_states: torch.FloatTensor,
+            attention_mask: Optional[torch.FloatTensor] = None,
+            encoder_hidden_states: Optional[torch.FloatTensor] = None,
+            encoder_attention_mask: Optional[torch.FloatTensor] = None,
+            timestep: Optional[torch.LongTensor] = None,
+            cross_attention_kwargs: Dict[str, Any] = None,
+            class_labels: Optional[torch.LongTensor] = None,
+            condition_on_first_frame: bool = False,
+            input_height: Optional[int] = None,
+            input_width: Optional[int] = None,
     ):
         # Notice that normalization is always applied before the real computation in the following blocks.
         # 0. Self-Attention
@@ -477,7 +479,8 @@ class BasicConditionalTransformerBlock(nn.Module):
         gligen_kwargs = cross_attention_kwargs.pop("gligen", None)
 
         if condition_on_first_frame:
-            first_frame_hidden_states = rearrange(norm_hidden_states, '(b f) d h -> b f d h', f=self.n_frames)[:, 0, :, :]
+            first_frame_hidden_states = rearrange(norm_hidden_states, '(b f) d h -> b f d h', f=self.n_frames)[:, 0, :,
+                                        :]
             first_frame_hidden_states = repeat(first_frame_hidden_states, 'b d h -> b f d h', f=self.n_frames)
             first_frame_hidden_states = rearrange(first_frame_hidden_states, 'b f d h -> (b f) d h')
             first_frame_concat_hidden_states = torch.cat((norm_hidden_states, first_frame_hidden_states), dim=1)
@@ -488,8 +491,10 @@ class BasicConditionalTransformerBlock(nn.Module):
                 **cross_attention_kwargs,
             )
         elif self.is_temporal and self.augment_temporal_attention:
-            first_frame_hidden_states = rearrange(norm_hidden_states, '(b f) d h -> b f d h', f=self.n_frames)[:, 0, :, :]
-            first_frame_hidden_states = rearrange(first_frame_hidden_states, 'b (h w) c -> b h w c', h=input_height, w=input_width)
+            first_frame_hidden_states = rearrange(norm_hidden_states, '(b f) d h -> b f d h', f=self.n_frames)[:, 0, :,
+                                        :]
+            first_frame_hidden_states = rearrange(first_frame_hidden_states, 'b (h w) c -> b h w c', h=input_height,
+                                                  w=input_width)
             first_frame_hidden_states = first_frame_hidden_states.permute(0, 3, 1, 2)
             padded_first_frame = torch.nn.functional.pad(first_frame_hidden_states, (1, 1, 1, 1), "replicate")
             first_frame_windows = padded_first_frame.unfold(2, 3, 1).unfold(3, 3, 1)

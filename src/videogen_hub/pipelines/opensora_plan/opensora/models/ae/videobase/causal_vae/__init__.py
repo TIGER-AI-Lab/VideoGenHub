@@ -11,10 +11,12 @@ class CausalVAEModelWrapper(nn.Module):
         # if os.path.exists(ckpt):
         # self.vae = CausalVAEModel.load_from_checkpoint(ckpt)
         self.vae = CausalVAEModel.from_pretrained(model_path, subfolder=subfolder, cache_dir=cache_dir, **kwargs)
+
     def encode(self, x):  # b c t h w
         # x = self.vae.encode(x).sample()
         x = self.vae.encode(x).sample().mul_(0.18215)
         return x
+
     def decode(self, x):
         # x = self.vae.decode(x)
         x = self.vae.decode(x / 0.18215)

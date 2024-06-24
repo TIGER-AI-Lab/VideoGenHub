@@ -118,7 +118,7 @@ def camera_transform(points_ref, extrinsics_ref=None, extrinsics_tgt=None, extri
         extrinsics_rel = torch.bmm(extrinsics_tgt, torch.inverse(extrinsics_ref))  # [B, 4, 4]
 
     points_tgt = (
-        torch.bmm(extrinsics_rel[:, :3, :3], points_ref.view(b, 3, -1)) + extrinsics_rel[:, :3, -1:]
+            torch.bmm(extrinsics_rel[:, :3, :3], points_ref.view(b, 3, -1)) + extrinsics_rel[:, :3, -1:]
     )  # [B, 3, H*W]
 
     points_tgt = points_tgt.view(b, 3, h, w)  # [B, 3, H, W]
@@ -144,10 +144,10 @@ def reproject(points_tgt, intrinsics, return_mask=False):
     if return_mask:
         # valid mask in pixel space
         mask = (
-            (pixel_coords[:, 0] >= 0)
-            & (pixel_coords[:, 0] <= (w - 1))
-            & (pixel_coords[:, 1] >= 0)
-            & (pixel_coords[:, 1] <= (h - 1))
+                (pixel_coords[:, 0] >= 0)
+                & (pixel_coords[:, 0] <= (w - 1))
+                & (pixel_coords[:, 1] >= 0)
+                & (pixel_coords[:, 1] <= (h - 1))
         )  # [B, H, W]
 
         return pixel_coords, mask
@@ -156,7 +156,7 @@ def reproject(points_tgt, intrinsics, return_mask=False):
 
 
 def reproject_coords(
-    depth_ref, intrinsics, extrinsics_ref=None, extrinsics_tgt=None, extrinsics_rel=None, return_mask=False
+        depth_ref, intrinsics, extrinsics_ref=None, extrinsics_tgt=None, extrinsics_rel=None, return_mask=False
 ):
     # Compute reprojection sample coords
     points_ref = back_project(depth_ref, intrinsics)  # [B, 3, H, W]
@@ -173,7 +173,7 @@ def reproject_coords(
 
 
 def compute_flow_with_depth_pose(
-    depth_ref, intrinsics, extrinsics_ref=None, extrinsics_tgt=None, extrinsics_rel=None, return_mask=False
+        depth_ref, intrinsics, extrinsics_ref=None, extrinsics_tgt=None, extrinsics_rel=None, return_mask=False
 ):
     b, h, w = depth_ref.shape
     coords_init = coords_grid(b, h, w, device=depth_ref.device)  # [B, 2, H, W]

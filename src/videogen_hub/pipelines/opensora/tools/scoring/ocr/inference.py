@@ -10,11 +10,12 @@ from mmengine.dataset import Compose, default_collate
 from mmengine.registry import DefaultScope
 from mmocr.datasets import PackTextDetInputs
 from mmocr.registry import MODELS
-from videogen_hub.pipelines.opensora.tools.datasets.utils import extract_frames, is_video
 from torch.utils.data import DataLoader, DistributedSampler
 from torchvision.datasets.folder import pil_loader
 from torchvision.transforms import Resize, CenterCrop, Compose
 from tqdm import tqdm
+
+from videogen_hub.pipelines.opensora.tools.datasets.utils import extract_frames, is_video
 
 
 def merge_scores(gathered_list: list, meta: pd.DataFrame):

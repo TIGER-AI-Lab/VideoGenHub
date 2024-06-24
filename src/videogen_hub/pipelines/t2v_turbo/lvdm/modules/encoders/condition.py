@@ -1,9 +1,10 @@
+import kornia
+import open_clip
 import torch
 import torch.nn as nn
 from torch.utils.checkpoint import checkpoint
-import kornia
-import open_clip
 from transformers import T5Tokenizer, T5EncoderModel, CLIPTokenizer, CLIPTextModel
+
 from videogen_hub.pipelines.t2v_turbo.lvdm.common import autocast
 from videogen_hub.pipelines.t2v_turbo.utils.utils import count_params
 
@@ -44,7 +45,7 @@ class ClassEmbedder(nn.Module):
 
     def get_unconditional_conditioning(self, bs, device="cuda"):
         uc_class = (
-            self.n_classes - 1
+                self.n_classes - 1
         )  # 1000 classes --> 0 ... 999, one extra class for ucg (class 1000)
         uc = torch.ones((bs,), device=device) * uc_class
         uc = {self.key: uc}
@@ -61,7 +62,7 @@ class FrozenT5Embedder(AbstractEncoder):
     """Uses the T5 transformer encoder for text"""
 
     def __init__(
-        self, version="google/t5-v1_1-large", device="cuda", max_length=77, freeze=True
+            self, version="google/t5-v1_1-large", device="cuda", max_length=77, freeze=True
     ):  # others are google/t5-v1_1-xl and google/t5-v1_1-xxl
         super().__init__()
         self.tokenizer = T5Tokenizer.from_pretrained(version)
@@ -103,13 +104,13 @@ class FrozenCLIPEmbedder(AbstractEncoder):
     LAYERS = ["last", "pooled", "hidden"]
 
     def __init__(
-        self,
-        version="openai/clip-vit-large-patch14",
-        device="cuda",
-        max_length=77,
-        freeze=True,
-        layer="last",
-        layer_idx=None,
+            self,
+            version="openai/clip-vit-large-patch14",
+            device="cuda",
+            max_length=77,
+            freeze=True,
+            layer="last",
+            layer_idx=None,
     ):  # clip-vit-base-patch32
         super().__init__()
         assert layer in self.LAYERS
@@ -159,12 +160,12 @@ class FrozenCLIPEmbedder(AbstractEncoder):
 
 class ClipImageEmbedder(nn.Module):
     def __init__(
-        self,
-        model,
-        jit=False,
-        device="cuda" if torch.cuda.is_available() else "cpu",
-        antialias=True,
-        ucg_rate=0.0,
+            self,
+            model,
+            jit=False,
+            device="cuda" if torch.cuda.is_available() else "cpu",
+            antialias=True,
+            ucg_rate=0.0,
     ):
         super().__init__()
         from clip import load as load_clip
@@ -201,10 +202,10 @@ class ClipImageEmbedder(nn.Module):
         out = out.to(x.dtype)
         if self.ucg_rate > 0.0 and not no_dropout:
             out = (
-                torch.bernoulli(
-                    (1.0 - self.ucg_rate) * torch.ones(out.shape[0], device=out.device)
-                )[:, None]
-                * out
+                    torch.bernoulli(
+                        (1.0 - self.ucg_rate) * torch.ones(out.shape[0], device=out.device)
+                    )[:, None]
+                    * out
             )
         return out
 
@@ -221,13 +222,13 @@ class FrozenOpenCLIPEmbedder(AbstractEncoder):
     ]
 
     def __init__(
-        self,
-        arch="ViT-H-14",
-        version="laion2b_s32b_b79k",
-        device="cuda",
-        max_length=77,
-        freeze=True,
-        layer="last",
+            self,
+            arch="ViT-H-14",
+            version="laion2b_s32b_b79k",
+            device="cuda",
+            max_length=77,
+            freeze=True,
+            layer="last",
     ):
         super().__init__()
         assert layer in self.LAYERS
@@ -274,8 +275,8 @@ class FrozenOpenCLIPEmbedder(AbstractEncoder):
             if i == len(self.model.transformer.resblocks) - self.layer_idx:
                 break
             if (
-                self.model.transformer.grad_checkpointing
-                and not torch.jit.is_scripting()
+                    self.model.transformer.grad_checkpointing
+                    and not torch.jit.is_scripting()
             ):
                 x = checkpoint(r, x, attn_mask)
             else:
@@ -292,15 +293,15 @@ class FrozenOpenCLIPImageEmbedder(AbstractEncoder):
     """
 
     def __init__(
-        self,
-        arch="ViT-H-14",
-        version="laion2b_s32b_b79k",
-        device="cuda",
-        max_length=77,
-        freeze=True,
-        layer="pooled",
-        antialias=True,
-        ucg_rate=0.0,
+            self,
+            arch="ViT-H-14",
+            version="laion2b_s32b_b79k",
+            device="cuda",
+            max_length=77,
+            freeze=True,
+            layer="pooled",
+            antialias=True,
+            ucg_rate=0.0,
     ):
         super().__init__()
         model, _, _ = open_clip.create_model_and_transforms(
@@ -354,10 +355,10 @@ class FrozenOpenCLIPImageEmbedder(AbstractEncoder):
         z = self.encode_with_vision_transformer(image)
         if self.ucg_rate > 0.0 and not no_dropout:
             z = (
-                torch.bernoulli(
-                    (1.0 - self.ucg_rate) * torch.ones(z.shape[0], device=z.device)
-                )[:, None]
-                * z
+                    torch.bernoulli(
+                        (1.0 - self.ucg_rate) * torch.ones(z.shape[0], device=z.device)
+                    )[:, None]
+                    * z
             )
         return z
 
@@ -376,13 +377,13 @@ class FrozenOpenCLIPImageEmbedderV2(AbstractEncoder):
     """
 
     def __init__(
-        self,
-        arch="ViT-H-14",
-        version="laion2b_s32b_b79k",
-        device="cuda",
-        freeze=True,
-        layer="pooled",
-        antialias=True,
+            self,
+            arch="ViT-H-14",
+            version="laion2b_s32b_b79k",
+            device="cuda",
+            freeze=True,
+            layer="pooled",
+            antialias=True,
     ):
         super().__init__()
         model, _, _ = open_clip.create_model_and_transforms(
@@ -486,12 +487,12 @@ class FrozenOpenCLIPImageEmbedderV2(AbstractEncoder):
 
 class FrozenCLIPT5Encoder(AbstractEncoder):
     def __init__(
-        self,
-        clip_version="openai/clip-vit-large-patch14",
-        t5_version="google/t5-v1_1-xl",
-        device="cuda",
-        clip_max_length=77,
-        t5_max_length=77,
+            self,
+            clip_version="openai/clip-vit-large-patch14",
+            t5_version="google/t5-v1_1-xl",
+            device="cuda",
+            clip_max_length=77,
+            t5_max_length=77,
     ):
         super().__init__()
         self.clip_encoder = FrozenCLIPEmbedder(

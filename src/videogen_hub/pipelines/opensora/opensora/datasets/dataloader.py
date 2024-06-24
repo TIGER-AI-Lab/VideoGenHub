@@ -8,8 +8,10 @@ from torch.distributed import ProcessGroup
 from torch.distributed.distributed_c10d import _get_default_group
 from torch.utils.data import DataLoader
 
-from videogen_hub.pipelines.opensora.opensora.datasets.datasets import BatchFeatureDataset, VariableVideoTextDataset, VideoTextDataset
-from videogen_hub.pipelines.opensora.opensora.datasets.sampler import BatchDistributedSampler, StatefulDistributedSampler, VariableVideoBatchSampler
+from videogen_hub.pipelines.opensora.opensora.datasets.datasets import BatchFeatureDataset, VariableVideoTextDataset, \
+    VideoTextDataset
+from videogen_hub.pipelines.opensora.opensora.datasets.sampler import BatchDistributedSampler, \
+    StatefulDistributedSampler, VariableVideoBatchSampler
 
 
 # Deterministic dataloader
@@ -24,17 +26,17 @@ def get_seed_worker(seed):
 
 
 def prepare_dataloader(
-    dataset,
-    batch_size=None,
-    shuffle=False,
-    seed=1024,
-    drop_last=False,
-    pin_memory=False,
-    num_workers=0,
-    process_group: Optional[ProcessGroup] = None,
-    bucket_config=None,
-    num_bucket_build_workers=1,
-    **kwargs,
+        dataset,
+        batch_size=None,
+        shuffle=False,
+        seed=1024,
+        drop_last=False,
+        pin_memory=False,
+        num_workers=0,
+        process_group: Optional[ProcessGroup] = None,
+        bucket_config=None,
+        num_bucket_build_workers=1,
+        **kwargs,
 ):
     _kwargs = kwargs.copy()
     if isinstance(dataset, VariableVideoTextDataset):

@@ -15,7 +15,7 @@ try:
     from diffusers.models.modeling_utils import ModelMixin
 except:
     # noinspection PyUnresolvedReferences
-    from diffusers.modeling_utils import ModelMixin # 0.11.1
+    from diffusers.modeling_utils import ModelMixin  # 0.11.1
 
 try:
     from videogen_hub.pipelines.lavie.lavie_src.interpolation.models.unet_blocks import (
@@ -40,8 +40,6 @@ except:
     )
     from resnet import InflatedConv3d
 
-
-
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 
 
@@ -55,44 +53,44 @@ class UNet3DConditionModel(ModelMixin, ConfigMixin):
 
     @register_to_config
     def __init__(
-        self,
-        sample_size: Optional[int] = None, # 64
-        in_channels: int = 4,
-        out_channels: int = 4,
-        center_input_sample: bool = False,
-        flip_sin_to_cos: bool = True,
-        freq_shift: int = 0,
-        down_block_types: Tuple[str] = (
-            "CrossAttnDownBlock3D",
-            "CrossAttnDownBlock3D",
-            "CrossAttnDownBlock3D",
-            "DownBlock3D",
-        ),
-        mid_block_type: str = "UNetMidBlock3DCrossAttn",
-        up_block_types: Tuple[str] = (
-            "UpBlock3D",
-            "CrossAttnUpBlock3D",
-            "CrossAttnUpBlock3D",
-            "CrossAttnUpBlock3D"
-        ),
-        only_cross_attention: Union[bool, Tuple[bool]] = False,
-        block_out_channels: Tuple[int] = (320, 640, 1280, 1280),
-        layers_per_block: int = 2,
-        downsample_padding: int = 1,
-        mid_block_scale_factor: float = 1,
-        act_fn: str = "silu",
-        norm_num_groups: int = 32,
-        norm_eps: float = 1e-5,
-        cross_attention_dim: int = 1280,
-        attention_head_dim: Union[int, Tuple[int]] = 8,
-        dual_cross_attention: bool = False,
-        use_linear_projection: bool = False,
-        class_embed_type: Optional[str] = None,
-        num_class_embeds: Optional[int] = None,
-        upcast_attention: bool = False,
-        resnet_time_scale_shift: str = "default",
-        use_first_frame: bool = False,
-        use_relative_position: bool = False,
+            self,
+            sample_size: Optional[int] = None,  # 64
+            in_channels: int = 4,
+            out_channels: int = 4,
+            center_input_sample: bool = False,
+            flip_sin_to_cos: bool = True,
+            freq_shift: int = 0,
+            down_block_types: Tuple[str] = (
+                    "CrossAttnDownBlock3D",
+                    "CrossAttnDownBlock3D",
+                    "CrossAttnDownBlock3D",
+                    "DownBlock3D",
+            ),
+            mid_block_type: str = "UNetMidBlock3DCrossAttn",
+            up_block_types: Tuple[str] = (
+                    "UpBlock3D",
+                    "CrossAttnUpBlock3D",
+                    "CrossAttnUpBlock3D",
+                    "CrossAttnUpBlock3D"
+            ),
+            only_cross_attention: Union[bool, Tuple[bool]] = False,
+            block_out_channels: Tuple[int] = (320, 640, 1280, 1280),
+            layers_per_block: int = 2,
+            downsample_padding: int = 1,
+            mid_block_scale_factor: float = 1,
+            act_fn: str = "silu",
+            norm_num_groups: int = 32,
+            norm_eps: float = 1e-5,
+            cross_attention_dim: int = 1280,
+            attention_head_dim: Union[int, Tuple[int]] = 8,
+            dual_cross_attention: bool = False,
+            use_linear_projection: bool = False,
+            class_embed_type: Optional[str] = None,
+            num_class_embeds: Optional[int] = None,
+            upcast_attention: bool = False,
+            resnet_time_scale_shift: str = "default",
+            use_first_frame: bool = False,
+            use_relative_position: bool = False,
     ):
         super().__init__()
 
@@ -306,13 +304,13 @@ class UNet3DConditionModel(ModelMixin, ConfigMixin):
             module.gradient_checkpointing = value
 
     def forward(
-        self,
-        sample: torch.FloatTensor,
-        timestep: Union[torch.Tensor, float, int],
-        encoder_hidden_states: torch.Tensor = None,
-        class_labels: Optional[torch.Tensor] = None,
-        attention_mask: Optional[torch.Tensor] = None,
-        return_dict: bool = True,
+            self,
+            sample: torch.FloatTensor,
+            timestep: Union[torch.Tensor, float, int],
+            encoder_hidden_states: torch.Tensor = None,
+            class_labels: Optional[torch.Tensor] = None,
+            attention_mask: Optional[torch.Tensor] = None,
+            return_dict: bool = True,
     ) -> Union[UNet3DConditionOutput, Tuple]:
         r"""
         Args:
@@ -331,7 +329,7 @@ class UNet3DConditionModel(ModelMixin, ConfigMixin):
         # The overall upsampling factor is equal to 2 ** (# num of upsampling layears).
         # However, the upsampling interpolation output size can be forced to fit any upsampling size
         # on the fly if necessary.
-        default_overall_up_factor = 2**self.num_upsamplers
+        default_overall_up_factor = 2 ** self.num_upsamplers
 
         # upsample size should be forwarded when sample is not a multiple of `default_overall_up_factor`
         forward_upsample_size = False
@@ -413,7 +411,7 @@ class UNet3DConditionModel(ModelMixin, ConfigMixin):
         for i, upsample_block in enumerate(self.up_blocks):
             is_final_block = i == len(self.up_blocks) - 1
 
-            res_samples = down_block_res_samples[-len(upsample_block.resnets) :]
+            res_samples = down_block_res_samples[-len(upsample_block.resnets):]
             down_block_res_samples = down_block_res_samples[: -len(upsample_block.resnets)]
 
             # if we have not reached the final block and need to forward the
@@ -444,13 +442,13 @@ class UNet3DConditionModel(ModelMixin, ConfigMixin):
             return (sample,)
         sample = UNet3DConditionOutput(sample=sample)
         return sample
-    
-    def forward_with_cfg(self, 
-                        x, 
-                        t, 
-                        encoder_hidden_states = None,
-                        class_labels: Optional[torch.Tensor] = None,
-                        cfg_scale=4.0):
+
+    def forward_with_cfg(self,
+                         x,
+                         t,
+                         encoder_hidden_states=None,
+                         class_labels: Optional[torch.Tensor] = None,
+                         cfg_scale=4.0):
         """
         Forward, but also batches the unconditional forward pass for classifier-free guidance.
         """
@@ -462,7 +460,7 @@ class UNet3DConditionModel(ModelMixin, ConfigMixin):
         # three channels by default. The standard approach to cfg applies it to all channels.
         # This can be done by uncommenting the following line and commenting-out the line following that.
         # eps, rest = model_out[:, :4], model_out[:, 4:]
-        eps, rest = model_out[:, :4], model_out[:, 4:] # b c f h w
+        eps, rest = model_out[:, :4], model_out[:, 4:]  # b c f h w
         cond_eps, uncond_eps = torch.split(eps, len(eps) // 2, dim=0)
         half_eps = uncond_eps + cfg_scale * (cond_eps - uncond_eps)
         eps = torch.cat([half_eps, half_eps], dim=0)
@@ -473,7 +471,6 @@ class UNet3DConditionModel(ModelMixin, ConfigMixin):
         if subfolder is not None:
             pretrained_model_path = os.path.join(pretrained_model_path, subfolder)
 
-            
         config_file = os.path.join(pretrained_model_path, 'config.json')
         if not os.path.isfile(config_file):
             raise RuntimeError(f"{config_file} does not exist")
@@ -494,28 +491,25 @@ class UNet3DConditionModel(ModelMixin, ConfigMixin):
         ]
 
         config["use_first_frame"] = True
-        
+
         if copy_no_mask:
             config["in_channels"] = 8
         else:
             if use_concat:
                 config["in_channels"] = 9
 
-
-        from diffusers.utils import WEIGHTS_NAME # diffusion_pytorch_model.bin
-        
+        from diffusers.utils import WEIGHTS_NAME  # diffusion_pytorch_model.bin
 
         model = cls.from_config(config)
         model_file = os.path.join(pretrained_model_path, WEIGHTS_NAME)
         if not os.path.isfile(model_file):
             raise RuntimeError(f"{model_file} does not exist")
         state_dict = torch.load(model_file, map_location="cpu")
-        
 
         if use_concat:
             new_state_dict = {}
             conv_in_weight = state_dict["conv_in.weight"]
-            
+
             print(f'from_pretrained_2d copy_no_mask = {copy_no_mask}')
             if copy_no_mask:
                 new_conv_in_channel = 8
@@ -523,8 +517,9 @@ class UNet3DConditionModel(ModelMixin, ConfigMixin):
             else:
                 new_conv_in_channel = 9
                 new_conv_in_list = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-            new_conv_weight = torch.zeros((conv_in_weight.shape[0], new_conv_in_channel, *conv_in_weight.shape[2:]), dtype=conv_in_weight.dtype)
-        
+            new_conv_weight = torch.zeros((conv_in_weight.shape[0], new_conv_in_channel, *conv_in_weight.shape[2:]),
+                                          dtype=conv_in_weight.dtype)
+
             for i, j in zip([0, 1, 2, 3], new_conv_in_list):
                 new_conv_weight[:, j] = conv_in_weight[:, i]
             new_state_dict["conv_in.weight"] = new_conv_weight
@@ -549,13 +544,14 @@ class UNet3DConditionModel(ModelMixin, ConfigMixin):
                     state_dict.update({k: v})
             model.load_state_dict(state_dict)
         return model
-    
+
+
 if __name__ == '__main__':
     import torch
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    pretrained_model_path = "/nvme/maxin/work/large-dit-video/pretrained/stable-diffusion-v1-4/" # 43
+    pretrained_model_path = "/nvme/maxin/work/large-dit-video/pretrained/stable-diffusion-v1-4/"  # 43
     unet = UNet3DConditionModel.from_pretrained_2d(pretrained_model_path, subfolder="unet").to(device)
 
     noisy_latents = torch.randn((3, 4, 16, 32, 32)).to(device)
@@ -563,9 +559,9 @@ if __name__ == '__main__':
     timesteps = torch.randint(0, 1000, (bsz,)).to(device)
     timesteps = timesteps.long()
     encoder_hidden_states = torch.randn((bsz, 77, 768)).to(device)
-    class_labels = torch.randn((bsz, )).to(device)
+    class_labels = torch.randn((bsz,)).to(device)
 
-    model_pred = unet(sample=noisy_latents, timestep=timesteps, 
-                      encoder_hidden_states=encoder_hidden_states, 
+    model_pred = unet(sample=noisy_latents, timestep=timesteps,
+                      encoder_hidden_states=encoder_hidden_states,
                       class_labels=class_labels).sample
     print(model_pred.shape)

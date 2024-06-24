@@ -1,10 +1,10 @@
-import numpy as np
 from os import path as osp
 
 import numpy as np
 import torch
-from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils import scandir
 from torch.nn import functional as F
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils import scandir
 
 
 def generate_frame_indices(crt_idx, max_frame_num, num_frames, padding='reflection'):

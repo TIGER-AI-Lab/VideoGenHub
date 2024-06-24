@@ -6,12 +6,13 @@ https://github.com/CompVis/taming-transformers
 -- merci
 """
 
-from functools import partial
-from contextlib import contextmanager
-import numpy as np
-from tqdm import tqdm
-from einops import rearrange, repeat
 import logging
+from contextlib import contextmanager
+from functools import partial
+
+import numpy as np
+from einops import rearrange, repeat
+from tqdm import tqdm
 
 mainlogger = logging.getLogger("mainlogger")
 import torch
@@ -26,41 +27,40 @@ from videogen_hub.pipelines.t2v_turbo.lvdm.modules.encoders.ip_resampler import 
 from videogen_hub.pipelines.t2v_turbo.lvdm.basics import disabled_train
 from videogen_hub.pipelines.t2v_turbo.lvdm.common import extract_into_tensor, noise_like, exists, default
 
-
 __conditioning_keys__ = {"concat": "c_concat", "crossattn": "c_crossattn", "adm": "y"}
 
 
 class DDPM(pl.LightningModule):
     # classic DDPM with Gaussian diffusion, in image space
     def __init__(
-        self,
-        unet_config,
-        timesteps=1000,
-        beta_schedule="linear",
-        loss_type="l2",
-        ckpt_path=None,
-        ignore_keys=[],
-        load_only_unet=False,
-        monitor=None,
-        use_ema=True,
-        first_stage_key="image",
-        image_size=256,
-        channels=3,
-        log_every_t=100,
-        clip_denoised=True,
-        linear_start=1e-4,
-        linear_end=2e-2,
-        cosine_s=8e-3,
-        given_betas=None,
-        original_elbo_weight=0.0,
-        v_posterior=0.0,  # weight for choosing posterior variance as sigma = (1-v) * beta_tilde + v * beta
-        l_simple_weight=1.0,
-        conditioning_key=None,
-        parameterization="eps",  # all assuming fixed variance schedules
-        scheduler_config=None,
-        use_positional_encodings=False,
-        learn_logvar=False,
-        logvar_init=0.0,
+            self,
+            unet_config,
+            timesteps=1000,
+            beta_schedule="linear",
+            loss_type="l2",
+            ckpt_path=None,
+            ignore_keys=[],
+            load_only_unet=False,
+            monitor=None,
+            use_ema=True,
+            first_stage_key="image",
+            image_size=256,
+            channels=3,
+            log_every_t=100,
+            clip_denoised=True,
+            linear_start=1e-4,
+            linear_end=2e-2,
+            cosine_s=8e-3,
+            given_betas=None,
+            original_elbo_weight=0.0,
+            v_posterior=0.0,  # weight for choosing posterior variance as sigma = (1-v) * beta_tilde + v * beta
+            l_simple_weight=1.0,
+            conditioning_key=None,
+            parameterization="eps",  # all assuming fixed variance schedules
+            scheduler_config=None,
+            use_positional_encodings=False,
+            learn_logvar=False,
+            logvar_init=0.0,
     ):
         super().__init__()
         assert parameterization in [
@@ -119,13 +119,13 @@ class DDPM(pl.LightningModule):
             self.logvar = nn.Parameter(self.logvar, requires_grad=True)
 
     def register_schedule(
-        self,
-        given_betas=None,
-        beta_schedule="linear",
-        timesteps=1000,
-        linear_start=1e-4,
-        linear_end=2e-2,
-        cosine_s=8e-3,
+            self,
+            given_betas=None,
+            beta_schedule="linear",
+            timesteps=1000,
+            linear_start=1e-4,
+            linear_end=2e-2,
+            cosine_s=8e-3,
     ):
         if exists(given_betas):
             betas = given_betas
@@ -146,7 +146,7 @@ class DDPM(pl.LightningModule):
         self.linear_start = linear_start
         self.linear_end = linear_end
         assert (
-            alphas_cumprod.shape[0] == self.num_timesteps
+                alphas_cumprod.shape[0] == self.num_timesteps
         ), "alphas have to be defined for each timestep"
 
         to_torch = partial(torch.tensor, dtype=torch.float32)
@@ -172,7 +172,7 @@ class DDPM(pl.LightningModule):
 
         # calculations for posterior q(x_{t-1} | x_t, x_0)
         posterior_variance = (1 - self.v_posterior) * betas * (
-            1.0 - alphas_cumprod_prev
+                1.0 - alphas_cumprod_prev
         ) / (1.0 - alphas_cumprod) + self.v_posterior * betas
         # above: equal to 1. / (1. / (1. - alpha_cumprod_tm1) + alpha_t / beta_t)
         self.register_buffer("posterior_variance", to_torch(posterior_variance))
@@ -193,17 +193,17 @@ class DDPM(pl.LightningModule):
         )
 
         if self.parameterization == "eps":
-            lvlb_weights = self.betas**2 / (
-                2
-                * self.posterior_variance
-                * to_torch(alphas)
-                * (1 - self.alphas_cumprod)
+            lvlb_weights = self.betas ** 2 / (
+                    2
+                    * self.posterior_variance
+                    * to_torch(alphas)
+                    * (1 - self.alphas_cumprod)
             )
         elif self.parameterization == "x0":
             lvlb_weights = (
-                0.5
-                * np.sqrt(torch.Tensor(alphas_cumprod))
-                / (2.0 * 1 - torch.Tensor(alphas_cumprod))
+                    0.5
+                    * np.sqrt(torch.Tensor(alphas_cumprod))
+                    / (2.0 * 1 - torch.Tensor(alphas_cumprod))
             )
         else:
             raise NotImplementedError("mu not supported")
@@ -266,15 +266,15 @@ class DDPM(pl.LightningModule):
 
     def predict_start_from_noise(self, x_t, t, noise):
         return (
-            extract_into_tensor(self.sqrt_recip_alphas_cumprod, t, x_t.shape) * x_t
-            - extract_into_tensor(self.sqrt_recipm1_alphas_cumprod, t, x_t.shape)
-            * noise
+                extract_into_tensor(self.sqrt_recip_alphas_cumprod, t, x_t.shape) * x_t
+                - extract_into_tensor(self.sqrt_recipm1_alphas_cumprod, t, x_t.shape)
+                * noise
         )
 
     def q_posterior(self, x_start, x_t, t):
         posterior_mean = (
-            extract_into_tensor(self.posterior_mean_coef1, t, x_t.shape) * x_start
-            + extract_into_tensor(self.posterior_mean_coef2, t, x_t.shape) * x_t
+                extract_into_tensor(self.posterior_mean_coef1, t, x_t.shape) * x_start
+                + extract_into_tensor(self.posterior_mean_coef2, t, x_t.shape) * x_t
         )
         posterior_variance = extract_into_tensor(self.posterior_variance, t, x_t.shape)
         posterior_log_variance_clipped = extract_into_tensor(
@@ -314,9 +314,9 @@ class DDPM(pl.LightningModule):
         img = torch.randn(shape, device=device)
         intermediates = [img]
         for i in tqdm(
-            reversed(range(0, self.num_timesteps)),
-            desc="Sampling t",
-            total=self.num_timesteps,
+                reversed(range(0, self.num_timesteps)),
+                desc="Sampling t",
+                total=self.num_timesteps,
         ):
             img = self.p_sample(
                 img,
@@ -341,11 +341,11 @@ class DDPM(pl.LightningModule):
     def q_sample(self, x_start, t, noise=None):
         noise = default(noise, lambda: torch.randn_like(x_start))
         return (
-            extract_into_tensor(self.sqrt_alphas_cumprod, t, x_start.shape)
-            * x_start
-            * extract_into_tensor(self.scale_arr, t, x_start.shape)
-            + extract_into_tensor(self.sqrt_one_minus_alphas_cumprod, t, x_start.shape)
-            * noise
+                extract_into_tensor(self.sqrt_alphas_cumprod, t, x_start.shape)
+                * x_start
+                * extract_into_tensor(self.scale_arr, t, x_start.shape)
+                + extract_into_tensor(self.sqrt_one_minus_alphas_cumprod, t, x_start.shape)
+                * noise
         )
 
     def get_input(self, batch, k):
@@ -405,27 +405,27 @@ class LatentDiffusion(DDPM):
     """main class"""
 
     def __init__(
-        self,
-        first_stage_config,
-        cond_stage_config,
-        num_timesteps_cond=None,
-        cond_stage_key="caption",
-        cond_stage_trainable=False,
-        cond_stage_forward=None,
-        conditioning_key=None,
-        uncond_prob=0.2,
-        uncond_type="empty_seq",
-        scale_factor=1.0,
-        scale_by_std=False,
-        encoder_type="2d",
-        only_model=False,
-        use_scale=False,
-        scale_a=1,
-        scale_b=0.3,
-        mid_step=400,
-        fix_scale_bug=False,
-        *args,
-        **kwargs,
+            self,
+            first_stage_config,
+            cond_stage_config,
+            num_timesteps_cond=None,
+            cond_stage_key="caption",
+            cond_stage_trainable=False,
+            cond_stage_forward=None,
+            conditioning_key=None,
+            uncond_prob=0.2,
+            uncond_type="empty_seq",
+            scale_factor=1.0,
+            scale_by_std=False,
+            encoder_type="2d",
+            only_model=False,
+            use_scale=False,
+            scale_a=1,
+            scale_b=0.3,
+            mid_step=400,
+            fix_scale_bug=False,
+            *args,
+            **kwargs,
     ):
         self.num_timesteps_cond = default(num_timesteps_cond, 1)
         self.scale_by_std = scale_by_std
@@ -484,7 +484,7 @@ class LatentDiffusion(DDPM):
             self.restarted_from_ckpt = True
 
     def make_cond_schedule(
-        self,
+            self,
     ):
         self.cond_ids = torch.full(
             size=(self.num_timesteps,),
@@ -500,22 +500,22 @@ class LatentDiffusion(DDPM):
         noise = default(noise, lambda: torch.randn_like(x_start))
         if self.use_scale:
             return (
-                extract_into_tensor(self.sqrt_alphas_cumprod, t, x_start.shape)
-                * x_start
-                * extract_into_tensor(self.scale_arr, t, x_start.shape)
-                + extract_into_tensor(
-                    self.sqrt_one_minus_alphas_cumprod, t, x_start.shape
-                )
-                * noise
+                    extract_into_tensor(self.sqrt_alphas_cumprod, t, x_start.shape)
+                    * x_start
+                    * extract_into_tensor(self.scale_arr, t, x_start.shape)
+                    + extract_into_tensor(
+                self.sqrt_one_minus_alphas_cumprod, t, x_start.shape
+            )
+                    * noise
             )
         else:
             return (
-                extract_into_tensor(self.sqrt_alphas_cumprod, t, x_start.shape)
-                * x_start
-                + extract_into_tensor(
-                    self.sqrt_one_minus_alphas_cumprod, t, x_start.shape
-                )
-                * noise
+                    extract_into_tensor(self.sqrt_alphas_cumprod, t, x_start.shape)
+                    * x_start
+                    + extract_into_tensor(
+                self.sqrt_one_minus_alphas_cumprod, t, x_start.shape
+            )
+                    * noise
             )
 
     def _freeze_model(self):
@@ -543,7 +543,7 @@ class LatentDiffusion(DDPM):
     def get_learned_conditioning(self, c):
         if self.cond_stage_forward is None:
             if hasattr(self.cond_stage_model, "encode") and callable(
-                self.cond_stage_model.encode
+                    self.cond_stage_model.encode
             ):
                 c = self.cond_stage_model.encode(c)
                 if isinstance(c, DiagonalGaussianDistribution):
@@ -679,15 +679,15 @@ class LatentDiffusion(DDPM):
         return results
 
     def p_mean_variance(
-        self,
-        x,
-        c,
-        t,
-        clip_denoised: bool,
-        return_x0=False,
-        score_corrector=None,
-        corrector_kwargs=None,
-        **kwargs,
+            self,
+            x,
+            c,
+            t,
+            clip_denoised: bool,
+            return_x0=False,
+            score_corrector=None,
+            corrector_kwargs=None,
+            **kwargs,
     ):
         t_in = t
         model_out = self.apply_model(x, t_in, c, **kwargs)
@@ -719,18 +719,18 @@ class LatentDiffusion(DDPM):
 
     @torch.no_grad()
     def p_sample(
-        self,
-        x,
-        c,
-        t,
-        clip_denoised=False,
-        repeat_noise=False,
-        return_x0=False,
-        temperature=1.0,
-        noise_dropout=0.0,
-        score_corrector=None,
-        corrector_kwargs=None,
-        **kwargs,
+            self,
+            x,
+            c,
+            t,
+            clip_denoised=False,
+            repeat_noise=False,
+            return_x0=False,
+            temperature=1.0,
+            noise_dropout=0.0,
+            score_corrector=None,
+            corrector_kwargs=None,
+            **kwargs,
     ):
         b, *_, device = *x.shape, x.device
         outputs = self.p_mean_variance(
@@ -764,20 +764,20 @@ class LatentDiffusion(DDPM):
 
     @torch.no_grad()
     def p_sample_loop(
-        self,
-        cond,
-        shape,
-        return_intermediates=False,
-        x_T=None,
-        verbose=True,
-        callback=None,
-        timesteps=None,
-        mask=None,
-        x0=None,
-        img_callback=None,
-        start_T=None,
-        log_every_t=None,
-        **kwargs,
+            self,
+            cond,
+            shape,
+            return_intermediates=False,
+            x_T=None,
+            verbose=True,
+            callback=None,
+            timesteps=None,
+            mask=None,
+            x0=None,
+            img_callback=None,
+            start_T=None,
+            log_every_t=None,
+            **kwargs,
     ):
 
         if not log_every_t:
@@ -834,7 +834,7 @@ class LatentDiffusion(DDPM):
 
 class LatentVisualDiffusion(LatentDiffusion):
     def __init__(
-        self, cond_img_config, finegrained=False, random_cond=False, *args, **kwargs
+            self, cond_img_config, finegrained=False, random_cond=False, *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
         self.random_cond = random_cond
@@ -857,7 +857,7 @@ class LatentVisualDiffusion(LatentDiffusion):
                 param.requires_grad = False
 
     def init_projector(
-        self, use_finegrained, num_tokens, input_dim, cross_attention_dim, dim
+            self, use_finegrained, num_tokens, input_dim, cross_attention_dim, dim
     ):
         if not use_finegrained:
             image_proj_model = ImageProjModel(
@@ -893,15 +893,15 @@ class DiffusionWrapper(pl.LightningModule):
         self.conditioning_key = conditioning_key
 
     def forward(
-        self,
-        x,
-        t,
-        c_concat: list = None,
-        c_crossattn: list = None,
-        c_adm=None,
-        s=None,
-        mask=None,
-        **kwargs,
+            self,
+            x,
+            t,
+            c_concat: list = None,
+            c_crossattn: list = None,
+            c_adm=None,
+            s=None,
+            mask=None,
+            **kwargs,
     ):
         # temporal_context = fps is foNone
         if self.conditioning_key is None:
@@ -954,7 +954,7 @@ class DiffusionWrapper(pl.LightningModule):
                 xc = x
             out = self.diffusion_model(xc, t, context=cc, y=s, mask=mask)
         elif (
-            self.conditioning_key == "hybrid-time-adm"
+                self.conditioning_key == "hybrid-time-adm"
         ):  # adm means y, e.g., class index
             # assert s is not None
             assert c_adm is not None

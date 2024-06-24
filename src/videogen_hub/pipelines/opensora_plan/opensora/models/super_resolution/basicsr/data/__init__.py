@@ -7,10 +7,13 @@ from os import path as osp
 import numpy as np
 import torch
 import torch.utils.data
-from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.data.prefetch_dataloader import PrefetchDataLoader
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.data.prefetch_dataloader import \
+    PrefetchDataLoader
 from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils import get_root_logger, scandir
 from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.dist_util import get_dist_info
-from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.registry import DATASET_REGISTRY
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.registry import \
+    DATASET_REGISTRY
 
 __all__ = ['build_dataset', 'build_dataloader']
 

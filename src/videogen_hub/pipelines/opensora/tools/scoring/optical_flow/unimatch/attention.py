@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.utils import merge_splits, merge_splits_1d, split_feature, split_feature_1d
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch.utils import merge_splits, merge_splits_1d, \
+    split_feature, split_feature_1d
 
 
 def single_head_full_attention(q, k, v):
@@ -17,11 +18,11 @@ def single_head_full_attention(q, k, v):
 
 
 def single_head_full_attention_1d(
-    q,
-    k,
-    v,
-    h=None,
-    w=None,
+        q,
+        k,
+        v,
+        h=None,
+        w=None,
 ):
     # q, k, v: [B, L, C]
 
@@ -34,7 +35,7 @@ def single_head_full_attention_1d(
     k = k.view(b, h, w, c)
     v = v.view(b, h, w, c)
 
-    scale_factor = c**0.5
+    scale_factor = c ** 0.5
 
     scores = torch.matmul(q, k.permute(0, 1, 3, 2)) / scale_factor  # [B, H, W, W]
 
@@ -46,14 +47,14 @@ def single_head_full_attention_1d(
 
 
 def single_head_split_window_attention(
-    q,
-    k,
-    v,
-    num_splits=1,
-    with_shift=False,
-    h=None,
-    w=None,
-    attn_mask=None,
+        q,
+        k,
+        v,
+        num_splits=1,
+        with_shift=False,
+        h=None,
+        w=None,
+        attn_mask=None,
 ):
     # ref: https://github.com/microsoft/Swin-Transformer/blob/main/models/swin_transformer.py
     # q, k, v: [B, L, C]
@@ -73,7 +74,7 @@ def single_head_split_window_attention(
     k = k.view(b, h, w, c)
     v = v.view(b, h, w, c)
 
-    scale_factor = c**0.5
+    scale_factor = c ** 0.5
 
     if with_shift:
         assert attn_mask is not None  # compute once
@@ -89,7 +90,7 @@ def single_head_split_window_attention(
     v = split_feature(v, num_splits=num_splits, channel_last=True)
 
     scores = (
-        torch.matmul(q.view(b_new, -1, c), k.view(b_new, -1, c).permute(0, 2, 1)) / scale_factor
+            torch.matmul(q.view(b_new, -1, c), k.view(b_new, -1, c).permute(0, 2, 1)) / scale_factor
     )  # [B*K*K, H/K*W/K, H/K*W/K]
 
     if with_shift:
@@ -113,15 +114,15 @@ def single_head_split_window_attention(
 
 
 def single_head_split_window_attention_1d(
-    q,
-    k,
-    v,
-    relative_position_bias=None,
-    num_splits=1,
-    with_shift=False,
-    h=None,
-    w=None,
-    attn_mask=None,
+        q,
+        k,
+        v,
+        relative_position_bias=None,
+        num_splits=1,
+        with_shift=False,
+        h=None,
+        w=None,
+        attn_mask=None,
 ):
     # q, k, v: [B, L, C]
 
@@ -138,7 +139,7 @@ def single_head_split_window_attention_1d(
     k = k.view(b * h, w, c)
     v = v.view(b * h, w, c)
 
-    scale_factor = c**0.5
+    scale_factor = c ** 0.5
 
     if with_shift:
         assert attn_mask is not None  # compute once
@@ -153,7 +154,7 @@ def single_head_split_window_attention_1d(
     v = split_feature_1d(v, num_splits=num_splits)
 
     scores = (
-        torch.matmul(q.view(b_new, -1, c), k.view(b_new, -1, c).permute(0, 2, 1)) / scale_factor
+            torch.matmul(q.view(b_new, -1, c), k.view(b_new, -1, c).permute(0, 2, 1)) / scale_factor
     )  # [B*H*K, W/K, W/K]
 
     if with_shift:
@@ -182,9 +183,9 @@ class SelfAttnPropagation(nn.Module):
     """
 
     def __init__(
-        self,
-        in_channels,
-        **kwargs,
+            self,
+            in_channels,
+            **kwargs,
     ):
         super(SelfAttnPropagation, self).__init__()
 
@@ -196,12 +197,12 @@ class SelfAttnPropagation(nn.Module):
                 nn.init.xavier_uniform_(p)
 
     def forward(
-        self,
-        feature0,
-        flow,
-        local_window_attn=False,
-        local_window_radius=1,
-        **kwargs,
+            self,
+            feature0,
+            flow,
+            local_window_attn=False,
+            local_window_radius=1,
+            **kwargs,
     ):
         # q, k: feature [B, C, H, W], v: flow [B, 2, H, W]
         if local_window_attn:
@@ -222,7 +223,7 @@ class SelfAttnPropagation(nn.Module):
 
         value = flow.view(b, flow.size(1), h * w).permute(0, 2, 1)  # [B, H*W, 2]
 
-        scores = torch.matmul(query, key.permute(0, 2, 1)) / (c**0.5)  # [B, H*W, H*W]
+        scores = torch.matmul(query, key.permute(0, 2, 1)) / (c ** 0.5)  # [B, H*W, H*W]
         prob = torch.softmax(scores, dim=-1)
 
         out = torch.matmul(prob, value)  # [B, H*W, 2]
@@ -231,10 +232,10 @@ class SelfAttnPropagation(nn.Module):
         return out
 
     def forward_local_window_attn(
-        self,
-        feature0,
-        flow,
-        local_window_radius=1,
+            self,
+            feature0,
+            flow,
+            local_window_radius=1,
     ):
         assert flow.size(1) == 2 or flow.size(1) == 1  # flow or disparity or depth
         assert local_window_radius > 0
@@ -256,20 +257,20 @@ class SelfAttnPropagation(nn.Module):
         )  # [B, C*(2R+1)^2), H*W]
 
         feature0_window = (
-            feature0_window.view(b, c, kernel_size**2, h, w)
+            feature0_window.view(b, c, kernel_size ** 2, h, w)
             .permute(0, 3, 4, 1, 2)
-            .reshape(b * h * w, c, kernel_size**2)
+            .reshape(b * h * w, c, kernel_size ** 2)
         )  # [B*H*W, C, (2R+1)^2]
 
         flow_window = F.unfold(flow, kernel_size=kernel_size, padding=local_window_radius)  # [B, 2*(2R+1)^2), H*W]
 
         flow_window = (
-            flow_window.view(b, value_channel, kernel_size**2, h, w)
+            flow_window.view(b, value_channel, kernel_size ** 2, h, w)
             .permute(0, 3, 4, 2, 1)
-            .reshape(b * h * w, kernel_size**2, value_channel)
+            .reshape(b * h * w, kernel_size ** 2, value_channel)
         )  # [B*H*W, (2R+1)^2, 2]
 
-        scores = torch.matmul(feature0_reshape, feature0_window) / (c**0.5)  # [B*H*W, 1, (2R+1)^2]
+        scores = torch.matmul(feature0_reshape, feature0_window) / (c ** 0.5)  # [B*H*W, 1, (2R+1)^2]
 
         prob = torch.softmax(scores, dim=-1)
 

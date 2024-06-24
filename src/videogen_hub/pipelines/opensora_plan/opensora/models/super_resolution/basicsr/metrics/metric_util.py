@@ -1,6 +1,7 @@
 import numpy as np
 
-from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.matlab_functions import bgr2ycbcr
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.matlab_functions import \
+    bgr2ycbcr
 
 
 def reorder_image(img, input_order='HWC'):

@@ -1,6 +1,7 @@
 import functools
 
 import torch.nn as nn
+
 from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.normalize import ActNorm
 
 

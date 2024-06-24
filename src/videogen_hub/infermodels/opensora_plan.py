@@ -17,7 +17,8 @@ class OpenSoraPlan:
     """
         from videogen_hub.pipelines.opensora_plan.opensora.sample_t2v import OpenSoraPlanPipeline
 
-        model_path = snapshot_download('LanguageBind/Open-Sora-Plan-v1.1.0', local_dir = os.path.join(MODEL_PATH, 'Open-Sora-Plan-v1.1.0'))
+        model_path = snapshot_download('LanguageBind/Open-Sora-Plan-v1.1.0',
+                                       local_dir=os.path.join(MODEL_PATH, 'Open-Sora-Plan-v1.1.0'))
 
         arg_list = ['--model_path', model_path,
                     '--version', '65x512x512',

@@ -5,7 +5,7 @@ import torch.distributed as dist
 from mmengine.runner import set_random_seed
 
 from videogen_hub.pipelines.opensora.opensora.acceleration.parallel_states import set_sequence_parallel_group
-from videogen_hub.pipelines.opensora.opensora.datasets import IMG_FPS, save_sample
+from videogen_hub.pipelines.opensora.opensora.datasets import IMG_FPS
 from videogen_hub.pipelines.opensora.opensora.models.text_encoder.t5 import text_preprocessing
 from videogen_hub.pipelines.opensora.opensora.registry import MODELS, SCHEDULERS, build_module
 from videogen_hub.pipelines.opensora.opensora.utils.config_utils import parse_configs

@@ -18,10 +18,10 @@ from typing import Any, Callable, Dict, List, Optional, Union
 import PIL.Image
 import numpy as np
 import torch
-from transformers import CLIPTextModel, CLIPTokenizer
-
 from diffusers.loaders import TextualInversionLoaderMixin
 from diffusers.models import AutoencoderKL, UNet3DConditionModel
+from diffusers.pipelines.pipeline_utils import DiffusionPipeline
+from diffusers.pipelines.text_to_video_synthesis import TextToVideoSDPipelineOutput
 from diffusers.schedulers import KarrasDiffusionSchedulers
 from diffusers.utils import (
     PIL_INTERPOLATION,
@@ -31,9 +31,8 @@ from diffusers.utils import (
     replace_example_docstring,
 )
 from diffusers.utils.torch_utils import randn_tensor
-from diffusers.pipelines.pipeline_utils import DiffusionPipeline
-from diffusers.pipelines.text_to_video_synthesis import TextToVideoSDPipelineOutput
 from einops import rearrange
+from transformers import CLIPTextModel, CLIPTokenizer
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 
@@ -102,13 +101,13 @@ class TextToVideoSDPipeline(DiffusionPipeline, TextualInversionLoaderMixin):
     """
 
     def __init__(
-        self,
-        vae: AutoencoderKL,
-        text_encoder: CLIPTextModel,
-        tokenizer: CLIPTokenizer,
-        unet: UNet3DConditionModel,
-        controlnet,
-        scheduler: KarrasDiffusionSchedulers,
+            self,
+            vae: AutoencoderKL,
+            text_encoder: CLIPTextModel,
+            tokenizer: CLIPTokenizer,
+            unet: UNet3DConditionModel,
+            controlnet,
+            scheduler: KarrasDiffusionSchedulers,
     ):
         super().__init__()
 
@@ -121,10 +120,11 @@ class TextToVideoSDPipeline(DiffusionPipeline, TextualInversionLoaderMixin):
             scheduler=scheduler,
         )
         self.vae_scale_factor = 2 ** (
-            len(self.vae.config.block_out_channels) - 1)
+                len(self.vae.config.block_out_channels) - 1)
 
     def prepare_image(
-        self, image, width, height, batch_size, num_images_per_prompt, device, dtype, do_classifier_free_guidance, cfg_text_image=False,
+            self, image, width, height, batch_size, num_images_per_prompt, device, dtype, do_classifier_free_guidance,
+            cfg_text_image=False,
     ):
         if not isinstance(image, torch.Tensor):
             if isinstance(image, PIL.Image.Image):
@@ -275,25 +275,25 @@ class TextToVideoSDPipeline(DiffusionPipeline, TextualInversionLoaderMixin):
             return self.device
         for module in self.unet.modules():
             if (
-                hasattr(module, "_hf_hook")
-                and hasattr(module._hf_hook, "execution_device")
-                and module._hf_hook.execution_device is not None
+                    hasattr(module, "_hf_hook")
+                    and hasattr(module._hf_hook, "execution_device")
+                    and module._hf_hook.execution_device is not None
             ):
                 return torch.device(module._hf_hook.execution_device)
         return self.device
 
     # Copied from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion.StableDiffusionPipeline._encode_prompt
     def _encode_prompt(
-        self,
-        prompt,
-        device,
-        num_images_per_prompt,
-        do_classifier_free_guidance,
-        negative_prompt=None,
-        prompt_embeds: Optional[torch.FloatTensor] = None,
-        negative_prompt_embeds: Optional[torch.FloatTensor] = None,
-        img_cond: Optional[torch.FloatTensor] = None,
-        img_cond_unc: Optional[torch.FloatTensor] = None,
+            self,
+            prompt,
+            device,
+            num_images_per_prompt,
+            do_classifier_free_guidance,
+            negative_prompt=None,
+            prompt_embeds: Optional[torch.FloatTensor] = None,
+            negative_prompt_embeds: Optional[torch.FloatTensor] = None,
+            img_cond: Optional[torch.FloatTensor] = None,
+            img_cond_unc: Optional[torch.FloatTensor] = None,
     ):
         r"""
         Encodes the prompt into text encoder hidden states.
@@ -343,7 +343,7 @@ class TextToVideoSDPipeline(DiffusionPipeline, TextualInversionLoaderMixin):
                 prompt, padding="longest", return_tensors="pt").input_ids
 
             if untruncated_ids.shape[-1] >= text_input_ids.shape[-1] and not torch.equal(
-                text_input_ids, untruncated_ids
+                    text_input_ids, untruncated_ids
             ):
                 removed_text = self.tokenizer.batch_decode(
                     untruncated_ids[:, self.tokenizer.model_max_length - 1: -1]
@@ -495,22 +495,22 @@ class TextToVideoSDPipeline(DiffusionPipeline, TextualInversionLoaderMixin):
 
     # Copied from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion.StableDiffusionPipeline.check_inputs
     def check_inputs(
-        self,
-        prompt,
-        height,
-        width,
-        callback_steps,
-        negative_prompt=None,
-        prompt_embeds=None,
-        negative_prompt_embeds=None,
+            self,
+            prompt,
+            height,
+            width,
+            callback_steps,
+            negative_prompt=None,
+            prompt_embeds=None,
+            negative_prompt_embeds=None,
     ):
         if height % 8 != 0 or width % 8 != 0:
             raise ValueError(
                 f"`height` and `width` have to be divisible by 8 but are {height} and {width}.")
 
         if (callback_steps is None) or (
-            callback_steps is not None and (not isinstance(
-                callback_steps, int) or callback_steps <= 0)
+                callback_steps is not None and (not isinstance(
+            callback_steps, int) or callback_steps <= 0)
         ):
             raise ValueError(
                 f"`callback_steps` has to be a positive integer but is {callback_steps} of type"
@@ -545,7 +545,7 @@ class TextToVideoSDPipeline(DiffusionPipeline, TextualInversionLoaderMixin):
                 )
 
     def prepare_latents(
-        self, batch_size, num_channels_latents, num_frames, height, width, dtype, device, generator, latents=None
+            self, batch_size, num_channels_latents, num_frames, height, width, dtype, device, generator, latents=None
     ):
         shape = (
             batch_size,
@@ -583,40 +583,40 @@ class TextToVideoSDPipeline(DiffusionPipeline, TextualInversionLoaderMixin):
     @torch.no_grad()
     @replace_example_docstring(EXAMPLE_DOC_STRING)
     def __call__(
-        self,
-        prompt: Union[str, List[str]] = None,
-        # the image input for the controlnet branch
-        image: Optional[torch.FloatTensor] = None,
-        height: Optional[int] = None,
-        width: Optional[int] = None,
-        num_frames: int = 16,
-        num_inference_steps: int = 50,
-        guidance_scale: float = 9.0,
-        negative_prompt: Optional[Union[str, List[str]]] = None,
-        eta: float = 0.0,
-        generator: Optional[Union[torch.Generator,
-                                  List[torch.Generator]]] = None,
-        latents: Optional[torch.FloatTensor] = None,
-        prompt_embeds: Optional[torch.FloatTensor] = None,
-        negative_prompt_embeds: Optional[torch.FloatTensor] = None,
-        output_type: Optional[str] = "np",
-        return_dict: bool = True,
-        callback: Optional[Callable[[
-            int, int, torch.FloatTensor], None]] = None,
-        callback_steps: int = 1,
-        cross_attention_kwargs: Optional[Dict[str, Any]] = None,
-        precision: str = "16",
-        mask_generator=None,
-        no_text_condition_control: bool = False,
-        weight_control_sample: float = 1.0,
-        use_controlnet_mask: bool = False,
-        skip_controlnet_branch: bool = False,
-        img_cond_resampler=None,
-        img_cond_encoder=None,
-        input_frames_conditioning=None,
-        cfg_text_image: bool = False,
-        use_of: bool = False,
-        ** kwargs,
+            self,
+            prompt: Union[str, List[str]] = None,
+            # the image input for the controlnet branch
+            image: Optional[torch.FloatTensor] = None,
+            height: Optional[int] = None,
+            width: Optional[int] = None,
+            num_frames: int = 16,
+            num_inference_steps: int = 50,
+            guidance_scale: float = 9.0,
+            negative_prompt: Optional[Union[str, List[str]]] = None,
+            eta: float = 0.0,
+            generator: Optional[Union[torch.Generator,
+            List[torch.Generator]]] = None,
+            latents: Optional[torch.FloatTensor] = None,
+            prompt_embeds: Optional[torch.FloatTensor] = None,
+            negative_prompt_embeds: Optional[torch.FloatTensor] = None,
+            output_type: Optional[str] = "np",
+            return_dict: bool = True,
+            callback: Optional[Callable[[
+                int, int, torch.FloatTensor], None]] = None,
+            callback_steps: int = 1,
+            cross_attention_kwargs: Optional[Dict[str, Any]] = None,
+            precision: str = "16",
+            mask_generator=None,
+            no_text_condition_control: bool = False,
+            weight_control_sample: float = 1.0,
+            use_controlnet_mask: bool = False,
+            skip_controlnet_branch: bool = False,
+            img_cond_resampler=None,
+            img_cond_encoder=None,
+            input_frames_conditioning=None,
+            cfg_text_image: bool = False,
+            use_of: bool = False,
+            **kwargs,
     ):
         r"""
         Function invoked when calling the pipeline for generation.
@@ -800,7 +800,7 @@ class TextToVideoSDPipeline(DiffusionPipeline, TextualInversionLoaderMixin):
                 image_latents, "(B F) C W H -> B C F W H", B=latents.shape[0])
             image_shape = image_latents.shape
             image_shape = [ax_dim for ax_dim in image_shape]
-            image_shape[2] = 16-image_shape[2]
+            image_shape[2] = 16 - image_shape[2]
             image_latents = torch.cat([image_latents, torch.zeros(
                 image_shape, dtype=image_latents.dtype, device=image_latents.device)], dim=2)
             controlnet_mask = torch.zeros(
@@ -813,7 +813,7 @@ class TextToVideoSDPipeline(DiffusionPipeline, TextualInversionLoaderMixin):
 
         # 7. Denoising loop
         num_warmup_steps = len(timesteps) - \
-            num_inference_steps * self.scheduler.order
+                           num_inference_steps * self.scheduler.order
 
         if mask_generator is not None:
             attention_mask = mask_generator.get_mask(
@@ -869,7 +869,7 @@ class TextToVideoSDPipeline(DiffusionPipeline, TextualInversionLoaderMixin):
                     noise_pred_uncond, noise_pred_text = noise_pred.chunk(
                         2)
                     noise_pred = noise_pred_uncond + guidance_scale * \
-                        (noise_pred_text - noise_pred_uncond)
+                                 (noise_pred_text - noise_pred_uncond)
 
                 # reshape latents
                 bsz, channel, frames, width, height = latents.shape

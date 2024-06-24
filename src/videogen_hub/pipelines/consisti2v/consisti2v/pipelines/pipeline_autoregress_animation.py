@@ -1,22 +1,14 @@
 # Adapted from https://github.com/showlab/Tune-A-Video/blob/main/tuneavideo/pipelines/pipeline_tuneavideo.py
 
 import inspect
-from typing import Callable, List, Optional, Union
-from dataclasses import dataclass
-
 import math
+from dataclasses import dataclass
+from typing import Callable, List, Optional, Union
+
 import numpy as np
 import torch
-from diffusers import UNet3DConditionModel
-from tqdm import tqdm
-
-from torchvision import transforms as T
 from PIL import Image
-
-from diffusers.utils import is_accelerate_available
-from packaging import version
-from transformers import CLIPTextModel, CLIPTokenizer
-
+from diffusers import UNet3DConditionModel
 from diffusers.configuration_utils import FrozenDict
 from diffusers.models import AutoencoderKL
 from diffusers.pipelines.pipeline_utils import DiffusionPipeline
@@ -29,13 +21,17 @@ from diffusers.schedulers import (
     PNDMScheduler,
 )
 from diffusers.utils import deprecate, logging, BaseOutput
-
+from diffusers.utils import is_accelerate_available
 from einops import rearrange, repeat
+from packaging import version
+from torchvision import transforms as T
+from tqdm import tqdm
+from transformers import CLIPTextModel, CLIPTokenizer
 
 from videogen_hub.pipelines.consisti2v.consisti2v.utils.frameinit_utils import freq_mix_3d, get_freq_filter
 
-
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
+
 
 # copied from https://github.com/huggingface/diffusers/blob/v0.23.0/src/diffusers/pipelines/stable_diffusion/pipeline_stable_diffusion.py#L59C1-L70C21
 def rescale_noise_cfg(noise_cfg, noise_pred_text, guidance_rescale=0.0):
@@ -61,19 +57,19 @@ class AutoregressiveAnimationPipeline(DiffusionPipeline):
     _optional_components = []
 
     def __init__(
-        self,
-        vae: AutoencoderKL,
-        text_encoder: CLIPTextModel,
-        tokenizer: CLIPTokenizer,
-        unet: UNet3DConditionModel,
-        scheduler: Union[
-            DDIMScheduler,
-            PNDMScheduler,
-            LMSDiscreteScheduler,
-            EulerDiscreteScheduler,
-            EulerAncestralDiscreteScheduler,
-            DPMSolverMultistepScheduler,
-        ],
+            self,
+            vae: AutoencoderKL,
+            text_encoder: CLIPTextModel,
+            tokenizer: CLIPTokenizer,
+            unet: UNet3DConditionModel,
+            scheduler: Union[
+                DDIMScheduler,
+                PNDMScheduler,
+                LMSDiscreteScheduler,
+                EulerDiscreteScheduler,
+                EulerAncestralDiscreteScheduler,
+                DPMSolverMultistepScheduler,
+            ],
     ):
         super().__init__()
 
@@ -142,18 +138,18 @@ class AutoregressiveAnimationPipeline(DiffusionPipeline):
         batch_size = 1
         num_channels_latents = self.unet.config.in_channels
         filter_shape = [
-            batch_size, 
-            num_channels_latents, 
-            video_length, 
-            height // self.vae_scale_factor, 
+            batch_size,
+            num_channels_latents,
+            video_length,
+            height // self.vae_scale_factor,
             width // self.vae_scale_factor
         ]
         # self.freq_filter = get_freq_filter(filter_shape, device=self._execution_device, params=filter_params)
         self.freq_filter = get_freq_filter(
-            filter_shape, 
-            device=self._execution_device, 
+            filter_shape,
+            device=self._execution_device,
             filter_type=filter_params.method,
-            n=filter_params.n if filter_params.method=="butterworth" else None,
+            n=filter_params.n if filter_params.method == "butterworth" else None,
             d_s=filter_params.d_s,
             d_t=filter_params.d_t
         )
@@ -176,16 +172,15 @@ class AutoregressiveAnimationPipeline(DiffusionPipeline):
             if cpu_offloaded_model is not None:
                 cpu_offload(cpu_offloaded_model, device)
 
-
     @property
     def _execution_device(self):
         if self.device != torch.device("meta") or not hasattr(self.unet, "_hf_hook"):
             return self.device
         for module in self.unet.modules():
             if (
-                hasattr(module, "_hf_hook")
-                and hasattr(module._hf_hook, "execution_device")
-                and module._hf_hook.execution_device is not None
+                    hasattr(module, "_hf_hook")
+                    and hasattr(module._hf_hook, "execution_device")
+                    and module._hf_hook.execution_device is not None
             ):
                 return torch.device(module._hf_hook.execution_device)
         return self.device
@@ -204,7 +199,7 @@ class AutoregressiveAnimationPipeline(DiffusionPipeline):
         untruncated_ids = self.tokenizer(prompt, padding="longest", return_tensors="pt").input_ids
 
         if untruncated_ids.shape[-1] >= text_input_ids.shape[-1] and not torch.equal(text_input_ids, untruncated_ids):
-            removed_text = self.tokenizer.batch_decode(untruncated_ids[:, self.tokenizer.model_max_length - 1 : -1])
+            removed_text = self.tokenizer.batch_decode(untruncated_ids[:, self.tokenizer.model_max_length - 1: -1])
             logger.warning(
                 "The following part of your input was truncated because CLIP can only handle sequences up to"
                 f" {self.tokenizer.model_max_length} tokens: {removed_text}"
@@ -289,7 +284,7 @@ class AutoregressiveAnimationPipeline(DiffusionPipeline):
         # video = self.vae.decode(latents).sample
         video = []
         for frame_idx in tqdm(range(latents.shape[0]), **self._progress_bar_config):
-            video.append(self.vae.decode(latents[frame_idx:frame_idx+1]).sample)
+            video.append(self.vae.decode(latents[frame_idx:frame_idx + 1]).sample)
         video = torch.cat(video)
         video = rearrange(video, "(b f) c h w -> b c f h w", f=video_length)
 
@@ -330,15 +325,17 @@ class AutoregressiveAnimationPipeline(DiffusionPipeline):
             raise ValueError(f"`height` and `width` have to be divisible by 8 but are {height} and {width}.")
 
         if (callback_steps is None) or (
-            callback_steps is not None and (not isinstance(callback_steps, int) or callback_steps <= 0)
+                callback_steps is not None and (not isinstance(callback_steps, int) or callback_steps <= 0)
         ):
             raise ValueError(
                 f"`callback_steps` has to be a positive integer but is {callback_steps} of type"
                 f" {type(callback_steps)}."
             )
 
-    def prepare_latents(self, batch_size, num_channels_latents, video_length, height, width, dtype, device, generator, latents=None, noise_sampling_method="vanilla", noise_alpha=1.0):
-        shape = (batch_size, num_channels_latents, video_length, height // self.vae_scale_factor, width // self.vae_scale_factor)
+    def prepare_latents(self, batch_size, num_channels_latents, video_length, height, width, dtype, device, generator,
+                        latents=None, noise_sampling_method="vanilla", noise_alpha=1.0):
+        shape = (
+        batch_size, num_channels_latents, video_length, height // self.vae_scale_factor, width // self.vae_scale_factor)
         if isinstance(generator, list) and len(generator) != batch_size:
             raise ValueError(
                 f"You have passed a list of generators of length {len(generator)}, but requested an effective batch"
@@ -356,21 +353,27 @@ class AutoregressiveAnimationPipeline(DiffusionPipeline):
                         for i in range(batch_size)
                     ]
                 elif noise_sampling_method == "pyoco_mixed":
-                    base_shape = (batch_size, num_channels_latents, 1, height // self.vae_scale_factor, width // self.vae_scale_factor)
+                    base_shape = (batch_size, num_channels_latents, 1, height // self.vae_scale_factor,
+                                  width // self.vae_scale_factor)
                     latents = []
                     noise_alpha_squared = noise_alpha ** 2
                     for i in range(batch_size):
-                        base_latent = torch.randn(base_shape, generator=generator[i], device=rand_device, dtype=dtype) * math.sqrt((noise_alpha_squared) / (1 + noise_alpha_squared))
-                        ind_latent = torch.randn(shape, generator=generator[i], device=rand_device, dtype=dtype) * math.sqrt(1 / (1 + noise_alpha_squared))
+                        base_latent = torch.randn(base_shape, generator=generator[i], device=rand_device,
+                                                  dtype=dtype) * math.sqrt(
+                            (noise_alpha_squared) / (1 + noise_alpha_squared))
+                        ind_latent = torch.randn(shape, generator=generator[i], device=rand_device,
+                                                 dtype=dtype) * math.sqrt(1 / (1 + noise_alpha_squared))
                         latents.append(base_latent + ind_latent)
                 elif noise_sampling_method == "pyoco_progressive":
                     latents = []
                     noise_alpha_squared = noise_alpha ** 2
                     for i in range(batch_size):
                         latent = torch.randn(shape, generator=generator[i], device=rand_device, dtype=dtype)
-                        ind_latent = torch.randn(shape, generator=generator[i], device=rand_device, dtype=dtype) * math.sqrt(1 / (1 + noise_alpha_squared))
+                        ind_latent = torch.randn(shape, generator=generator[i], device=rand_device,
+                                                 dtype=dtype) * math.sqrt(1 / (1 + noise_alpha_squared))
                         for j in range(1, video_length):
-                            latent[:, :, j, :, :] = latent[:, :, j - 1, :, :] * math.sqrt((noise_alpha_squared) / (1 + noise_alpha_squared)) + ind_latent[:, :, j, :, :]
+                            latent[:, :, j, :, :] = latent[:, :, j - 1, :, :] * math.sqrt(
+                                (noise_alpha_squared) / (1 + noise_alpha_squared)) + ind_latent[:, :, j, :, :]
                         latents.append(latent)
                 latents = torch.cat(latents, dim=0).to(device)
             else:
@@ -378,16 +381,22 @@ class AutoregressiveAnimationPipeline(DiffusionPipeline):
                     latents = torch.randn(shape, generator=generator, device=rand_device, dtype=dtype).to(device)
                 elif noise_sampling_method == "pyoco_mixed":
                     noise_alpha_squared = noise_alpha ** 2
-                    base_shape = (batch_size, num_channels_latents, 1, height // self.vae_scale_factor, width // self.vae_scale_factor)
-                    base_latents = torch.randn(base_shape, generator=generator, device=rand_device, dtype=dtype) * math.sqrt((noise_alpha_squared) / (1 + noise_alpha_squared))
-                    ind_latents = torch.randn(shape, generator=generator, device=rand_device, dtype=dtype) * math.sqrt(1 / (1 + noise_alpha_squared))
+                    base_shape = (batch_size, num_channels_latents, 1, height // self.vae_scale_factor,
+                                  width // self.vae_scale_factor)
+                    base_latents = torch.randn(base_shape, generator=generator, device=rand_device,
+                                               dtype=dtype) * math.sqrt(
+                        (noise_alpha_squared) / (1 + noise_alpha_squared))
+                    ind_latents = torch.randn(shape, generator=generator, device=rand_device, dtype=dtype) * math.sqrt(
+                        1 / (1 + noise_alpha_squared))
                     latents = base_latents + ind_latents
                 elif noise_sampling_method == "pyoco_progressive":
                     noise_alpha_squared = noise_alpha ** 2
                     latents = torch.randn(shape, generator=generator, device=rand_device, dtype=dtype)
-                    ind_latents = torch.randn(shape, generator=generator, device=rand_device, dtype=dtype) * math.sqrt(1 / (1 + noise_alpha_squared))
+                    ind_latents = torch.randn(shape, generator=generator, device=rand_device, dtype=dtype) * math.sqrt(
+                        1 / (1 + noise_alpha_squared))
                     for j in range(1, video_length):
-                        latents[:, :, j, :, :] = latents[:, :, j - 1, :, :] * math.sqrt((noise_alpha_squared) / (1 + noise_alpha_squared)) + ind_latents[:, :, j, :, :]
+                        latents[:, :, j, :, :] = latents[:, :, j - 1, :, :] * math.sqrt(
+                            (noise_alpha_squared) / (1 + noise_alpha_squared)) + ind_latents[:, :, j, :, :]
         else:
             if latents.shape != shape:
                 raise ValueError(f"Unexpected latents shape, got {latents.shape}, expected {shape}")
@@ -399,34 +408,34 @@ class AutoregressiveAnimationPipeline(DiffusionPipeline):
 
     @torch.no_grad()
     def __call__(
-        self,
-        prompt: Union[str, List[str]],
-        video_length: Optional[int],
-        height: Optional[int] = None,
-        width: Optional[int] = None,
-        num_inference_steps: int = 50,
-        guidance_scale_txt: float = 7.5,
-        guidance_scale_img: float = 2.0,
-        negative_prompt: Optional[Union[str, List[str]]] = None,
-        num_videos_per_prompt: Optional[int] = 1,
-        eta: float = 0.0,
-        generator: Optional[Union[torch.Generator, List[torch.Generator]]] = None,
-        latents: Optional[torch.FloatTensor] = None,
-        output_type: Optional[str] = "tensor",
-        return_dict: bool = True,
-        callback: Optional[Callable[[int, int, torch.FloatTensor], None]] = None,
-        callback_steps: Optional[int] = 1,
-        # additional
-        first_frame_paths: Optional[Union[str, List[str]]] = None,
-        first_frames: Optional[torch.FloatTensor] = None,
-        noise_sampling_method: str = "vanilla",
-        noise_alpha: float = 1.0,
-        guidance_rescale: float = 0.0,
-        frame_stride: Optional[int] = None,
-        autoregress_steps: int = 3,
-        use_frameinit: bool = False,
-        frameinit_noise_level: int = 999,
-        **kwargs,
+            self,
+            prompt: Union[str, List[str]],
+            video_length: Optional[int],
+            height: Optional[int] = None,
+            width: Optional[int] = None,
+            num_inference_steps: int = 50,
+            guidance_scale_txt: float = 7.5,
+            guidance_scale_img: float = 2.0,
+            negative_prompt: Optional[Union[str, List[str]]] = None,
+            num_videos_per_prompt: Optional[int] = 1,
+            eta: float = 0.0,
+            generator: Optional[Union[torch.Generator, List[torch.Generator]]] = None,
+            latents: Optional[torch.FloatTensor] = None,
+            output_type: Optional[str] = "tensor",
+            return_dict: bool = True,
+            callback: Optional[Callable[[int, int, torch.FloatTensor], None]] = None,
+            callback_steps: Optional[int] = 1,
+            # additional
+            first_frame_paths: Optional[Union[str, List[str]]] = None,
+            first_frames: Optional[torch.FloatTensor] = None,
+            noise_sampling_method: str = "vanilla",
+            noise_alpha: float = 1.0,
+            guidance_rescale: float = 0.0,
+            frame_stride: Optional[int] = None,
+            autoregress_steps: int = 3,
+            use_frameinit: bool = False,
+            frameinit_noise_level: int = 999,
+            **kwargs,
     ):
         if first_frame_paths is not None and first_frames is not None:
             raise ValueError("Only one of `first_frame_paths` and `first_frames` can be passed.")
@@ -462,7 +471,7 @@ class AutoregressiveAnimationPipeline(DiffusionPipeline):
         # Encode input prompt
         prompt = prompt if isinstance(prompt, list) else [prompt] * batch_size
         if negative_prompt is not None:
-            negative_prompt = negative_prompt if isinstance(negative_prompt, list) else [negative_prompt] * batch_size 
+            negative_prompt = negative_prompt if isinstance(negative_prompt, list) else [negative_prompt] * batch_size
         text_embeddings = self._encode_prompt(
             prompt, device, num_videos_per_prompt, do_classifier_free_guidance, negative_prompt
         )
@@ -470,7 +479,8 @@ class AutoregressiveAnimationPipeline(DiffusionPipeline):
         # Encode input first frame
         first_frame_latents = None
         if first_frame_paths is not None:
-            first_frame_paths = first_frame_paths if isinstance(first_frame_paths, list) else [first_frame_paths] * batch_size
+            first_frame_paths = first_frame_paths if isinstance(first_frame_paths, list) else [
+                                                                                                  first_frame_paths] * batch_size
             img_transform = T.Compose([
                 T.ToTensor(),
                 T.Resize(height, antialias=None),
@@ -487,11 +497,14 @@ class AutoregressiveAnimationPipeline(DiffusionPipeline):
             first_frames = first_frames.to(device, dtype=self.vae.dtype)
             first_frame_latents = self.vae.encode(first_frames).latent_dist
             first_frame_latents = first_frame_latents.sample()
-            first_frame_latents = first_frame_latents * self.vae.config.scaling_factor # b, c, h, w
+            first_frame_latents = first_frame_latents * self.vae.config.scaling_factor  # b, c, h, w
             first_frame_latents = repeat(first_frame_latents, "b c h w -> (b n) c h w", n=num_videos_per_prompt)
             first_frames = repeat(first_frames, "b c h w -> (b n) c h w", n=num_videos_per_prompt)
 
-        full_video_latent = torch.zeros(batch_size * num_videos_per_prompt, self.unet.config.in_channels, video_length * autoregress_steps - autoregress_steps + 1, height // self.vae_scale_factor, width // self.vae_scale_factor, device=device, dtype=self.vae.dtype)
+        full_video_latent = torch.zeros(batch_size * num_videos_per_prompt, self.unet.config.in_channels,
+                                        video_length * autoregress_steps - autoregress_steps + 1,
+                                        height // self.vae_scale_factor, width // self.vae_scale_factor, device=device,
+                                        dtype=self.vae.dtype)
 
         start_idx = 0
         for ar_step in range(autoregress_steps):
@@ -515,20 +528,20 @@ class AutoregressiveAnimationPipeline(DiffusionPipeline):
                 noise_alpha,
             )
             latents_dtype = latents.dtype
-            
+
             if use_frameinit:
-                current_diffuse_timestep = frameinit_noise_level # diffuse to noise level
-                diffuse_timesteps = torch.full((batch_size,),int(current_diffuse_timestep))
+                current_diffuse_timestep = frameinit_noise_level  # diffuse to noise level
+                diffuse_timesteps = torch.full((batch_size,), int(current_diffuse_timestep))
                 diffuse_timesteps = diffuse_timesteps.long()
                 first_frames_static_vid = repeat(first_frame_latents, "b c h w -> b c t h w", t=video_length)
                 z_T = self.scheduler.add_noise(
-                    original_samples=first_frames_static_vid.to(device), 
-                    noise=latents.to(device), 
+                    original_samples=first_frames_static_vid.to(device),
+                    noise=latents.to(device),
                     timesteps=diffuse_timesteps.to(device)
                 )
                 latents = freq_mix_3d(z_T.to(dtype=torch.float32), latents, LPF=self.freq_filter)
                 latents = latents.to(dtype=latents_dtype)
-            
+
             if first_frame_latents is not None:
                 first_frame_noisy_latent = latents[:, :, 0, :, :]
                 latents = latents[:, :, 1:, :, :]
@@ -554,14 +567,18 @@ class AutoregressiveAnimationPipeline(DiffusionPipeline):
                         elif do_classifier_free_guidance == "text":
                             first_frame_latents_input = torch.cat([first_frame_latents] * 2)
                         elif do_classifier_free_guidance == "both":
-                            first_frame_latents_input = torch.cat([first_frame_noisy_latent, first_frame_latents, first_frame_latents])
+                            first_frame_latents_input = torch.cat(
+                                [first_frame_noisy_latent, first_frame_latents, first_frame_latents])
 
                         first_frame_latents_input = first_frame_latents_input.unsqueeze(2)
 
                         # predict the noise residual
-                        noise_pred = self.unet(latent_model_input, t, encoder_hidden_states=text_embeddings, first_frame_latents=first_frame_latents_input, frame_stride=frame_stride).sample.to(dtype=latents_dtype)
+                        noise_pred = self.unet(latent_model_input, t, encoder_hidden_states=text_embeddings,
+                                               first_frame_latents=first_frame_latents_input,
+                                               frame_stride=frame_stride).sample.to(dtype=latents_dtype)
                     else:
-                        noise_pred = self.unet(latent_model_input, t, encoder_hidden_states=text_embeddings).sample.to(dtype=latents_dtype)
+                        noise_pred = self.unet(latent_model_input, t, encoder_hidden_states=text_embeddings).sample.to(
+                            dtype=latents_dtype)
                     # noise_pred = []
                     # import pdb
                     # pdb.set_trace()
@@ -577,8 +594,10 @@ class AutoregressiveAnimationPipeline(DiffusionPipeline):
                             noise_pred = noise_pred_uncond + guidance_scale_txt * (noise_pred_text - noise_pred_uncond)
                         elif do_classifier_free_guidance == "both":
                             noise_pred_uncond, noise_pred_img, noise_pred_both = noise_pred.chunk(3)
-                            noise_pred = noise_pred_uncond + guidance_scale_img * (noise_pred_img - noise_pred_uncond) + guidance_scale_txt * (noise_pred_both - noise_pred_img)
-                    
+                            noise_pred = noise_pred_uncond + guidance_scale_img * (
+                                        noise_pred_img - noise_pred_uncond) + guidance_scale_txt * (
+                                                     noise_pred_both - noise_pred_img)
+
                     if do_classifier_free_guidance and guidance_rescale > 0.0:
                         # Based on 3.4. in https://arxiv.org/pdf/2305.08891.pdf
                         # currently only support text guidance
@@ -594,7 +613,7 @@ class AutoregressiveAnimationPipeline(DiffusionPipeline):
                             callback(i, t, latents)
 
             # Post-processing
-            
+
             latents = torch.cat([first_frame_latents.unsqueeze(2), latents], dim=2)
             first_frame_latents = latents[:, :, -1, :, :]
             full_video_latent[:, :, start_idx:start_idx + video_length, :, :] = latents

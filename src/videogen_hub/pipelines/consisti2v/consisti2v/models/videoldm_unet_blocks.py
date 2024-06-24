@@ -40,39 +40,39 @@ else:
 
 
 def get_down_block(
-    down_block_type,
-    num_layers,
-    in_channels,
-    out_channels,
-    temb_channels,
-    add_downsample,
-    resnet_eps,
-    resnet_act_fn,
-    transformer_layers_per_block=1,
-    num_attention_heads=None,
-    resnet_groups=None,
-    cross_attention_dim=None,
-    downsample_padding=None,
-    dual_cross_attention=False,
-    use_linear_projection=False,
-    only_cross_attention=False,
-    upcast_attention=False,
-    resnet_time_scale_shift="default",
-    attention_type="default",
-    resnet_skip_time_act=False,
-    resnet_out_scale_factor=1.0,
-    cross_attention_norm=None,
-    attention_head_dim=None,
-    downsample_type=None,
-    dropout=0.0,
-    # additional
-    use_temporal=True,
-    augment_temporal_attention=False,
-    n_frames=8,
-    n_temp_heads=8,
-    first_frame_condition_mode="none",
-    latent_channels=4,
-    rotary_emb=False,
+        down_block_type,
+        num_layers,
+        in_channels,
+        out_channels,
+        temb_channels,
+        add_downsample,
+        resnet_eps,
+        resnet_act_fn,
+        transformer_layers_per_block=1,
+        num_attention_heads=None,
+        resnet_groups=None,
+        cross_attention_dim=None,
+        downsample_padding=None,
+        dual_cross_attention=False,
+        use_linear_projection=False,
+        only_cross_attention=False,
+        upcast_attention=False,
+        resnet_time_scale_shift="default",
+        attention_type="default",
+        resnet_skip_time_act=False,
+        resnet_out_scale_factor=1.0,
+        cross_attention_norm=None,
+        attention_head_dim=None,
+        downsample_type=None,
+        dropout=0.0,
+        # additional
+        use_temporal=True,
+        augment_temporal_attention=False,
+        n_frames=8,
+        n_temp_heads=8,
+        first_frame_condition_mode="none",
+        latent_channels=4,
+        rotary_emb=False,
 ):
     # If attn head dim is not defined, we default it to the number of heads
     if attention_head_dim is None:
@@ -80,7 +80,7 @@ def get_down_block(
             f"It is recommended to provide `attention_head_dim` when calling `get_down_block`. Defaulting `attention_head_dim` to {num_attention_heads}."
         )
         attention_head_dim = num_attention_heads
-        
+
     down_block_type = down_block_type[7:] if down_block_type.startswith("UNetRes") else down_block_type
     if down_block_type == "DownBlock2D":
         return VideoLDMDownBlock(
@@ -136,39 +136,39 @@ def get_down_block(
 
 
 def get_up_block(
-    up_block_type,
-    num_layers,
-    in_channels,
-    out_channels,
-    prev_output_channel,
-    temb_channels,
-    add_upsample,
-    resnet_eps,
-    resnet_act_fn,
-    transformer_layers_per_block=1,
-    num_attention_heads=None,
-    resnet_groups=None,
-    cross_attention_dim=None,
-    dual_cross_attention=False,
-    use_linear_projection=False,
-    only_cross_attention=False,
-    upcast_attention=False,
-    resnet_time_scale_shift="default",
-    attention_type="default",
-    resnet_skip_time_act=False,
-    resnet_out_scale_factor=1.0,
-    cross_attention_norm=None,
-    attention_head_dim=None,
-    upsample_type=None,
-    dropout=0.0,
-    # additional
-    use_temporal=True,
-    augment_temporal_attention=False,
-    n_frames=8,
-    n_temp_heads=8,
-    first_frame_condition_mode="none",
-    latent_channels=4,
-    rotary_emb=None,
+        up_block_type,
+        num_layers,
+        in_channels,
+        out_channels,
+        prev_output_channel,
+        temb_channels,
+        add_upsample,
+        resnet_eps,
+        resnet_act_fn,
+        transformer_layers_per_block=1,
+        num_attention_heads=None,
+        resnet_groups=None,
+        cross_attention_dim=None,
+        dual_cross_attention=False,
+        use_linear_projection=False,
+        only_cross_attention=False,
+        upcast_attention=False,
+        resnet_time_scale_shift="default",
+        attention_type="default",
+        resnet_skip_time_act=False,
+        resnet_out_scale_factor=1.0,
+        cross_attention_norm=None,
+        attention_head_dim=None,
+        upsample_type=None,
+        dropout=0.0,
+        # additional
+        use_temporal=True,
+        augment_temporal_attention=False,
+        n_frames=8,
+        n_temp_heads=8,
+        first_frame_condition_mode="none",
+        latent_channels=4,
+        rotary_emb=None,
 ):
     if attention_head_dim is None:
         logger.warn(
@@ -232,21 +232,21 @@ def get_up_block(
 
 class TemporalResnetBlock(nn.Module):
     def __init__(
-        self,
-        *,
-        in_channels,
-        out_channels=None,
-        dropout=0.0,
-        temb_channels=512,
-        groups=32,
-        groups_out=None,
-        pre_norm=True,
-        eps=1e-6,
-        non_linearity="swish",
-        time_embedding_norm="default",
-        output_scale_factor=1.0,
-        # additional
-        n_frames=8,
+            self,
+            *,
+            in_channels,
+            out_channels=None,
+            dropout=0.0,
+            temb_channels=512,
+            groups=32,
+            groups_out=None,
+            pre_norm=True,
+            eps=1e-6,
+            non_linearity="swish",
+            time_embedding_norm="default",
+            output_scale_factor=1.0,
+            # additional
+            n_frames=8,
     ):
         super().__init__()
         self.pre_norm = pre_norm
@@ -350,36 +350,36 @@ class IdentityLayer(nn.Identity):
 
 class VideoLDMCrossAttnDownBlock(nn.Module):
     def __init__(
-        self,
-        in_channels: int,
-        out_channels: int,
-        temb_channels: int,
-        dropout: float = 0.0,
-        num_layers: int = 1,
-        transformer_layers_per_block: int = 1,
-        resnet_eps: float = 1e-6,
-        resnet_time_scale_shift: str = "default",
-        resnet_act_fn: str = "swish",
-        resnet_groups: int = 32,
-        resnet_pre_norm: bool = True,
-        num_attention_heads=1,
-        cross_attention_dim=1280,
-        output_scale_factor=1.0,
-        downsample_padding=1,
-        add_downsample=True,
-        dual_cross_attention=False,
-        use_linear_projection=False,
-        only_cross_attention=False,
-        upcast_attention=False,
-        attention_type="default",
-        # additional
-        use_temporal=True,
-        augment_temporal_attention=False,
-        n_frames=8,
-        n_temp_heads=8,
-        first_frame_condition_mode="none",
-        latent_channels=4,
-        rotary_emb=False,
+            self,
+            in_channels: int,
+            out_channels: int,
+            temb_channels: int,
+            dropout: float = 0.0,
+            num_layers: int = 1,
+            transformer_layers_per_block: int = 1,
+            resnet_eps: float = 1e-6,
+            resnet_time_scale_shift: str = "default",
+            resnet_act_fn: str = "swish",
+            resnet_groups: int = 32,
+            resnet_pre_norm: bool = True,
+            num_attention_heads=1,
+            cross_attention_dim=1280,
+            output_scale_factor=1.0,
+            downsample_padding=1,
+            add_downsample=True,
+            dual_cross_attention=False,
+            use_linear_projection=False,
+            only_cross_attention=False,
+            upcast_attention=False,
+            attention_type="default",
+            # additional
+            use_temporal=True,
+            augment_temporal_attention=False,
+            n_frames=8,
+            n_temp_heads=8,
+            first_frame_condition_mode="none",
+            latent_channels=4,
+            rotary_emb=False,
     ):
         super().__init__()
 
@@ -501,24 +501,26 @@ class VideoLDMCrossAttnDownBlock(nn.Module):
         # <<< Temporal Layers <<<
 
     def forward(
-        self,
-        hidden_states: torch.FloatTensor,
-        temb: Optional[torch.FloatTensor] = None,
-        encoder_hidden_states: Optional[torch.FloatTensor] = None,
-        attention_mask: Optional[torch.FloatTensor] = None,
-        cross_attention_kwargs: Optional[Dict[str, Any]] = None,
-        encoder_attention_mask: Optional[torch.FloatTensor] = None,
-        # additional
-        first_frame_latents=None,
+            self,
+            hidden_states: torch.FloatTensor,
+            temb: Optional[torch.FloatTensor] = None,
+            encoder_hidden_states: Optional[torch.FloatTensor] = None,
+            attention_mask: Optional[torch.FloatTensor] = None,
+            cross_attention_kwargs: Optional[Dict[str, Any]] = None,
+            encoder_attention_mask: Optional[torch.FloatTensor] = None,
+            # additional
+            first_frame_latents=None,
     ):
-        condition_on_first_frame = (self.first_frame_condition_mode != "none" and self.first_frame_condition_mode != "input_only")
+        condition_on_first_frame = (
+                    self.first_frame_condition_mode != "none" and self.first_frame_condition_mode != "input_only")
         # input shape: hidden_states = (b f) c h w, first_frame_latents = b c 1 h w
         if self.first_frame_condition_mode == "conv2d":
             hidden_states = rearrange(hidden_states, '(b t) c h w -> b c t h w', t=self.n_frames)
             hidden_height = hidden_states.shape[3]
             first_frame_height = first_frame_latents.shape[3]
             downsample_ratio = hidden_height / first_frame_height
-            first_frame_latents = F.interpolate(first_frame_latents.squeeze(2), scale_factor=downsample_ratio, mode="nearest")
+            first_frame_latents = F.interpolate(first_frame_latents.squeeze(2), scale_factor=downsample_ratio,
+                                                mode="nearest")
             first_frame_latents = self.first_frame_conv(first_frame_latents).unsqueeze(2)
             hidden_states[:, :, 0:1, :, :] = first_frame_latents
             hidden_states = rearrange(hidden_states, 'b c t h w -> (b t) c h w', t=self.n_frames)
@@ -526,7 +528,6 @@ class VideoLDMCrossAttnDownBlock(nn.Module):
         output_states = ()
 
         for resnet, conv3d, attn, tempo_attn in zip(self.resnets, self.conv3ds, self.attentions, self.tempo_attns):
-
             hidden_states = resnet(hidden_states, temb)
             hidden_states = conv3d(hidden_states)
             hidden_states = attn(
@@ -555,36 +556,36 @@ class VideoLDMCrossAttnDownBlock(nn.Module):
 
 class VideoLDMCrossAttnUpBlock(nn.Module):
     def __init__(
-        self,
-        in_channels: int,
-        out_channels: int,
-        prev_output_channel: int,
-        temb_channels: int,
-        dropout: float = 0.0,
-        num_layers: int = 1,
-        transformer_layers_per_block: int = 1,
-        resnet_eps: float = 1e-6,
-        resnet_time_scale_shift: str = "default",
-        resnet_act_fn: str = "swish",
-        resnet_groups: int = 32,
-        resnet_pre_norm: bool = True,
-        num_attention_heads=1,
-        cross_attention_dim=1280,
-        output_scale_factor=1.0,
-        add_upsample=True,
-        dual_cross_attention=False,
-        use_linear_projection=False,
-        only_cross_attention=False,
-        upcast_attention=False,
-        attention_type="default",
-        # additional
-        use_temporal=True,
-        augment_temporal_attention=False,
-        n_frames=8,
-        n_temp_heads=8,
-        first_frame_condition_mode="none",
-        latent_channels=4,
-        rotary_emb=False,
+            self,
+            in_channels: int,
+            out_channels: int,
+            prev_output_channel: int,
+            temb_channels: int,
+            dropout: float = 0.0,
+            num_layers: int = 1,
+            transformer_layers_per_block: int = 1,
+            resnet_eps: float = 1e-6,
+            resnet_time_scale_shift: str = "default",
+            resnet_act_fn: str = "swish",
+            resnet_groups: int = 32,
+            resnet_pre_norm: bool = True,
+            num_attention_heads=1,
+            cross_attention_dim=1280,
+            output_scale_factor=1.0,
+            add_upsample=True,
+            dual_cross_attention=False,
+            use_linear_projection=False,
+            only_cross_attention=False,
+            upcast_attention=False,
+            attention_type="default",
+            # additional
+            use_temporal=True,
+            augment_temporal_attention=False,
+            n_frames=8,
+            n_temp_heads=8,
+            first_frame_condition_mode="none",
+            latent_channels=4,
+            rotary_emb=False,
     ):
         super().__init__()
 
@@ -702,32 +703,33 @@ class VideoLDMCrossAttnUpBlock(nn.Module):
         # <<< Temporal Layers <<<
 
     def forward(
-        self,
-        hidden_states: torch.FloatTensor,
-        res_hidden_states_tuple: Tuple[torch.FloatTensor, ...],
-        temb: Optional[torch.FloatTensor] = None,
-        encoder_hidden_states: Optional[torch.FloatTensor] = None,
-        cross_attention_kwargs: Optional[Dict[str, Any]] = None,
-        upsample_size: Optional[int] = None,
-        attention_mask: Optional[torch.FloatTensor] = None,
-        encoder_attention_mask: Optional[torch.FloatTensor] = None,
-        # additional
-        first_frame_latents=None,
+            self,
+            hidden_states: torch.FloatTensor,
+            res_hidden_states_tuple: Tuple[torch.FloatTensor, ...],
+            temb: Optional[torch.FloatTensor] = None,
+            encoder_hidden_states: Optional[torch.FloatTensor] = None,
+            cross_attention_kwargs: Optional[Dict[str, Any]] = None,
+            upsample_size: Optional[int] = None,
+            attention_mask: Optional[torch.FloatTensor] = None,
+            encoder_attention_mask: Optional[torch.FloatTensor] = None,
+            # additional
+            first_frame_latents=None,
     ):
-        condition_on_first_frame = (self.first_frame_condition_mode != "none" and self.first_frame_condition_mode != "input_only")
+        condition_on_first_frame = (
+                    self.first_frame_condition_mode != "none" and self.first_frame_condition_mode != "input_only")
         # input shape: hidden_states = (b f) c h w, first_frame_latents = b c 1 h w
         if self.first_frame_condition_mode == "conv2d":
             hidden_states = rearrange(hidden_states, '(b t) c h w -> b c t h w', t=self.n_frames)
             hidden_height = hidden_states.shape[3]
             first_frame_height = first_frame_latents.shape[3]
             downsample_ratio = hidden_height / first_frame_height
-            first_frame_latents = F.interpolate(first_frame_latents.squeeze(2), scale_factor=downsample_ratio, mode="nearest")
+            first_frame_latents = F.interpolate(first_frame_latents.squeeze(2), scale_factor=downsample_ratio,
+                                                mode="nearest")
             first_frame_latents = self.first_frame_conv(first_frame_latents).unsqueeze(2)
             hidden_states[:, :, 0:1, :, :] = first_frame_latents
             hidden_states = rearrange(hidden_states, 'b c t h w -> (b t) c h w', t=self.n_frames)
 
         for resnet, conv3d, attn, tempo_attn in zip(self.resnets, self.conv3ds, self.attentions, self.tempo_attns):
-
             res_hidden_states = res_hidden_states_tuple[-1]
             res_hidden_states_tuple = res_hidden_states_tuple[:-1]
             hidden_states = torch.cat([hidden_states, res_hidden_states], dim=1)
@@ -751,33 +753,33 @@ class VideoLDMCrossAttnUpBlock(nn.Module):
             for upsampler in self.upsamplers:
                 hidden_states = upsampler(hidden_states, upsample_size)
         return hidden_states
-    
+
 
 class VideoLDMUNetMidBlock2DCrossAttn(nn.Module):
     def __init__(
-        self,
-        in_channels: int,
-        temb_channels: int,
-        dropout: float = 0.0,
-        num_layers: int = 1,
-        transformer_layers_per_block: int = 1,
-        resnet_eps: float = 1e-6,
-        resnet_time_scale_shift: str = "default",
-        resnet_act_fn: str = "swish",
-        resnet_groups: int = 32,
-        resnet_pre_norm: bool = True,
-        num_attention_heads=1,
-        output_scale_factor=1.0,
-        cross_attention_dim=1280,
-        dual_cross_attention=False,
-        use_linear_projection=False,
-        upcast_attention=False,
-        attention_type="default",
-        # additional
-        use_temporal=True,
-        n_frames: int = 8,
-        first_frame_condition_mode="none",
-        latent_channels=4,
+            self,
+            in_channels: int,
+            temb_channels: int,
+            dropout: float = 0.0,
+            num_layers: int = 1,
+            transformer_layers_per_block: int = 1,
+            resnet_eps: float = 1e-6,
+            resnet_time_scale_shift: str = "default",
+            resnet_act_fn: str = "swish",
+            resnet_groups: int = 32,
+            resnet_pre_norm: bool = True,
+            num_attention_heads=1,
+            output_scale_factor=1.0,
+            cross_attention_dim=1280,
+            dual_cross_attention=False,
+            use_linear_projection=False,
+            upcast_attention=False,
+            attention_type="default",
+            # additional
+            use_temporal=True,
+            n_frames: int = 8,
+            first_frame_condition_mode="none",
+            latent_channels=4,
     ):
         super().__init__()
 
@@ -880,24 +882,26 @@ class VideoLDMUNetMidBlock2DCrossAttn(nn.Module):
         self.gradient_checkpointing = False
 
     def forward(
-        self,
-        hidden_states: torch.FloatTensor,
-        temb: Optional[torch.FloatTensor] = None,
-        encoder_hidden_states: Optional[torch.FloatTensor] = None,
-        attention_mask: Optional[torch.FloatTensor] = None,
-        cross_attention_kwargs: Optional[Dict[str, Any]] = None,
-        encoder_attention_mask: Optional[torch.FloatTensor] = None,
-        # additional
-        first_frame_latents=None,
+            self,
+            hidden_states: torch.FloatTensor,
+            temb: Optional[torch.FloatTensor] = None,
+            encoder_hidden_states: Optional[torch.FloatTensor] = None,
+            attention_mask: Optional[torch.FloatTensor] = None,
+            cross_attention_kwargs: Optional[Dict[str, Any]] = None,
+            encoder_attention_mask: Optional[torch.FloatTensor] = None,
+            # additional
+            first_frame_latents=None,
     ) -> torch.FloatTensor:
-        condition_on_first_frame = (self.first_frame_condition_mode != "none" and self.first_frame_condition_mode != "input_only")
+        condition_on_first_frame = (
+                    self.first_frame_condition_mode != "none" and self.first_frame_condition_mode != "input_only")
         # input shape: hidden_states = (b f) c h w, first_frame_latents = b c 1 h w
         if self.first_frame_condition_mode == "conv2d":
             hidden_states = rearrange(hidden_states, '(b t) c h w -> b c t h w', t=self.n_frames)
             hidden_height = hidden_states.shape[3]
             first_frame_height = first_frame_latents.shape[3]
             downsample_ratio = hidden_height / first_frame_height
-            first_frame_latents = F.interpolate(first_frame_latents.squeeze(2), scale_factor=downsample_ratio, mode="nearest")
+            first_frame_latents = F.interpolate(first_frame_latents.squeeze(2), scale_factor=downsample_ratio,
+                                                mode="nearest")
             first_frame_latents = self.first_frame_conv(first_frame_latents).unsqueeze(2)
             hidden_states[:, :, 0:1, :, :] = first_frame_latents
             hidden_states = rearrange(hidden_states, 'b c t h w -> (b t) c h w', t=self.n_frames)
@@ -954,25 +958,25 @@ class VideoLDMUNetMidBlock2DCrossAttn(nn.Module):
 
 class VideoLDMDownBlock(DownBlock2D):
     def __init__(
-        self,
-        in_channels: int,
-        out_channels: int,
-        temb_channels: int,
-        dropout: float = 0.0,
-        num_layers: int = 1,
-        resnet_eps: float = 1e-6,
-        resnet_time_scale_shift: str = "default",
-        resnet_act_fn: str = "swish",
-        resnet_groups: int = 32,
-        resnet_pre_norm: bool = True,
-        output_scale_factor=1.0,
-        add_downsample=True,
-        downsample_padding=1,
-        # additional
-        use_temporal=True,
-        n_frames: int = 8,
-        first_frame_condition_mode="none",
-        latent_channels=4,
+            self,
+            in_channels: int,
+            out_channels: int,
+            temb_channels: int,
+            dropout: float = 0.0,
+            num_layers: int = 1,
+            resnet_eps: float = 1e-6,
+            resnet_time_scale_shift: str = "default",
+            resnet_act_fn: str = "swish",
+            resnet_groups: int = 32,
+            resnet_pre_norm: bool = True,
+            output_scale_factor=1.0,
+            add_downsample=True,
+            downsample_padding=1,
+            # additional
+            use_temporal=True,
+            n_frames: int = 8,
+            first_frame_condition_mode="none",
+            latent_channels=4,
     ):
         super().__init__(
             in_channels,
@@ -987,7 +991,7 @@ class VideoLDMDownBlock(DownBlock2D):
             resnet_pre_norm,
             output_scale_factor,
             add_downsample,
-            downsample_padding,)
+            downsample_padding, )
 
         self.use_temporal = use_temporal
 
@@ -1019,7 +1023,8 @@ class VideoLDMDownBlock(DownBlock2D):
             hidden_height = hidden_states.shape[3]
             first_frame_height = first_frame_latents.shape[3]
             downsample_ratio = hidden_height / first_frame_height
-            first_frame_latents = F.interpolate(first_frame_latents.squeeze(2), scale_factor=downsample_ratio, mode="nearest")
+            first_frame_latents = F.interpolate(first_frame_latents.squeeze(2), scale_factor=downsample_ratio,
+                                                mode="nearest")
             first_frame_latents = self.first_frame_conv(first_frame_latents).unsqueeze(2)
             hidden_states[:, :, 0:1, :, :] = first_frame_latents
             hidden_states = rearrange(hidden_states, 'b c t h w -> (b t) c h w', t=self.n_frames)
@@ -1057,29 +1062,29 @@ class VideoLDMDownBlock(DownBlock2D):
             output_states = output_states + (hidden_states,)
 
         return hidden_states, output_states
-    
+
 
 class VideoLDMUpBlock(UpBlock2D):
     def __init__(
-        self,
-        in_channels: int,
-        prev_output_channel: int,
-        out_channels: int,
-        temb_channels: int,
-        dropout: float = 0.0,
-        num_layers: int = 1,
-        resnet_eps: float = 1e-6,
-        resnet_time_scale_shift: str = "default",
-        resnet_act_fn: str = "swish",
-        resnet_groups: int = 32,
-        resnet_pre_norm: bool = True,
-        output_scale_factor=1.0,
-        add_upsample=True,
-        # additional
-        use_temporal=True,
-        n_frames: int = 8,
-        first_frame_condition_mode="none",
-        latent_channels=4,
+            self,
+            in_channels: int,
+            prev_output_channel: int,
+            out_channels: int,
+            temb_channels: int,
+            dropout: float = 0.0,
+            num_layers: int = 1,
+            resnet_eps: float = 1e-6,
+            resnet_time_scale_shift: str = "default",
+            resnet_act_fn: str = "swish",
+            resnet_groups: int = 32,
+            resnet_pre_norm: bool = True,
+            output_scale_factor=1.0,
+            add_upsample=True,
+            # additional
+            use_temporal=True,
+            n_frames: int = 8,
+            first_frame_condition_mode="none",
+            latent_channels=4,
     ):
         super().__init__(
             in_channels,
@@ -1121,14 +1126,16 @@ class VideoLDMUpBlock(UpBlock2D):
         self.conv3ds = nn.ModuleList(conv3ds)
         # <<< Temporal Layers <<<
 
-    def forward(self, hidden_states, res_hidden_states_tuple, temb=None, upsample_size=None, scale: float = 1, first_frame_latents=None):
+    def forward(self, hidden_states, res_hidden_states_tuple, temb=None, upsample_size=None, scale: float = 1,
+                first_frame_latents=None):
         # input shape: hidden_states = (b f) c h w, first_frame_latents = b c 1 h w
         if self.first_frame_condition_mode == "conv2d":
             hidden_states = rearrange(hidden_states, '(b t) c h w -> b c t h w', t=self.n_frames)
             hidden_height = hidden_states.shape[3]
             first_frame_height = first_frame_latents.shape[3]
             downsample_ratio = hidden_height / first_frame_height
-            first_frame_latents = F.interpolate(first_frame_latents.squeeze(2), scale_factor=downsample_ratio, mode="nearest")
+            first_frame_latents = F.interpolate(first_frame_latents.squeeze(2), scale_factor=downsample_ratio,
+                                                mode="nearest")
             first_frame_latents = self.first_frame_conv(first_frame_latents).unsqueeze(2)
             hidden_states[:, :, 0:1, :, :] = first_frame_latents
             hidden_states = rearrange(hidden_states, 'b c t h w -> (b t) c h w', t=self.n_frames)
@@ -1157,7 +1164,7 @@ class VideoLDMUpBlock(UpBlock2D):
                     )
             else:
                 hidden_states = resnet(hidden_states, temb, scale=scale)
-            
+
             hidden_states = conv3d(hidden_states)
 
         if self.upsamplers is not None:

@@ -4,8 +4,6 @@ from math import sqrt
 from typing import List
 
 import torch
-import torch.fft as fft
-from einops import rearrange
 from torch.nn import functional
 
 
@@ -52,7 +50,9 @@ def gaussian_smoothing_kernel(shape, kernel_size, sigma, dim=2):
     kernel = kernel / torch.sum(kernel)
 
     pad_length = (math.floor(
-        (shape[-1]-kernel_size[-1])/2), math.floor((shape[-1]-kernel_size[-1])/2), math.floor((shape[-2]-kernel_size[-2])/2), math.floor((shape[-2]-kernel_size[-2])/2), math.floor((shape[-3]-kernel_size[-3])/2), math.floor((shape[-3]-kernel_size[-3])/2))
+        (shape[-1] - kernel_size[-1]) / 2), math.floor((shape[-1] - kernel_size[-1]) / 2),
+                  math.floor((shape[-2] - kernel_size[-2]) / 2), math.floor((shape[-2] - kernel_size[-2]) / 2),
+                  math.floor((shape[-3] - kernel_size[-3]) / 2), math.floor((shape[-3] - kernel_size[-3]) / 2))
 
     kernel = functional.pad(kernel, pad_length)
     assert kernel.shape == shape[-3:]
@@ -83,7 +83,8 @@ def gaussian_smoothing_kernel(shape, kernel_size, sigma, dim=2):
 
 class NoiseGenerator():
 
-    def __init__(self, alpha: float = 0.0, shared_noise_across_chunks: bool = False, mode="vanilla", forward_steps: int = 850, radius: List[float] = None) -> None:
+    def __init__(self, alpha: float = 0.0, shared_noise_across_chunks: bool = False, mode="vanilla",
+                 forward_steps: int = 850, radius: List[float] = None) -> None:
         self.mode = mode
         self.alpha = alpha
         self.shared_noise_across_chunks = shared_noise_across_chunks
@@ -102,7 +103,7 @@ class NoiseGenerator():
 
     def sample_noise(self, z_0: torch.tensor = None, shape=None, device=None, dtype=None, generator=None, content=None):
         assert (z_0 is not None) != (
-            shape is not None), f"either z_0 must be None, or shape must be None. Both provided."
+                shape is not None), f"either z_0 must be None, or shape must be None. Both provided."
         kwargs = {}
         noise = torch.randn(shape, **kwargs)
 
@@ -136,20 +137,21 @@ class NoiseGenerator():
             std = torch.ones(
                 shape_per_frame, device=kwargs["device"], dtype=kwargs["dtype"])
             alpha = self.alpha
-            std_coeff_shared = (alpha**2) / (1 + alpha**2)
+            std_coeff_shared = (alpha ** 2) / (1 + alpha ** 2)
             if self.shared_noise_across_chunks and hasattr(self, "e_shared"):
                 e_shared = self.e_shared
             else:
                 e_shared = torch.normal(mean=zero_mean, std=sqrt(
-                    std_coeff_shared)*std, generator=kwargs["generator"] if "generator" in kwargs else None)
+                    std_coeff_shared) * std, generator=kwargs["generator"] if "generator" in kwargs else None)
                 if self.shared_noise_across_chunks:
                     self.e_shared = e_shared
 
             e_inds = []
             for frame in range(shape[frame_idx]):
-                std_coeff_ind = 1 / (1 + alpha**2)
+                std_coeff_ind = 1 / (1 + alpha ** 2)
                 e_ind = torch.normal(
-                    mean=zero_mean, std=sqrt(std_coeff_ind)*std, generator=kwargs["generator"] if "generator" in kwargs else None)
+                    mean=zero_mean, std=sqrt(std_coeff_ind) * std,
+                    generator=kwargs["generator"] if "generator" in kwargs else None)
                 e_inds.append(e_ind)
             noise = torch.cat(
                 [e_shared + e_ind for e_ind in e_inds], dim=frame_idx)

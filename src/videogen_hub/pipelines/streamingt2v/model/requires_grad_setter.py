@@ -1,4 +1,5 @@
-from typing import Union, Any, Dict, List, Optional, Tuple
+from typing import List, Tuple
+
 import pytorch_lightning as pl
 
 
@@ -28,7 +29,7 @@ class LayerConfig():
                         continue
                     else:
                         shift = len(selected_module)
-                        model_name_selection = model_name_selection[position+shift:]
+                        model_name_selection = model_name_selection[position + shift:]
                 if path_is_matching:
                     # if grad_mode:
                     # print(

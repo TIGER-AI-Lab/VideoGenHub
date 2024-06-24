@@ -95,12 +95,12 @@ class OpenSora:
         )
 
     def infer_one_video(
-        self,
-        prompt: str = None,
-        size: list = [320, 512],
-        seconds: int = 2,
-        fps: int = 8,
-        seed: int = 42,
+            self,
+            prompt: str = None,
+            size: list = [320, 512],
+            seconds: int = 2,
+            fps: int = 8,
+            seed: int = 42,
     ):
         """
         Generates a single video based on the provided prompt and parameters.
@@ -122,8 +122,8 @@ class OpenSora:
         self.config.prompt = [prompt]
         self.config.image_size = size
 
-        all_batch_samples = self.pipeline(self.config) 
-        
+        all_batch_samples = self.pipeline(self.config)
+
         sample = all_batch_samples[0][0]
         # sample is torch.Size([1, C, f, H, W])
 

@@ -43,7 +43,6 @@ ASPECT_RATIO_MAP = {
     "50:27": "2.08",
 }
 
-
 AR = [get_ar(ratio) for ratio in ASPECT_RATIO_MAP.keys()]
 
 # computed from above code

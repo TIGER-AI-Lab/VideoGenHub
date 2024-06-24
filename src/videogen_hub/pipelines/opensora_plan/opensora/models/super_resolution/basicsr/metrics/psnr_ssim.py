@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
 
-from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.metrics.metric_util import reorder_image, to_y_channel
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.metrics.metric_util import \
+    reorder_image, to_y_channel
 from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.registry import METRIC_REGISTRY
 
 
@@ -40,7 +41,7 @@ def calculate_psnr(img, img2, crop_border, input_order='HWC', test_y_channel=Fal
         img = to_y_channel(img)
         img2 = to_y_channel(img2)
 
-    mse = np.mean((img - img2)**2)
+    mse = np.mean((img - img2) ** 2)
     if mse == 0:
         return float('inf')
     return 20. * np.log10(255. / np.sqrt(mse))
@@ -59,8 +60,8 @@ def _ssim(img, img2):
         float: ssim result.
     """
 
-    c1 = (0.01 * 255)**2
-    c2 = (0.03 * 255)**2
+    c1 = (0.01 * 255) ** 2
+    c2 = (0.03 * 255) ** 2
 
     img = img.astype(np.float64)
     img2 = img2.astype(np.float64)
@@ -69,11 +70,11 @@ def _ssim(img, img2):
 
     mu1 = cv2.filter2D(img, -1, window)[5:-5, 5:-5]
     mu2 = cv2.filter2D(img2, -1, window)[5:-5, 5:-5]
-    mu1_sq = mu1**2
-    mu2_sq = mu2**2
+    mu1_sq = mu1 ** 2
+    mu2_sq = mu2 ** 2
     mu1_mu2 = mu1 * mu2
-    sigma1_sq = cv2.filter2D(img**2, -1, window)[5:-5, 5:-5] - mu1_sq
-    sigma2_sq = cv2.filter2D(img2**2, -1, window)[5:-5, 5:-5] - mu2_sq
+    sigma1_sq = cv2.filter2D(img ** 2, -1, window)[5:-5, 5:-5] - mu1_sq
+    sigma2_sq = cv2.filter2D(img2 ** 2, -1, window)[5:-5, 5:-5] - mu2_sq
     sigma12 = cv2.filter2D(img * img2, -1, window)[5:-5, 5:-5] - mu1_mu2
 
     ssim_map = ((2 * mu1_mu2 + c1) * (2 * sigma12 + c2)) / ((mu1_sq + mu2_sq + c1) * (sigma1_sq + sigma2_sq + c2))

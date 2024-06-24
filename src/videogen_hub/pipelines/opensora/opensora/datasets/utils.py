@@ -67,7 +67,7 @@ def temporal_random_crop(vframes, num_frames, frame_interval):
     total_frames = len(vframes)
     start_frame_ind, end_frame_ind = temporal_sample(total_frames)
     assert (
-        end_frame_ind - start_frame_ind >= num_frames
+            end_frame_ind - start_frame_ind >= num_frames
     ), f"Not enough frames to sample, {end_frame_ind} - {start_frame_ind} < {num_frames}"
     frame_indice = np.linspace(start_frame_ind, end_frame_ind - 1, num_frames, dtype=int)
     video = vframes[frame_indice]
@@ -195,7 +195,7 @@ def center_crop_arr(pil_image, image_size):
     arr = np.array(pil_image)
     crop_y = (arr.shape[0] - image_size) // 2
     crop_x = (arr.shape[1] - image_size) // 2
-    return Image.fromarray(arr[crop_y : crop_y + image_size, crop_x : crop_x + image_size])
+    return Image.fromarray(arr[crop_y: crop_y + image_size, crop_x: crop_x + image_size])
 
 
 def resize_crop_to_fill(pil_image, image_size):
@@ -214,4 +214,4 @@ def resize_crop_to_fill(pil_image, image_size):
         j = 0
     arr = np.array(image)
     assert i + th <= arr.shape[0] and j + tw <= arr.shape[1]
-    return Image.fromarray(arr[i : i + th, j : j + tw])
+    return Image.fromarray(arr[i: i + th, j: j + tw])

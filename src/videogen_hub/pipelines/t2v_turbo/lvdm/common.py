@@ -1,8 +1,9 @@
 import math
 from inspect import isfunction
+
 import torch
-from torch import nn
 import torch.distributed as dist
+from torch import nn
 
 
 def gather_data(data, return_np=True):
@@ -17,9 +18,9 @@ def gather_data(data, return_np=True):
 def autocast(f):
     def do_autocast(*args, **kwargs):
         with torch.cuda.amp.autocast(
-            enabled=True,
-            dtype=torch.get_autocast_gpu_dtype(),
-            cache_enabled=torch.is_autocast_cache_enabled(),
+                enabled=True,
+                dtype=torch.get_autocast_gpu_dtype(),
+                cache_enabled=torch.is_autocast_cache_enabled(),
         ):
             return f(*args, **kwargs)
 

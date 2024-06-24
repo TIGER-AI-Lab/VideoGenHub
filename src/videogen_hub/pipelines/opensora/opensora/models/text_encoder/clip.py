@@ -85,11 +85,11 @@ class ClipEncoder:
     """
 
     def __init__(
-        self,
-        from_pretrained,
-        model_max_length=77,
-        device="cuda",
-        dtype=torch.float,
+            self,
+            from_pretrained,
+            model_max_length=77,
+            device="cuda",
+            dtype=torch.float,
     ):
         super().__init__()
         assert from_pretrained is not None, "Please specify the path to the T5 model"

@@ -27,7 +27,8 @@ class LaVie:
         from omegaconf import OmegaConf
 
         snapshot_download(repo_id="Vchitect/LaVie", local_dir=model_path)
-        snapshot_download(repo_id="CompVis/stable-diffusion-v1-4", local_dir=os.path.join(model_path, "/stable-diffusion-v1-4"))
+        snapshot_download(repo_id="CompVis/stable-diffusion-v1-4",
+                          local_dir=os.path.join(model_path, "/stable-diffusion-v1-4"))
         snapshot_download(repo_id="stabilityai/stable-diffusion-x4-upscaler",
                           local_dir=os.path.join(model_path, "/stable-diffusion-x4-upscaler"))
 

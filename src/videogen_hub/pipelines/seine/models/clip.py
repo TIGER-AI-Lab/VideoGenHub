@@ -21,6 +21,7 @@ You can safely ignore the warning, it is not an error.
 This clip usage is from U-ViT and same with Stable Diffusion.
 """
 
+
 class AbstractEncoder(nn.Module):
     def __init__(self):
         super().__init__()
@@ -31,6 +32,7 @@ class AbstractEncoder(nn.Module):
 
 class FrozenCLIPEmbedder(AbstractEncoder):
     """Uses the CLIP transformer encoder for text (from Hugging Face)"""
+
     # def __init__(self, version="openai/clip-vit-huge-patch14", device="cuda", max_length=77):
     def __init__(self, path, device="cuda", max_length=77):
         super().__init__()
@@ -56,17 +58,18 @@ class FrozenCLIPEmbedder(AbstractEncoder):
 
     def encode(self, text):
         return self(text)
-    
+
 
 class TextEmbedder(nn.Module):
     """
     Embeds text prompt into vector representations. Also handles text dropout for classifier-free guidance.
     """
+
     def __init__(self, path, dropout_prob=0.1):
         super().__init__()
         self.text_encodder = FrozenCLIPEmbedder(path=path)
         self.dropout_prob = dropout_prob
-    
+
     def token_drop(self, text_prompts, force_drop_ids=None):
         """
         Drops text to enable classifier-free guidance.
@@ -86,10 +89,9 @@ class TextEmbedder(nn.Module):
             text_prompts = self.token_drop(text_prompts, force_drop_ids)
         embeddings = self.text_encodder(text_prompts)
         return embeddings
-    
+
 
 if __name__ == '__main__':
-
     r"""
     Returns:
 
@@ -115,7 +117,8 @@ if __name__ == '__main__':
     text_encoder = TextEmbedder(path='/mnt/petrelfs/maxin/work/pretrained/stable-diffusion-2-1-base',
                                 dropout_prob=0.00001).to(device)
 
-    text_prompt = [["a photo of a cat", "a photo of a cat"], ["a photo of a dog", "a photo of a cat"], ['a photo of a dog human', "a photo of a cat"]]
+    text_prompt = [["a photo of a cat", "a photo of a cat"], ["a photo of a dog", "a photo of a cat"],
+                   ['a photo of a dog human', "a photo of a cat"]]
     # text_prompt = ('None', 'None', 'None')
     output = text_encoder(text_prompts=text_prompt, train=False)
     # print(output)

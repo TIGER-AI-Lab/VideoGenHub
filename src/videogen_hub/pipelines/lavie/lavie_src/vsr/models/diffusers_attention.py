@@ -85,22 +85,22 @@ class Transformer2DModel(ModelMixin, ConfigMixin):
 
     @register_to_config
     def __init__(
-        self,
-        num_attention_heads: int = 16,
-        attention_head_dim: int = 88,
-        in_channels: Optional[int] = None,
-        num_layers: int = 1,
-        dropout: float = 0.0,
-        norm_num_groups: int = 32,
-        cross_attention_dim: Optional[int] = None,
-        attention_bias: bool = False,
-        sample_size: Optional[int] = None,
-        num_vector_embeds: Optional[int] = None,
-        activation_fn: str = "geglu",
-        num_embeds_ada_norm: Optional[int] = None,
-        use_linear_projection: bool = False,
-        only_cross_attention: bool = False,
-        upcast_attention: bool = False,
+            self,
+            num_attention_heads: int = 16,
+            attention_head_dim: int = 88,
+            in_channels: Optional[int] = None,
+            num_layers: int = 1,
+            dropout: float = 0.0,
+            norm_num_groups: int = 32,
+            cross_attention_dim: Optional[int] = None,
+            attention_bias: bool = False,
+            sample_size: Optional[int] = None,
+            num_vector_embeds: Optional[int] = None,
+            activation_fn: str = "geglu",
+            num_embeds_ada_norm: Optional[int] = None,
+            use_linear_projection: bool = False,
+            only_cross_attention: bool = False,
+            upcast_attention: bool = False,
     ):
         super().__init__()
         self.use_linear_projection = use_linear_projection
@@ -263,12 +263,12 @@ class AttentionBlock(nn.Module):
     # IMPORTANT;TODO(Patrick, William) - this class will be deprecated soon. Do not use it anymore
 
     def __init__(
-        self,
-        channels: int,
-        num_head_channels: Optional[int] = None,
-        norm_num_groups: int = 32,
-        rescale_output_factor: float = 1.0,
-        eps: float = 1e-5,
+            self,
+            channels: int,
+            num_head_channels: Optional[int] = None,
+            norm_num_groups: int = 32,
+            rescale_output_factor: float = 1.0,
+            eps: float = 1e-5,
     ):
         super().__init__()
         self.channels = channels
@@ -287,7 +287,8 @@ class AttentionBlock(nn.Module):
 
         self._use_memory_efficient_attention_xformers = False
 
-    def set_use_memory_efficient_attention_xformers(self, use_memory_efficient_attention_xformers: bool, attention_op: None):
+    def set_use_memory_efficient_attention_xformers(self, use_memory_efficient_attention_xformers: bool,
+                                                    attention_op: None):
         if not is_xformers_available():
             raise ModuleNotFoundError(
                 "Refer to https://github.com/facebookresearch/xformers for more information on how to install"
@@ -397,17 +398,17 @@ class BasicTransformerBlock(nn.Module):
     """
 
     def __init__(
-        self,
-        dim: int,
-        num_attention_heads: int,
-        attention_head_dim: int,
-        dropout=0.0,
-        cross_attention_dim: Optional[int] = None,
-        activation_fn: str = "geglu",
-        num_embeds_ada_norm: Optional[int] = None,
-        attention_bias: bool = False,
-        only_cross_attention: bool = False,
-        upcast_attention: bool = False,
+            self,
+            dim: int,
+            num_attention_heads: int,
+            attention_head_dim: int,
+            dropout=0.0,
+            cross_attention_dim: Optional[int] = None,
+            activation_fn: str = "geglu",
+            num_embeds_ada_norm: Optional[int] = None,
+            attention_bias: bool = False,
+            only_cross_attention: bool = False,
+            upcast_attention: bool = False,
     ):
         super().__init__()
         self.only_cross_attention = only_cross_attention
@@ -449,7 +450,8 @@ class BasicTransformerBlock(nn.Module):
         # 3. Feed-forward
         self.norm3 = nn.LayerNorm(dim)
 
-    def set_use_memory_efficient_attention_xformers(self, use_memory_efficient_attention_xformers: bool, attention_op: None):
+    def set_use_memory_efficient_attention_xformers(self, use_memory_efficient_attention_xformers: bool,
+                                                    attention_op: None):
         if not is_xformers_available():
             print("Here is how to install it")
             raise ModuleNotFoundError(
@@ -484,7 +486,7 @@ class BasicTransformerBlock(nn.Module):
 
         if self.only_cross_attention:
             hidden_states = (
-                self.attn1(norm_hidden_states, encoder_hidden_states, attention_mask=attention_mask) + hidden_states
+                    self.attn1(norm_hidden_states, encoder_hidden_states, attention_mask=attention_mask) + hidden_states
             )
         else:
             hidden_states = self.attn1(norm_hidden_states, attention_mask=attention_mask) + hidden_states
@@ -495,10 +497,10 @@ class BasicTransformerBlock(nn.Module):
                 self.norm2(hidden_states, timestep) if self.use_ada_layer_norm else self.norm2(hidden_states)
             )
             hidden_states = (
-                self.attn2(
-                    norm_hidden_states, encoder_hidden_states=encoder_hidden_states, attention_mask=attention_mask
-                )
-                + hidden_states
+                    self.attn2(
+                        norm_hidden_states, encoder_hidden_states=encoder_hidden_states, attention_mask=attention_mask
+                    )
+                    + hidden_states
             )
 
         # 3. Feed-forward
@@ -523,17 +525,17 @@ class CrossAttention(nn.Module):
     """
 
     def __init__(
-        self,
-        query_dim: int,
-        cross_attention_dim: Optional[int] = None,
-        heads: int = 8,
-        dim_head: int = 64,
-        dropout: float = 0.0,
-        bias=False,
-        upcast_attention: bool = False,
-        upcast_softmax: bool = False,
-        added_kv_proj_dim: Optional[int] = None,
-        norm_num_groups: Optional[int] = None,
+            self,
+            query_dim: int,
+            cross_attention_dim: Optional[int] = None,
+            heads: int = 8,
+            dim_head: int = 64,
+            dropout: float = 0.0,
+            bias=False,
+            upcast_attention: bool = False,
+            upcast_softmax: bool = False,
+            added_kv_proj_dim: Optional[int] = None,
+            norm_num_groups: Optional[int] = None,
     ):
         super().__init__()
         inner_dim = dim_head * heads
@@ -541,7 +543,7 @@ class CrossAttention(nn.Module):
         self.upcast_attention = upcast_attention
         self.upcast_softmax = upcast_softmax
 
-        self.scale = dim_head**-0.5
+        self.scale = dim_head ** -0.5
 
         self.heads = heads
         # for slice_size > 0 the attention score computation
@@ -742,12 +744,12 @@ class FeedForward(nn.Module):
     """
 
     def __init__(
-        self,
-        dim: int,
-        dim_out: Optional[int] = None,
-        mult: int = 4,
-        dropout: float = 0.0,
-        activation_fn: str = "geglu",
+            self,
+            dim: int,
+            dim_out: Optional[int] = None,
+            mult: int = 4,
+            dropout: float = 0.0,
+            activation_fn: str = "geglu",
     ):
         super().__init__()
         inner_dim = int(dim * mult)
@@ -883,19 +885,19 @@ class DualTransformer2DModel(nn.Module):
     """
 
     def __init__(
-        self,
-        num_attention_heads: int = 16,
-        attention_head_dim: int = 88,
-        in_channels: Optional[int] = None,
-        num_layers: int = 1,
-        dropout: float = 0.0,
-        norm_num_groups: int = 32,
-        cross_attention_dim: Optional[int] = None,
-        attention_bias: bool = False,
-        sample_size: Optional[int] = None,
-        num_vector_embeds: Optional[int] = None,
-        activation_fn: str = "geglu",
-        num_embeds_ada_norm: Optional[int] = None,
+            self,
+            num_attention_heads: int = 16,
+            attention_head_dim: int = 88,
+            in_channels: Optional[int] = None,
+            num_layers: int = 1,
+            dropout: float = 0.0,
+            norm_num_groups: int = 32,
+            cross_attention_dim: Optional[int] = None,
+            attention_bias: bool = False,
+            sample_size: Optional[int] = None,
+            num_vector_embeds: Optional[int] = None,
+            activation_fn: str = "geglu",
+            num_embeds_ada_norm: Optional[int] = None,
     ):
         super().__init__()
         self.transformers = nn.ModuleList(
@@ -932,7 +934,7 @@ class DualTransformer2DModel(nn.Module):
         self.transformer_index_for_condition = [1, 0]
 
     def forward(
-        self, hidden_states, encoder_hidden_states, timestep=None, attention_mask=None, return_dict: bool = True
+            self, hidden_states, encoder_hidden_states, timestep=None, attention_mask=None, return_dict: bool = True
     ):
         """
         Args:
@@ -961,7 +963,7 @@ class DualTransformer2DModel(nn.Module):
         # attention_mask is not used yet
         for i in range(2):
             # for each of the two transformers, pass the corresponding condition tokens
-            condition_state = encoder_hidden_states[:, tokens_start : tokens_start + self.condition_lengths[i]]
+            condition_state = encoder_hidden_states[:, tokens_start: tokens_start + self.condition_lengths[i]]
             transformer_index = self.transformer_index_for_condition[i]
             encoded_state = self.transformers[transformer_index](
                 input_states,

@@ -6,22 +6,18 @@ https://github.com/CompVis/taming-transformers
 -- merci
 """
 
-from functools import partial
-from contextlib import contextmanager
-import numpy as np
-from tqdm import tqdm
-from einops import rearrange, repeat
 import logging
+from contextlib import contextmanager
+from functools import partial
 
+import numpy as np
+import pytorch_lightning as pl
 import torch
 import torch.nn as nn
+from einops import rearrange, repeat
 from torchvision.utils import make_grid
-import pytorch_lightning as pl
-from videogen_hub.pipelines.dynamicrafter.utils import instantiate_from_config
-from videogen_hub.pipelines.dynamicrafter.lvdm.ema import LitEma
-from videogen_hub.pipelines.dynamicrafter.lvdm.distributions import DiagonalGaussianDistribution
-from videogen_hub.pipelines.dynamicrafter.lvdm.models.utils_diffusion import make_beta_schedule, \
-    rescale_zero_terminal_snr
+from tqdm import tqdm
+
 from videogen_hub.pipelines.dynamicrafter.lvdm.basics import disabled_train
 from videogen_hub.pipelines.dynamicrafter.lvdm.common import (
     extract_into_tensor,
@@ -29,6 +25,11 @@ from videogen_hub.pipelines.dynamicrafter.lvdm.common import (
     exists,
     default
 )
+from videogen_hub.pipelines.dynamicrafter.lvdm.distributions import DiagonalGaussianDistribution
+from videogen_hub.pipelines.dynamicrafter.lvdm.ema import LitEma
+from videogen_hub.pipelines.dynamicrafter.lvdm.models.utils_diffusion import make_beta_schedule, \
+    rescale_zero_terminal_snr
+from videogen_hub.pipelines.dynamicrafter.utils import instantiate_from_config
 
 mainlogger = logging.getLogger('mainlogger')
 

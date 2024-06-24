@@ -191,7 +191,7 @@ class JointDataset(Dataset):
             **kwargs,
     ):
         assert (sample_duration is None and sample_fps is None) or (
-                    sample_duration is not None and sample_fps is not None), "sample_duration and sample_fps should be both None or not None"
+                sample_duration is not None and sample_fps is not None), "sample_duration and sample_fps should be both None or not None"
         if sample_duration is not None and sample_fps is not None:
             assert sample_stride is None, "when sample_duration and sample_fps are not None, sample_stride should be None"
         if sample_stride is not None:
@@ -237,7 +237,7 @@ class JointDataset(Dataset):
         self.sample_fps = sample_fps
         self.sample_n_frames = sample_duration * sample_fps if sample_n_frames is None else sample_n_frames
         self.sample_stride = sample_stride if (sample_stride is None) or (
-                    sample_stride is not None and isinstance(sample_stride, int)) else tuple(sample_stride)
+                sample_stride is not None and isinstance(sample_stride, int)) else tuple(sample_stride)
         self.is_image = is_image
 
         sample_size = tuple(sample_size) if not isinstance(sample_size, int) else (sample_size, sample_size)

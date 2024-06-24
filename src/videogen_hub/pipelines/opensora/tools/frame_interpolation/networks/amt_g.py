@@ -2,9 +2,12 @@ import torch
 import torch.nn as nn
 
 from videogen_hub.pipelines.opensora.tools.frame_interpolation.networks.blocks.feat_enc import LargeEncoder
-from videogen_hub.pipelines.opensora.tools.frame_interpolation.networks.blocks.ifrnet import Encoder, InitDecoder, IntermediateDecoder, resize
-from videogen_hub.pipelines.opensora.tools.frame_interpolation.networks.blocks.multi_flow import MultiFlowDecoder, multi_flow_combine
-from videogen_hub.pipelines.opensora.tools.frame_interpolation.networks.blocks.raft import BasicUpdateBlock, BidirCorrBlock, coords_grid
+from videogen_hub.pipelines.opensora.tools.frame_interpolation.networks.blocks.ifrnet import Encoder, InitDecoder, \
+    IntermediateDecoder, resize
+from videogen_hub.pipelines.opensora.tools.frame_interpolation.networks.blocks.multi_flow import MultiFlowDecoder, \
+    multi_flow_combine
+from videogen_hub.pipelines.opensora.tools.frame_interpolation.networks.blocks.raft import BasicUpdateBlock, \
+    BidirCorrBlock, coords_grid
 
 
 class Model(nn.Module):

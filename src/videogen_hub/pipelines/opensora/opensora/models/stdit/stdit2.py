@@ -30,17 +30,17 @@ from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import load_check
 
 class STDiT2Block(nn.Module):
     def __init__(
-        self,
-        hidden_size,
-        num_heads,
-        mlp_ratio=4.0,
-        drop_path=0.0,
-        enable_flash_attn=False,
-        enable_layernorm_kernel=False,
-        enable_sequence_parallelism=False,
-        rope=None,
-        qk_norm=False,
-        qk_norm_legacy=False,
+            self,
+            hidden_size,
+            num_heads,
+            mlp_ratio=4.0,
+            drop_path=0.0,
+            enable_flash_attn=False,
+            enable_layernorm_kernel=False,
+            enable_sequence_parallelism=False,
+            rope=None,
+            qk_norm=False,
+            qk_norm_legacy=False,
     ):
         super().__init__()
         self.hidden_size = hidden_size
@@ -57,7 +57,7 @@ class STDiT2Block(nn.Module):
             qk_norm=qk_norm,
             qk_norm_legacy=qk_norm_legacy,
         )
-        self.scale_shift_table = nn.Parameter(torch.randn(6, hidden_size) / hidden_size**0.5)
+        self.scale_shift_table = nn.Parameter(torch.randn(6, hidden_size) / hidden_size ** 0.5)
 
         # cross attn
         self.cross_attn = MultiHeadCrossAttention(hidden_size, num_heads)
@@ -80,7 +80,7 @@ class STDiT2Block(nn.Module):
             qk_norm=qk_norm,
             qk_norm_legacy=qk_norm_legacy,
         )
-        self.scale_shift_table_temporal = nn.Parameter(torch.randn(3, hidden_size) / hidden_size**0.5)  # new
+        self.scale_shift_table_temporal = nn.Parameter(torch.randn(3, hidden_size) / hidden_size ** 0.5)  # new
 
     def t_mask_select(self, x_mask, x, masked_x, T, S):
         # x: [B, (T, S), C]
@@ -96,17 +96,17 @@ class STDiT2Block(nn.Module):
         B, N, C = x.shape
 
         shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = (
-            self.scale_shift_table[None] + t.reshape(B, 6, -1)
+                self.scale_shift_table[None] + t.reshape(B, 6, -1)
         ).chunk(6, dim=1)
         shift_tmp, scale_tmp, gate_tmp = (self.scale_shift_table_temporal[None] + t_tmp.reshape(B, 3, -1)).chunk(
             3, dim=1
         )
         if x_mask is not None:
             shift_msa_zero, scale_msa_zero, gate_msa_zero, shift_mlp_zero, scale_mlp_zero, gate_mlp_zero = (
-                self.scale_shift_table[None] + t0.reshape(B, 6, -1)
+                    self.scale_shift_table[None] + t0.reshape(B, 6, -1)
             ).chunk(6, dim=1)
             shift_tmp_zero, scale_tmp_zero, gate_tmp_zero = (
-                self.scale_shift_table_temporal[None] + t0_tmp.reshape(B, 3, -1)
+                    self.scale_shift_table_temporal[None] + t0_tmp.reshape(B, 3, -1)
             ).chunk(3, dim=1)
 
         # modulate
@@ -171,27 +171,27 @@ class STDiT2Config(PretrainedConfig):
     model_type = "STDiT2"
 
     def __init__(
-        self,
-        input_size=(None, None, None),
-        input_sq_size=32,
-        in_channels=4,
-        patch_size=(1, 2, 2),
-        hidden_size=1152,
-        depth=28,
-        num_heads=16,
-        mlp_ratio=4.0,
-        class_dropout_prob=0.1,
-        pred_sigma=True,
-        drop_path=0.0,
-        no_temporal_pos_emb=False,
-        caption_channels=4096,
-        model_max_length=120,
-        freeze=None,
-        qk_norm=False,
-        qk_norm_legacy=False,
-        enable_flash_attn=False,
-        enable_layernorm_kernel=False,
-        **kwargs,
+            self,
+            input_size=(None, None, None),
+            input_sq_size=32,
+            in_channels=4,
+            patch_size=(1, 2, 2),
+            hidden_size=1152,
+            depth=28,
+            num_heads=16,
+            mlp_ratio=4.0,
+            class_dropout_prob=0.1,
+            pred_sigma=True,
+            drop_path=0.0,
+            no_temporal_pos_emb=False,
+            caption_channels=4096,
+            model_max_length=120,
+            freeze=None,
+            qk_norm=False,
+            qk_norm_legacy=False,
+            enable_flash_attn=False,
+            enable_layernorm_kernel=False,
+            **kwargs,
     ):
         self.input_size = input_size
         self.input_sq_size = input_sq_size
@@ -303,7 +303,7 @@ class STDiT2(PreTrainedModel):
         return (T, H, W)
 
     def forward(
-        self, x, timestep, y, mask=None, x_mask=None, num_frames=None, height=None, width=None, ar=None, fps=None
+            self, x, timestep, y, mask=None, x_mask=None, num_frames=None, height=None, width=None, ar=None, fps=None
     ):
         """
         Forward pass of STDiT.
@@ -344,7 +344,7 @@ class STDiT2(PreTrainedModel):
         T, H, W = self.get_dynamic_size(x)
         S = H * W
         scale = rs / self.input_sq_size
-        base_size = round(S**0.5)
+        base_size = round(S ** 0.5)
         pos_emb = self.pos_embed(x, H, W, scale=scale, base_size=base_size)
 
         # embedding

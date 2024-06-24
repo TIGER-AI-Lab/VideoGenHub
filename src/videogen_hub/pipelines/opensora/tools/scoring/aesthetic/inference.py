@@ -6,10 +6,10 @@ import clip
 import numpy as np
 import pandas as pd
 import torch
-import torch.utils.data
 import torch.distributed as dist
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.utils.data
 from PIL import Image
 from einops import rearrange
 from torchvision.datasets.folder import pil_loader
@@ -24,7 +24,6 @@ try:
 except ImportError:
     InterpolationMode = None
     BICUBIC = Image.BICUBIC
-
 
 NUM_FRAMES_POINTS = {
     1: (0.5,),

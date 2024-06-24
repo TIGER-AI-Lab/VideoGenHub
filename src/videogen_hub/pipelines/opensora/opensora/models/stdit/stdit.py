@@ -7,7 +7,8 @@ from timm.models.layers import DropPath
 from timm.models.vision_transformer import Mlp
 
 from videogen_hub.pipelines.opensora.opensora.acceleration.checkpoint import auto_grad_checkpoint
-from videogen_hub.pipelines.opensora.opensora.acceleration.communications import gather_forward_split_backward, split_forward_gather_backward
+from videogen_hub.pipelines.opensora.opensora.acceleration.communications import gather_forward_split_backward, \
+    split_forward_gather_backward
 from videogen_hub.pipelines.opensora.opensora.acceleration.parallel_states import get_sequence_parallel_group
 from videogen_hub.pipelines.opensora.opensora.models.layers.blocks import (
     Attention,
@@ -30,16 +31,16 @@ from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import load_check
 
 class STDiTBlock(nn.Module):
     def __init__(
-        self,
-        hidden_size,
-        num_heads,
-        d_s=None,
-        d_t=None,
-        mlp_ratio=4.0,
-        drop_path=0.0,
-        enable_flash_attn=False,
-        enable_layernorm_kernel=False,
-        enable_sequence_parallelism=False,
+            self,
+            hidden_size,
+            num_heads,
+            d_s=None,
+            d_t=None,
+            mlp_ratio=4.0,
+            drop_path=0.0,
+            enable_flash_attn=False,
+            enable_layernorm_kernel=False,
+            enable_sequence_parallelism=False,
     ):
         super().__init__()
         self.hidden_size = hidden_size
@@ -66,7 +67,7 @@ class STDiTBlock(nn.Module):
             in_features=hidden_size, hidden_features=int(hidden_size * mlp_ratio), act_layer=approx_gelu, drop=0
         )
         self.drop_path = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
-        self.scale_shift_table = nn.Parameter(torch.randn(6, hidden_size) / hidden_size**0.5)
+        self.scale_shift_table = nn.Parameter(torch.randn(6, hidden_size) / hidden_size ** 0.5)
 
         # temporal attention
         self.d_s = d_s
@@ -99,12 +100,12 @@ class STDiTBlock(nn.Module):
         B, N, C = x.shape
 
         shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = (
-            self.scale_shift_table[None] + t.reshape(B, 6, -1)
+                self.scale_shift_table[None] + t.reshape(B, 6, -1)
         ).chunk(6, dim=1)
         x_m = t2i_modulate(self.norm1(x), shift_msa, scale_msa)
         if x_mask is not None:
             shift_msa_zero, scale_msa_zero, gate_msa_zero, shift_mlp_zero, scale_mlp_zero, gate_mlp_zero = (
-                self.scale_shift_table[None] + t0.reshape(B, 6, -1)
+                    self.scale_shift_table[None] + t0.reshape(B, 6, -1)
             ).chunk(6, dim=1)
             x_m_zero = t2i_modulate(self.norm1(x), shift_msa_zero, scale_msa_zero)
             x_m = self.t_mask_select(x_m, x_m_zero, x_mask)
@@ -156,27 +157,27 @@ class STDiTBlock(nn.Module):
 @MODELS.register_module()
 class STDiT(nn.Module):
     def __init__(
-        self,
-        input_size=(1, 32, 32),
-        in_channels=4,
-        patch_size=(1, 2, 2),
-        hidden_size=1152,
-        depth=28,
-        num_heads=16,
-        mlp_ratio=4.0,
-        class_dropout_prob=0.1,
-        pred_sigma=True,
-        drop_path=0.0,
-        no_temporal_pos_emb=False,
-        caption_channels=4096,
-        model_max_length=120,
-        dtype=torch.float32,
-        space_scale=1.0,
-        time_scale=1.0,
-        freeze=None,
-        enable_flash_attn=False,
-        enable_layernorm_kernel=False,
-        enable_sequence_parallelism=False,
+            self,
+            input_size=(1, 32, 32),
+            in_channels=4,
+            patch_size=(1, 2, 2),
+            hidden_size=1152,
+            depth=28,
+            num_heads=16,
+            mlp_ratio=4.0,
+            class_dropout_prob=0.1,
+            pred_sigma=True,
+            drop_path=0.0,
+            no_temporal_pos_emb=False,
+            caption_channels=4096,
+            model_max_length=120,
+            dtype=torch.float32,
+            space_scale=1.0,
+            time_scale=1.0,
+            freeze=None,
+            enable_flash_attn=False,
+            enable_layernorm_kernel=False,
+            enable_sequence_parallelism=False,
     ):
         super().__init__()
         self.pred_sigma = pred_sigma

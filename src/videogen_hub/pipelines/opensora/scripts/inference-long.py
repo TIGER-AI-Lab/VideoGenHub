@@ -2,7 +2,6 @@ import json
 import os
 import re
 
-
 import torch
 import torch.distributed as dist
 from mmengine.runner import set_random_seed
@@ -78,8 +77,8 @@ def apply_mask_strategy(z, refs_x, mask_strategys, loop_i):
             if m_target_start < 0:
                 # z: [B, C, T, H, W]
                 m_target_start = z.shape[2] + m_target_start
-            z[i, :, m_target_start : m_target_start + m_length] = ref[:, m_ref_start : m_ref_start + m_length]
-            mask[m_target_start : m_target_start + m_length] = edit_ratio
+            z[i, :, m_target_start: m_target_start + m_length] = ref[:, m_ref_start: m_ref_start + m_length]
+            mask[m_target_start: m_target_start + m_length] = edit_ratio
         masks.append(mask)
     masks = torch.stack(masks)
     return masks
@@ -238,7 +237,7 @@ def main():
 
     # 4.1. batch generation
     for i in range(0, len(prompts), cfg.batch_size):
-        batch_prompts_raw = prompts[i : i + cfg.batch_size]
+        batch_prompts_raw = prompts[i: i + cfg.batch_size]
         batch_prompts_raw, additional_infos = extract_json_from_prompts(batch_prompts_raw)
         batch_prompts_loops = process_prompts(batch_prompts_raw, cfg.loop)
         # handle the last batch
@@ -255,8 +254,8 @@ def main():
                 cfg.reference_path[i + j] = info["reference_path"]
             if "mask_strategy" in info:
                 cfg.mask_strategy[i + j] = info["mask_strategy"]
-        refs_x = collect_references_batch(cfg.reference_path[i : i + cfg.batch_size], vae, cfg.image_size)
-        mask_strategy = cfg.mask_strategy[i : i + cfg.batch_size]
+        refs_x = collect_references_batch(cfg.reference_path[i: i + cfg.batch_size], vae, cfg.image_size)
+        mask_strategy = cfg.mask_strategy[i: i + cfg.batch_size]
 
         # 4.3. diffusion sampling
         old_sample_idx = sample_idx
@@ -286,7 +285,7 @@ def main():
                             mask_strategy[j] += ";"
                         mask_strategy[
                             j
-                        ] += f"{loop_i},{len(refs)-1},-{cfg.condition_frame_length},0,{cfg.condition_frame_length}"
+                        ] += f"{loop_i},{len(refs) - 1},-{cfg.condition_frame_length},0,{cfg.condition_frame_length}"
 
                 # sampling
                 z = torch.randn(len(batch_prompts), vae.out_channels, *latent_size, device=device, dtype=dtype)
@@ -308,7 +307,7 @@ def main():
                     if not use_dist or coordinator.is_master():
                         for idx in range(len(video_clips[0])):
                             video_clips_i = [video_clips[0][idx]] + [
-                                video_clips[i][idx][:, cfg.condition_frame_length :] for i in range(1, cfg.loop)
+                                video_clips[i][idx][:, cfg.condition_frame_length:] for i in range(1, cfg.loop)
                             ]
                             video = torch.cat(video_clips_i, dim=1)
                             print(f"Prompt: {batch_prompts_raw[idx]}")

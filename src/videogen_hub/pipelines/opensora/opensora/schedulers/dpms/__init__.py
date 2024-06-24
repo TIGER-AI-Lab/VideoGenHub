@@ -1,7 +1,7 @@
 from functools import partial
 
-from videogen_hub.pipelines.opensora.opensora.schedulers.dpms.dpm_solver import DPMS
 from videogen_hub.pipelines.opensora.opensora.registry import SCHEDULERS
+from videogen_hub.pipelines.opensora.opensora.schedulers.dpms.dpm_solver import DPMS
 
 
 @SCHEDULERS.register_module("dpm-solver")
@@ -11,15 +11,15 @@ class DPM_SOLVER:
         self.cfg_scale = cfg_scale
 
     def sample(
-        self,
-        model,
-        text_encoder,
-        z,
-        prompts,
-        device,
-        additional_args=None,
-        mask=None,
-        progress=True,
+            self,
+            model,
+            text_encoder,
+            z,
+            prompts,
+            device,
+            additional_args=None,
+            mask=None,
+            progress=True,
     ):
         assert mask is None, "mask is not supported in dpm-solver"
         n = len(prompts)

@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import os
 import random
-from omegaconf import OmegaConf
 
 import numpy as np
+from omegaconf import OmegaConf
 
 try:
     import intel_extension_for_pytorch as ipex

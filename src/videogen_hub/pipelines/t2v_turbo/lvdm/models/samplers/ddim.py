@@ -1,11 +1,12 @@
 import numpy as np
-from tqdm import tqdm
 import torch
+from tqdm import tqdm
+
+from videogen_hub.pipelines.t2v_turbo.lvdm.common import noise_like
 from videogen_hub.pipelines.t2v_turbo.lvdm.models.utils_diffusion import (
     make_ddim_sampling_parameters,
     make_ddim_timesteps,
 )
-from videogen_hub.pipelines.t2v_turbo.lvdm.common import noise_like
 
 
 class DDIMSampler(object):
@@ -23,7 +24,7 @@ class DDIMSampler(object):
         setattr(self, name, attr)
 
     def make_schedule(
-        self, ddim_num_steps, ddim_discretize="uniform", ddim_eta=0.0, verbose=True
+            self, ddim_num_steps, ddim_discretize="uniform", ddim_eta=0.0, verbose=True
     ):
         self.ddim_timesteps = make_ddim_timesteps(
             ddim_discr_method=ddim_discretize,
@@ -33,7 +34,7 @@ class DDIMSampler(object):
         )
         alphas_cumprod = self.model.alphas_cumprod
         assert (
-            alphas_cumprod.shape[0] == self.ddpm_num_timesteps
+                alphas_cumprod.shape[0] == self.ddpm_num_timesteps
         ), "alphas have to be defined for each timestep"
         to_torch = lambda x: x.clone().detach().to(torch.float32).to(self.model.device)
 
@@ -96,30 +97,30 @@ class DDIMSampler(object):
 
     @torch.no_grad()
     def sample(
-        self,
-        S,
-        batch_size,
-        shape,
-        conditioning=None,
-        callback=None,
-        normals_sequence=None,
-        img_callback=None,
-        quantize_x0=False,
-        eta=0.0,
-        mask=None,
-        x0=None,
-        temperature=1.0,
-        noise_dropout=0.0,
-        score_corrector=None,
-        corrector_kwargs=None,
-        verbose=True,
-        schedule_verbose=False,
-        x_T=None,
-        log_every_t=100,
-        unconditional_guidance_scale=1.0,
-        unconditional_conditioning=None,
-        # this has to come in the same format as the conditioning, # e.g. as encoded tokens, ...
-        **kwargs,
+            self,
+            S,
+            batch_size,
+            shape,
+            conditioning=None,
+            callback=None,
+            normals_sequence=None,
+            img_callback=None,
+            quantize_x0=False,
+            eta=0.0,
+            mask=None,
+            x0=None,
+            temperature=1.0,
+            noise_dropout=0.0,
+            score_corrector=None,
+            corrector_kwargs=None,
+            verbose=True,
+            schedule_verbose=False,
+            x_T=None,
+            log_every_t=100,
+            unconditional_guidance_scale=1.0,
+            unconditional_conditioning=None,
+            # this has to come in the same format as the conditioning, # e.g. as encoded tokens, ...
+            **kwargs,
     ):
 
         # check condition bs
@@ -175,29 +176,29 @@ class DDIMSampler(object):
 
     @torch.no_grad()
     def ddim_sampling(
-        self,
-        cond,
-        shape,
-        x_T=None,
-        ddim_use_original_steps=False,
-        callback=None,
-        timesteps=None,
-        quantize_denoised=False,
-        mask=None,
-        x0=None,
-        img_callback=None,
-        log_every_t=100,
-        temperature=1.0,
-        noise_dropout=0.0,
-        score_corrector=None,
-        corrector_kwargs=None,
-        unconditional_guidance_scale=1.0,
-        unconditional_conditioning=None,
-        verbose=True,
-        cond_tau=1.0,
-        target_size=None,
-        start_timesteps=None,
-        **kwargs,
+            self,
+            cond,
+            shape,
+            x_T=None,
+            ddim_use_original_steps=False,
+            callback=None,
+            timesteps=None,
+            quantize_denoised=False,
+            mask=None,
+            x0=None,
+            img_callback=None,
+            log_every_t=100,
+            temperature=1.0,
+            noise_dropout=0.0,
+            score_corrector=None,
+            corrector_kwargs=None,
+            unconditional_guidance_scale=1.0,
+            unconditional_conditioning=None,
+            verbose=True,
+            cond_tau=1.0,
+            target_size=None,
+            start_timesteps=None,
+            **kwargs,
     ):
         device = self.model.betas.device
         print("ddim device", device)
@@ -215,11 +216,11 @@ class DDIMSampler(object):
             )
         elif timesteps is not None and not ddim_use_original_steps:
             subset_end = (
-                int(
-                    min(timesteps / self.ddim_timesteps.shape[0], 1)
-                    * self.ddim_timesteps.shape[0]
-                )
-                - 1
+                    int(
+                        min(timesteps / self.ddim_timesteps.shape[0], 1)
+                        * self.ddim_timesteps.shape[0]
+                    )
+                    - 1
             )
             timesteps = self.ddim_timesteps[:subset_end]
 
@@ -258,7 +259,7 @@ class DDIMSampler(object):
                         x0, ts
                     )  # TODO: deterministic forward pass? <ddim inversion>
                 img = (
-                    img_orig * mask + (1.0 - mask) * img
+                        img_orig * mask + (1.0 - mask) * img
                 )  # keep original & modify use img
 
             index_clip = int((1 - cond_tau) * total_steps)
@@ -304,23 +305,23 @@ class DDIMSampler(object):
 
     @torch.no_grad()
     def p_sample_ddim(
-        self,
-        x,
-        c,
-        t,
-        index,
-        repeat_noise=False,
-        use_original_steps=False,
-        quantize_denoised=False,
-        temperature=1.0,
-        noise_dropout=0.0,
-        score_corrector=None,
-        corrector_kwargs=None,
-        unconditional_guidance_scale=1.0,
-        unconditional_conditioning=None,
-        uc_type=None,
-        conditional_guidance_scale_temporal=None,
-        **kwargs,
+            self,
+            x,
+            c,
+            t,
+            index,
+            repeat_noise=False,
+            use_original_steps=False,
+            quantize_denoised=False,
+            temperature=1.0,
+            noise_dropout=0.0,
+            score_corrector=None,
+            corrector_kwargs=None,
+            unconditional_guidance_scale=1.0,
+            unconditional_conditioning=None,
+            uc_type=None,
+            conditional_guidance_scale_temporal=None,
+            **kwargs,
     ):
         b, *_, device = *x.shape, x.device
         if x.dim() == 5:
@@ -360,7 +361,7 @@ class DDIMSampler(object):
                     x, t, c, no_temporal_attn=True, **kwargs
                 )
                 e_t = e_t + conditional_guidance_scale_temporal * (
-                    e_t_temporal - e_t_image
+                        e_t_temporal - e_t_image
                 )
 
         if score_corrector is not None:
@@ -403,7 +404,7 @@ class DDIMSampler(object):
         if quantize_denoised:
             pred_x0, _, *_ = self.model.first_stage_model.quantize(pred_x0)
         # direction pointing to x_t
-        dir_xt = (1.0 - a_prev - sigma_t**2).sqrt() * e_t
+        dir_xt = (1.0 - a_prev - sigma_t ** 2).sqrt() * e_t
 
         noise = sigma_t * noise_like(x.shape, device, repeat_noise) * temperature
         if noise_dropout > 0.0:
@@ -448,19 +449,19 @@ class DDIMSampler(object):
             return out.reshape(b, *((1,) * (len(x_shape) - 1)))
 
         return (
-            extract_into_tensor(sqrt_alphas_cumprod, t, x0.shape) * x0
-            + extract_into_tensor(sqrt_one_minus_alphas_cumprod, t, x0.shape) * noise
+                extract_into_tensor(sqrt_alphas_cumprod, t, x0.shape) * x0
+                + extract_into_tensor(sqrt_one_minus_alphas_cumprod, t, x0.shape) * noise
         )
 
     @torch.no_grad()
     def decode(
-        self,
-        x_latent,
-        cond,
-        t_start,
-        unconditional_guidance_scale=1.0,
-        unconditional_conditioning=None,
-        use_original_steps=False,
+            self,
+            x_latent,
+            cond,
+            t_start,
+            unconditional_guidance_scale=1.0,
+            unconditional_conditioning=None,
+            use_original_steps=False,
     ):
 
         timesteps = (

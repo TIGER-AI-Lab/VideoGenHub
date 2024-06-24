@@ -7,9 +7,9 @@ import torch.utils.data
 from PIL import ImageFile
 from torchvision.datasets.folder import IMG_EXTENSIONS, pil_loader
 
-
 from videogen_hub.pipelines.opensora.opensora.datasets.read_video import read_video
-from videogen_hub.pipelines.opensora.opensora.datasets.utils import VID_EXTENSIONS, get_transforms_image, get_transforms_video, read_file, temporal_random_crop
+from videogen_hub.pipelines.opensora.opensora.datasets.utils import VID_EXTENSIONS, get_transforms_image, \
+    get_transforms_video, read_file, temporal_random_crop
 from videogen_hub.pipelines.opensora.opensora.registry import DATASETS
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -27,12 +27,12 @@ class VideoTextDataset(torch.utils.data.Dataset):
     """
 
     def __init__(
-        self,
-        data_path=None,
-        num_frames=16,
-        frame_interval=1,
-        image_size=(256, 256),
-        transform_name="center",
+            self,
+            data_path=None,
+            num_frames=16,
+            frame_interval=1,
+            image_size=(256, 256),
+            transform_name="center",
     ):
         self.data_path = data_path
         self.data = read_file(data_path)
@@ -116,13 +116,13 @@ class VideoTextDataset(torch.utils.data.Dataset):
 @DATASETS.register_module()
 class VariableVideoTextDataset(VideoTextDataset):
     def __init__(
-        self,
-        data_path=None,
-        num_frames=None,
-        frame_interval=1,
-        image_size=(None, None),
-        transform_name=None,
-        dummy_text_feature=False,
+            self,
+            data_path=None,
+            num_frames=None,
+            frame_interval=1,
+            image_size=(None, None),
+            transform_name=None,
+            dummy_text_feature=False,
     ):
         super().__init__(data_path, num_frames, frame_interval, image_size, transform_name=None)
         self.transform_name = transform_name
@@ -154,7 +154,7 @@ class VariableVideoTextDataset(VideoTextDataset):
             video = temporal_random_crop(vframes, num_frames, self.frame_interval)
 
             video_fps = video_fps // self.frame_interval
-            
+
             # transform
             transform = get_transforms_video(self.transform_name, (height, width))
             video = transform(video)  # T C H W

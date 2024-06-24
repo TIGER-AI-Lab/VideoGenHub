@@ -1,8 +1,9 @@
 import math
 from inspect import isfunction
+
 import torch
-from torch import nn
 import torch.distributed as dist
+from torch import nn
 
 
 def gather_data(data, return_np=True):

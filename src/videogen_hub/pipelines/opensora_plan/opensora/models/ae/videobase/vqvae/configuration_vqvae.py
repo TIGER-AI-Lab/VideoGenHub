@@ -6,16 +6,16 @@ from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.configura
 
 class VQVAEConfiguration(VideoBaseConfiguration):
     def __init__(
-        self,
-        embedding_dim: int = 256,
-        n_codes: int = 2048,
-        n_hiddens: int = 240,
-        n_res_layers: int = 4,
-        resolution: int = 128,
-        sequence_length: int = 16,
-        downsample: Union[Tuple[int, int, int], str] = (4, 4, 4),
-        no_pos_embd: bool = True,
-        **kwargs,
+            self,
+            embedding_dim: int = 256,
+            n_codes: int = 2048,
+            n_hiddens: int = 240,
+            n_res_layers: int = 4,
+            resolution: int = 128,
+            sequence_length: int = 16,
+            downsample: Union[Tuple[int, int, int], str] = (4, 4, 4),
+            no_pos_embd: bool = True,
+            **kwargs,
     ):
         super().__init__(**kwargs)
 

@@ -12,11 +12,11 @@ from einops import rearrange, repeat
 class ImgEmbContextResampler(nn.Module):
 
     def __init__(
-        self,
-        inner_dim=1280,
-        cross_attention_dim=1024,
-        expansion_factor=16,
-        **kwargs,
+            self,
+            inner_dim=1280,
+            cross_attention_dim=1024,
+            expansion_factor=16,
+            **kwargs,
     ):
         super().__init__()
         self.context_embedding = nn.Sequential(
@@ -59,18 +59,18 @@ class FrozenOpenCLIPImageEmbedder(AbstractEncoder):
     """
 
     def __init__(
-        self,
-        arch="ViT-H-14",
-        version="laion2b_s32b_b79k",
-        device="cuda",
-        max_length=77,
-        freeze=True,
-        antialias=True,
-        ucg_rate=0.0,
-        unsqueeze_dim=False,
-        repeat_to_max_len=False,
-        num_image_crops=0,
-        output_tokens=False,
+            self,
+            arch="ViT-H-14",
+            version="laion2b_s32b_b79k",
+            device="cuda",
+            max_length=77,
+            freeze=True,
+            antialias=True,
+            ucg_rate=0.0,
+            unsqueeze_dim=False,
+            repeat_to_max_len=False,
+            num_image_crops=0,
+            output_tokens=False,
     ):
         super().__init__()
         model, _, _ = open_clip.create_model_and_transforms(
@@ -131,21 +131,21 @@ class FrozenOpenCLIPImageEmbedder(AbstractEncoder):
         z = z.to(image.dtype)
         if self.ucg_rate > 0.0 and not no_dropout and not (self.max_crops > 0):
             z = (
-                torch.bernoulli(
-                    (1.0 - self.ucg_rate) * torch.ones(z.shape[0], device=z.device)
-                )[:, None]
-                * z
+                    torch.bernoulli(
+                        (1.0 - self.ucg_rate) * torch.ones(z.shape[0], device=z.device)
+                    )[:, None]
+                    * z
             )
             if tokens is not None:
                 tokens = (
-                    expand_dims_like(
-                        torch.bernoulli(
-                            (1.0 - self.ucg_rate)
-                            * torch.ones(tokens.shape[0], device=tokens.device)
-                        ),
-                        tokens,
-                    )
-                    * tokens
+                        expand_dims_like(
+                            torch.bernoulli(
+                                (1.0 - self.ucg_rate)
+                                * torch.ones(tokens.shape[0], device=tokens.device)
+                            ),
+                            tokens,
+                        )
+                        * tokens
                 )
         if self.unsqueeze_dim:
             z = z[:, None, :]
@@ -194,11 +194,11 @@ class FrozenOpenCLIPImageEmbedder(AbstractEncoder):
             x = rearrange(x, "(b n) d -> b n d", n=self.max_crops)
             # drop out between 0 and all along the sequence axis
             x = (
-                torch.bernoulli(
-                    (1.0 - self.ucg_rate)
-                    * torch.ones(x.shape[0], x.shape[1], 1, device=x.device)
-                )
-                * x
+                    torch.bernoulli(
+                        (1.0 - self.ucg_rate)
+                        * torch.ones(x.shape[0], x.shape[1], 1, device=x.device)
+                    )
+                    * x
             )
             if tokens is not None:
                 tokens = rearrange(tokens, "(b n) t d -> b t (n d)", n=self.max_crops)

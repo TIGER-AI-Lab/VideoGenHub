@@ -31,13 +31,13 @@ class AverageMeter():
 class AverageMeterGroups:
     def __init__(self) -> None:
         self.meter_dict = dict()
-    
+
     def update(self, dict, n=1):
         for name, val in dict.items():
             if self.meter_dict.get(name) is None:
                 self.meter_dict[name] = AverageMeter()
             self.meter_dict[name].update(val, n)
-    
+
     def reset(self, name=None):
         if name is None:
             for v in self.meter_dict.values():
@@ -46,7 +46,7 @@ class AverageMeterGroups:
             meter = self.meter_dict.get(name)
             if meter is not None:
                 meter.reset()
-    
+
     def avg(self, name):
         meter = self.meter_dict.get(name)
         if meter is not None:
@@ -55,11 +55,12 @@ class AverageMeterGroups:
 
 class InputPadder:
     """ Pads images such that dimensions are divisible by divisor """
+
     def __init__(self, dims, divisor=16):
         self.ht, self.wd = dims[-2:]
         pad_ht = (((self.ht // divisor) + 1) * divisor - self.ht) % divisor
         pad_wd = (((self.wd // divisor) + 1) * divisor - self.wd) % divisor
-        self._pad = [pad_wd//2, pad_wd - pad_wd//2, pad_ht//2, pad_ht - pad_ht//2]
+        self._pad = [pad_wd // 2, pad_wd - pad_wd // 2, pad_ht // 2, pad_ht - pad_ht // 2]
 
     def pad(self, *inputs):
         if len(inputs) == 1:
@@ -72,23 +73,24 @@ class InputPadder:
             return self._unpad(inputs[0])
         else:
             return [self._unpad(x) for x in inputs]
-    
+
     def _unpad(self, x):
         ht, wd = x.shape[-2:]
-        c = [self._pad[2], ht-self._pad[3], self._pad[0], wd-self._pad[1]]
+        c = [self._pad[2], ht - self._pad[3], self._pad[0], wd - self._pad[1]]
         return x[..., c[0]:c[1], c[2]:c[3]]
 
 
 def img2tensor(img):
     if img.shape[-1] > 3:
-        img = img[:,:,:3]
+        img = img[:, :, :3]
     return torch.tensor(img).permute(2, 0, 1).unsqueeze(0) / 255.0
 
 
 def tensor2img(img_t):
     return (img_t * 255.).detach(
-                        ).squeeze(0).permute(1, 2, 0).cpu().numpy(
-                        ).clip(0, 255).astype(np.uint8)
+    ).squeeze(0).permute(1, 2, 0).cpu().numpy(
+    ).clip(0, 255).astype(np.uint8)
+
 
 def seed_all(seed):
     random.seed(seed)
@@ -98,25 +100,41 @@ def seed_all(seed):
 
 
 def read(file):
-    if file.endswith('.float3'): return readFloat(file)
-    elif file.endswith('.flo'): return readFlow(file)
-    elif file.endswith('.ppm'): return readImage(file)
-    elif file.endswith('.pgm'): return readImage(file)
-    elif file.endswith('.png'): return readImage(file)
-    elif file.endswith('.jpg'): return readImage(file)
-    elif file.endswith('.pfm'): return readPFM(file)[0]
-    else: raise Exception('don\'t know how to read %s' % file)
+    if file.endswith('.float3'):
+        return readFloat(file)
+    elif file.endswith('.flo'):
+        return readFlow(file)
+    elif file.endswith('.ppm'):
+        return readImage(file)
+    elif file.endswith('.pgm'):
+        return readImage(file)
+    elif file.endswith('.png'):
+        return readImage(file)
+    elif file.endswith('.jpg'):
+        return readImage(file)
+    elif file.endswith('.pfm'):
+        return readPFM(file)[0]
+    else:
+        raise Exception('don\'t know how to read %s' % file)
 
 
 def write(file, data):
-    if file.endswith('.float3'): return writeFloat(file, data)
-    elif file.endswith('.flo'): return writeFlow(file, data)
-    elif file.endswith('.ppm'): return writeImage(file, data)
-    elif file.endswith('.pgm'): return writeImage(file, data)
-    elif file.endswith('.png'): return writeImage(file, data)
-    elif file.endswith('.jpg'): return writeImage(file, data)
-    elif file.endswith('.pfm'): return writePFM(file, data)
-    else: raise Exception('don\'t know how to write %s' % file)
+    if file.endswith('.float3'):
+        return writeFloat(file, data)
+    elif file.endswith('.flo'):
+        return writeFlow(file, data)
+    elif file.endswith('.ppm'):
+        return writeImage(file, data)
+    elif file.endswith('.pgm'):
+        return writeImage(file, data)
+    elif file.endswith('.png'):
+        return writeImage(file, data)
+    elif file.endswith('.jpg'):
+        return writeImage(file, data)
+    elif file.endswith('.pfm'):
+        return writePFM(file, data)
+    else:
+        raise Exception('don\'t know how to write %s' % file)
 
 
 def readPFM(file):
@@ -189,7 +207,7 @@ def writePFM(file, image, scale=1):
 
 def readFlow(name):
     if name.endswith('.pfm') or name.endswith('.PFM'):
-        return readPFM(name)[0][:,:,0:2]
+        return readPFM(name)[0][:, :, 0:2]
 
     f = open(name, 'rb')
 
@@ -208,8 +226,8 @@ def readFlow(name):
 def readImage(name):
     if name.endswith('.pfm') or name.endswith('.PFM'):
         data = readPFM(name)[0]
-        if len(data.shape)==3:
-            return data[:,:,0:3]
+        if len(data.shape) == 3:
+            return data[:, :, 0:3]
         else:
             return data
     return imread(name)
@@ -232,7 +250,7 @@ def writeFlow(name, flow):
 def readFloat(name):
     f = open(name, 'rb')
 
-    if(f.readline().decode("utf-8"))  != 'float\n':
+    if (f.readline().decode("utf-8")) != 'float\n':
         raise Exception('float file %s did not contain <float> keyword' % name)
 
     dim = int(f.readline())
@@ -257,8 +275,8 @@ def readFloat(name):
 def writeFloat(name, data):
     f = open(name, 'wb')
 
-    dim=len(data.shape)
-    if dim>3:
+    dim = len(data.shape)
+    if dim > 3:
         raise Exception('bad float file dimension: %d' % dim)
 
     f.write(('float\n').encode('ascii'))
@@ -273,7 +291,7 @@ def writeFloat(name, data):
             f.write(('%d\n' % data.shape[i]).encode('ascii'))
 
     data = data.astype(np.float32)
-    if dim==2:
+    if dim == 2:
         data.tofile(f)
 
     else:
@@ -288,7 +306,7 @@ def check_dim_and_resize(tensor_list):
     if len(set(shape_list)) > 1:
         desired_shape = shape_list[0]
         print(f'Inconsistent size of input video frames. All frames will be resized to {desired_shape}')
-        
+
         resize_tensor_list = []
         for t in tensor_list:
             resize_tensor_list.append(torch.nn.functional.interpolate(t, size=tuple(desired_shape), mode='bilinear'))
@@ -296,4 +314,3 @@ def check_dim_and_resize(tensor_list):
         tensor_list = resize_tensor_list
 
     return tensor_list
-
