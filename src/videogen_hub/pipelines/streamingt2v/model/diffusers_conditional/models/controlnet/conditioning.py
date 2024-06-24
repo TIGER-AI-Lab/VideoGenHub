@@ -1,6 +1,7 @@
 import torch.nn as nn
 
 try:
+    # noinspection PyUnresolvedReferences
     from diffusers.models.transformer_temporal import (
         TransformerTemporalModel,
         TransformerTemporalModelOutput,

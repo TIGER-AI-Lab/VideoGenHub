@@ -16,7 +16,6 @@ from typing import Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
-
 from diffusers.configuration_utils import ConfigMixin, register_to_config
 from diffusers.utils import BaseOutput
 
@@ -28,6 +27,7 @@ except:
 from diffusers.models.modeling_utils import ModelMixin
 
 try:
+    # noinspection PyUnresolvedReferences
     from diffusers.models.vae import Decoder, DecoderOutput, DiagonalGaussianDistribution, Encoder
 except:
     from diffusers.models.autoencoders.vae import Encoder, Decoder, DecoderOutput, DiagonalGaussianDistribution

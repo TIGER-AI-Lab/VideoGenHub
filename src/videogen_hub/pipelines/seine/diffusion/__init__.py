@@ -3,7 +3,8 @@
 #     ADM:   https://github.com/openai/guided-diffusion/blob/main/guided_diffusion
 #     IDDPM: https://github.com/openai/improved-diffusion/blob/main/improved_diffusion/gaussian_diffusion.py
 
-from videogen_hub.pipelines.seine.diffusion. import gaussian_diffusion as gd
+from videogen_hub.pipelines.seine.diffusion import gaussian_diffusion as gd
+
 from videogen_hub.pipelines.seine.diffusion.respace import SpacedDiffusion, space_timesteps
 
 

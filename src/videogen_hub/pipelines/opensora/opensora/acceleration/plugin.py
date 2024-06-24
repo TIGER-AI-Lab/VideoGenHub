@@ -3,7 +3,9 @@ from typing import Optional
 
 import numpy as np
 import torch
+# noinspection PyUnresolvedReferences
 from colossalai.booster.plugin import LowLevelZeroPlugin
+# noinspection PyUnresolvedReferences
 from colossalai.cluster import ProcessGroupMesh
 from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler

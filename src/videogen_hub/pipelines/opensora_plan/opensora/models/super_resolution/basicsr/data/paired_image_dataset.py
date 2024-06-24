@@ -1,8 +1,8 @@
-from basicsr.data.data_util import paired_paths_from_folder, paired_paths_from_lmdb, paired_paths_from_meta_info_file
-from basicsr.data.transforms import augment, paired_random_crop
-from basicsr.utils import FileClient, imfrombytes, img2tensor
-from basicsr.utils.matlab_functions import bgr2ycbcr
-from basicsr.utils.registry import DATASET_REGISTRY
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.data.data_util import paired_paths_from_folder, paired_paths_from_lmdb, paired_paths_from_meta_info_file
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.data.transforms import augment, paired_random_crop
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils import FileClient, imfrombytes, img2tensor
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.matlab_functions import bgr2ycbcr
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.registry import DATASET_REGISTRY
 from torch.utils import data as data
 from torchvision.transforms.functional import normalize
 

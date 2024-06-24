@@ -3,6 +3,7 @@ accelerate
 diffusers
 ftfy
 gdown
+lingua-language-detector
 mmengine
 mmocr
 moviepy
@@ -13,6 +14,7 @@ pyav
 scenedetect
 tensorboard
 timm
+torchdiffeq
 tqdm
 transformers
 wandb

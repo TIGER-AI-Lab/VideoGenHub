@@ -5,8 +5,8 @@ from os import path as osp
 
 import torch
 import yaml
-from basicsr.utils import set_random_seed
-from basicsr.utils.dist_util import get_dist_info, init_dist, master_only
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils import set_random_seed
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.dist_util import get_dist_info, init_dist, master_only
 
 
 def ordered_yaml():

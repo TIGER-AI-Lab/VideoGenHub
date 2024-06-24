@@ -1,7 +1,9 @@
-import os
 import json
-import numpy as np
+import os
 import random
+
+import numpy as np
+
 
 # Randomly sample a subset of prompts for benchmarking
 def main(prompt_path, overwrite_inputs=False):

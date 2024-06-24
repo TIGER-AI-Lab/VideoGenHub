@@ -68,6 +68,7 @@ def _gather(
     world_size: int,
     group: dist.ProcessGroup,
     gather_dim: int,
+    gather_list=None
 ):
     if gather_list is None:
         gather_list = [torch.empty_like(input_) for _ in range(world_size)]

@@ -16,6 +16,7 @@ from torch import nn
 try:
     from diffusers.models.modeling_utils import ModelMixin
 except:
+    # noinspection PyUnresolvedReferences
     from diffusers.modeling_utils import ModelMixin # 0.11.1
 
 

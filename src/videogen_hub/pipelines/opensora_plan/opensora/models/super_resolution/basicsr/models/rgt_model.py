@@ -1,6 +1,6 @@
 import torch
-from basicsr.models.sr_model import SRModel
-from basicsr.utils.registry import MODEL_REGISTRY
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.models.sr_model import SRModel
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.registry import MODEL_REGISTRY
 
 
 @MODEL_REGISTRY.register()

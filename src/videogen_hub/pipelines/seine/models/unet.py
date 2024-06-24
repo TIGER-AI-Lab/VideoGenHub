@@ -1,10 +1,10 @@
 # Adapted from https://github.com/huggingface/diffusers/blob/main/src/diffusers/models/unet_2d_condition.py
 
+import os
+import sys
 from dataclasses import dataclass
 from typing import List, Optional, Tuple, Union
 
-import os
-import sys
 sys.path.append(os.path.split(sys.path[0])[0])
 
 import math
@@ -21,6 +21,7 @@ from diffusers.models.embeddings import TimestepEmbedding, Timesteps
 try:
     from diffusers.models.modeling_utils import ModelMixin
 except:
+    # noinspection PyUnresolvedReferences
     from diffusers.modeling_utils import ModelMixin # 0.11.1
 
 try:

@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 
-from basicsr.metrics.metric_util import reorder_image, to_y_channel
-from basicsr.utils.registry import METRIC_REGISTRY
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.metrics.metric_util import reorder_image, to_y_channel
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.registry import METRIC_REGISTRY
 
 
 @METRIC_REGISTRY.register()

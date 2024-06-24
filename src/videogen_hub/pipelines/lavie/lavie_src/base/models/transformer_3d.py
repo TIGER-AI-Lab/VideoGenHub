@@ -15,17 +15,17 @@ from typing import Any, Dict, Optional
 
 import torch
 import torch.nn.functional as F
-from torch import nn
-
 from diffusers.configuration_utils import ConfigMixin, register_to_config
 from diffusers.models.embeddings import ImagePositionalEmbeddings
-from diffusers.utils import BaseOutput, deprecate
 from diffusers.models.embeddings import PatchEmbed
 from diffusers.models.lora import LoRACompatibleConv, LoRACompatibleLinear
 from diffusers.models.modeling_utils import ModelMixin
+from diffusers.utils import BaseOutput, deprecate
 from einops import rearrange, repeat
+from torch import nn
 
 from videogen_hub.pipelines.lavie.lavie_src.base.models.attention import BasicTransformerBlock
+
 
 @dataclass
 class Transformer3DModelOutput(BaseOutput):

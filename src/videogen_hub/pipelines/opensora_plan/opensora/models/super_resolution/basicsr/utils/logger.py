@@ -8,7 +8,7 @@ from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basic
 initialized_logger = {}
 
 
-class AvgTimer():
+class AvgTimer:
 
     def __init__(self, window=200):
         self.window = window  # average window
@@ -194,7 +194,7 @@ def get_env_info():
     import torch
     import torchvision
 
-    from basicsr.version import __version__
+    __version__ = "1.4.2"
     msg = r"""
                 ____                _       _____  ____
                / __ ) ____ _ _____ (_)_____/ ___/ / __ \

@@ -32,7 +32,9 @@ from diffusers.models.modeling_utils import load_state_dict, load_model_dict_int
 from videogen_hub import MODEL_PATH
 
 try:
+    # noinspection PyUnresolvedReferences
     from diffusers.models.unet_2d_blocks import UNetMidBlock2DSimpleCrossAttn
+    # noinspection PyUnresolvedReferences
     from diffusers.models.unet_2d_condition import UNet2DConditionOutput
 except:
     from diffusers.models.unets.unet_2d_blocks import UNetMidBlock2DSimpleCrossAttn

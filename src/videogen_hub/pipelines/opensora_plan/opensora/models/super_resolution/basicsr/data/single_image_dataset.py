@@ -1,9 +1,9 @@
 from os import path as osp
 
-from basicsr.data.data_util import paths_from_lmdb
-from basicsr.utils import FileClient, imfrombytes, img2tensor, scandir
-from basicsr.utils.matlab_functions import rgb2ycbcr
-from basicsr.utils.registry import DATASET_REGISTRY
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.data.data_util import paths_from_lmdb
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils import FileClient, imfrombytes, img2tensor, scandir
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.matlab_functions import rgb2ycbcr
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.registry import DATASET_REGISTRY
 from torch.utils import data as data
 from torchvision.transforms.functional import normalize
 

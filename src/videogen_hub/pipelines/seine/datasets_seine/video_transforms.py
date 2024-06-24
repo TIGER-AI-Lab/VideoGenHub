@@ -1,7 +1,9 @@
-import torch
 import numbers
+
 import numpy as np
+import torch
 from PIL import Image
+
 
 def _is_tensor_video_clip(clip):
     if not torch.is_tensor(clip):

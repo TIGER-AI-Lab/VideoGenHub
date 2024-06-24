@@ -10,6 +10,7 @@
 from typing import List
 
 import sentencepiece as spm
+
 from videogen_hub.depend.icetk import sentencepiece_model_pb2 as model
 
 

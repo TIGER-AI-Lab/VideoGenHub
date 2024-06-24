@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from modelscope.models.cv.human_reconstruction.models.Res_backbone import get_pad_layer
 
 from videogen_hub.pipelines.opensora.opensora.registry import MODELS
 from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import find_model, load_checkpoint

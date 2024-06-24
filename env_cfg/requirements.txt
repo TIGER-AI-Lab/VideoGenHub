@@ -6,7 +6,6 @@ flask_cors
 faiss-cpu
 fire
 h5py
-lingua
 numpy>=1.23.5
 pandas<2.0.0
 peft

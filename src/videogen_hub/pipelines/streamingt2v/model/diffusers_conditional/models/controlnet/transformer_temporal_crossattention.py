@@ -22,6 +22,9 @@ from diffusers.utils import BaseOutput
 
 from diffusers.models.modeling_utils import ModelMixin
 
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.attention import \
+    BasicTransformerBlock
+
 
 @dataclass
 class TransformerTemporalModelOutput(BaseOutput):

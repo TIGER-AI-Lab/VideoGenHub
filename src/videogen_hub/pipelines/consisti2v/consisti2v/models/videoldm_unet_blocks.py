@@ -13,8 +13,11 @@ from einops import rearrange
 from einops.layers.torch import Rearrange
 
 try:
+    # noinspection PyUnresolvedReferences
     from diffusers.models.transformer_2d import Transformer2DModelOutput
+    # noinspection PyUnresolvedReferences
     from diffusers.models.dual_transformer_2d import DualTransformer2DModel
+    # noinspection PyUnresolvedReferences
     from diffusers.models.unet_2d_blocks import (
         DownBlock2D,
         UpBlock2D

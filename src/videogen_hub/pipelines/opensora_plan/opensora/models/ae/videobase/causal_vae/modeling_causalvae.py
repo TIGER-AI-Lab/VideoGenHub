@@ -3,14 +3,14 @@ from typing import Tuple
 import torch
 import torch.nn as nn
 from diffusers.configuration_utils import register_to_config
-from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vae.modeling_videobase import \
-    VideoBaseAE_PL
-from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vae.modules import Normalize
-from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vae.modules.ops import nonlinearity
-from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vae.utils.distrib_utils import \
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.normalize import Normalize
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.ops import nonlinearity
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.utils.distrib_utils import \
     DiagonalGaussianDistribution
-from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vae.utils.module_utils import \
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.utils.module_utils import \
     resolve_str_to_obj, Module
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modeling_videobase import VideoBaseAE_PL
 
 
 class Encoder(nn.Module):
@@ -705,7 +705,7 @@ class CausalVAEModel(VideoBaseAE_PL):
         
     def validation_step(self, batch, batch_idx):
         
-        from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vae.utils.video_utils import tensor_to_video
+        from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.utils.video_utils import tensor_to_video
         inputs = self.get_input(batch, 'video')
         latents = self.encode(inputs).sample()
         video_recon = self.decode(latents)

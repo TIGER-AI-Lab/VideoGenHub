@@ -1,13 +1,14 @@
 import math
 
 import torch
-from basicsr.archs.vgg_arch import VGGFeatureExtractor
-from basicsr.utils.registry import LOSS_REGISTRY
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.archs.vgg_arch import VGGFeatureExtractor
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.registry import LOSS_REGISTRY
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.losses.loss_util import weighted_loss
+
 from torch import autograd as autograd
 from torch import nn as nn
 from torch.nn import functional as F
 
-from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.losses.loss_util import weighted_loss
 
 _reduction_modes = ['none', 'mean', 'sum']
 

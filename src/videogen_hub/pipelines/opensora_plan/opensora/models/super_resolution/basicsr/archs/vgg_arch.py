@@ -2,7 +2,7 @@ import os
 from collections import OrderedDict
 
 import torch
-from basicsr.utils.registry import ARCH_REGISTRY
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.registry import ARCH_REGISTRY
 from torch import nn as nn
 from torchvision.models import vgg as vgg
 

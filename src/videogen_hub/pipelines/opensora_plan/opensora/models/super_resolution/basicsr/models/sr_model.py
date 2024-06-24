@@ -2,11 +2,11 @@ from collections import OrderedDict
 from os import path as osp
 
 import torch
-from basicsr.archs import build_network
-from basicsr.losses import build_loss
-from basicsr.metrics import calculate_metric
-from basicsr.utils import get_root_logger, imwrite, tensor2img
-from basicsr.utils.registry import MODEL_REGISTRY
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.archs import build_network
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.losses import build_loss
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.metrics import calculate_metric
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils import get_root_logger, imwrite, tensor2img
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.registry import MODEL_REGISTRY
 from tqdm import tqdm
 
 from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.models.base_model import BaseModel

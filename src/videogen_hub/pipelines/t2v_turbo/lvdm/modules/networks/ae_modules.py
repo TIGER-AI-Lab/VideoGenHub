@@ -4,6 +4,8 @@ import torch
 import numpy as np
 import torch.nn as nn
 from einops import rearrange
+
+from videogen_hub.pipelines.dynamicrafter.lvdm.distributions import DiagonalGaussianDistribution
 from videogen_hub.pipelines.t2v_turbo.utils.utils import instantiate_from_config
 from videogen_hub.pipelines.t2v_turbo.lvdm.modules.attention import LinearAttention
 

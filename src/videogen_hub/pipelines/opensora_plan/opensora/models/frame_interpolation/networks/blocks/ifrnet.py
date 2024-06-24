@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from utils.flow_utils import warp
+from videogen_hub.pipelines.opensora_plan.opensora.models.frame_interpolation.utils.flow_utils import warp
 
 
 def resize(x, scale_factor):

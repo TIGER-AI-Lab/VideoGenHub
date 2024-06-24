@@ -3,7 +3,7 @@ import sys
 sys.path.append(os.path.split(sys.path[0])[0])
 
 from videogen_hub.pipelines.seine.models.unet import UNet3DConditionModel
-from torch.optim.lr_scheduler import LambdaLR
+
 
 def customized_lr_scheduler(optimizer, warmup_steps=5000): # 5000 from u-vit
     from torch.optim.lr_scheduler import LambdaLR

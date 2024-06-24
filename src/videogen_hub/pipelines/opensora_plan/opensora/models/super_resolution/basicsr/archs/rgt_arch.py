@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.utils.checkpoint as checkpoint
-from basicsr.utils.registry import ARCH_REGISTRY
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.registry import ARCH_REGISTRY
 from einops import rearrange
 from einops.layers.torch import Rearrange
 from timm.models.layers import DropPath, trunc_normal_

@@ -30,11 +30,13 @@ from packaging import version
 from transformers import CLIPTextModel, CLIPTokenizer
 
 try:
+    # noinspection PyUnresolvedReferences
     from diffusers.utils import randn_tensor
 except:
     from diffusers.utils.torch_utils import randn_tensor
 
 try:
+    # noinspection PyUnresolvedReferences
     from diffusers.pipeline_utils import DiffusionPipeline
 except:
     from diffusers import DiffusionPipeline

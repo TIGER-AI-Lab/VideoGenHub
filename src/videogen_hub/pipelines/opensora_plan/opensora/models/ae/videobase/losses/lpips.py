@@ -5,7 +5,7 @@ from collections import namedtuple
 import torch
 import torch.nn as nn
 from torchvision import models
-from videogen_hub.pipelines.opensora_plan.opensora.models.utils.taming_download import get_ckpt_path
+from videogen_hub.pipelines.opensora_plan.opensora.utils.taming_download import get_ckpt_path
 
 
 class LPIPS(nn.Module):

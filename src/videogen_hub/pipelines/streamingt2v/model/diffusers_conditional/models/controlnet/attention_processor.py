@@ -11,16 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from einops import repeat
 from typing import Callable, Optional, Union
 
 import torch
 import torch.nn.functional as F
-from torch import nn
-
+from diffusers.models.attention_processor import AttnProcessor, LoRAAttnProcessor, LoRAXFormersAttnProcessor, \
+    XFormersAttnProcessor, SlicedAttnAddedKVProcessor, SlicedAttnProcessor, AttnAddedKVProcessor
 from diffusers.utils import deprecate, logging
 from diffusers.utils.import_utils import is_xformers_available
-
+from torch import nn
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 

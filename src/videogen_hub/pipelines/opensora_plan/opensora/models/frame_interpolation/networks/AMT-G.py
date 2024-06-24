@@ -1,19 +1,20 @@
 import torch
 import torch.nn as nn
-from networks.blocks.feat_enc import (
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.frame_interpolation.networks.blocks.feat_enc import (
     LargeEncoder
 )
-from networks.blocks.ifrnet import (
+from videogen_hub.pipelines.opensora_plan.opensora.models.frame_interpolation.networks.blocks.ifrnet import (
     resize,
     Encoder,
     InitDecoder,
     IntermediateDecoder
 )
-from networks.blocks.multi_flow import (
+from videogen_hub.pipelines.opensora_plan.opensora.models.frame_interpolation.networks.blocks.multi_flow import (
     multi_flow_combine,
     MultiFlowDecoder
 )
-from networks.blocks.raft import (
+from videogen_hub.pipelines.opensora_plan.opensora.models.frame_interpolation.networks.blocks.raft import (
     coords_grid,
     BasicUpdateBlock, BidirCorrBlock
 )

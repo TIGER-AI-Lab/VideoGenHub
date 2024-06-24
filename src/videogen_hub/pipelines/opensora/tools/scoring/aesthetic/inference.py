@@ -6,12 +6,12 @@ import clip
 import numpy as np
 import pandas as pd
 import torch
+import torch.utils.data
 import torch.distributed as dist
 import torch.nn as nn
 import torch.nn.functional as F
-
-from einops import rearrange
 from PIL import Image
+from einops import rearrange
 from torchvision.datasets.folder import pil_loader
 from tqdm import tqdm
 
@@ -22,6 +22,7 @@ try:
 
     BICUBIC = InterpolationMode.BICUBIC
 except ImportError:
+    InterpolationMode = None
     BICUBIC = Image.BICUBIC
 
 
@@ -101,9 +102,11 @@ def main(args):
     dist.init_process_group(backend="nccl", timeout=timedelta(hours=24))
     torch.cuda.set_device(dist.get_rank() % torch.cuda.device_count())
     try:
+        # noinspection PyUnresolvedReferences
         from colossalai.utils import set_seed
         set_seed(1024)
     except:
+        print("ColossalAI not found, skipping seed setting.")
         pass
     rank = dist.get_rank()
     world_size = dist.get_world_size()

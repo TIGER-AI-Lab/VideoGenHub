@@ -46,6 +46,8 @@ class MemcachedBackend(BaseStorageBackend):
 
     def get(self, filepath):
         filepath = str(filepath)
+        # I have NO idea what this mc library is supposed to be or does.
+        # noinspection PyUnresolvedReferences
         import mc
         self._client.Get(filepath, self._mc_buffer)
         value_buf = mc.ConvertBuffer(self._mc_buffer)

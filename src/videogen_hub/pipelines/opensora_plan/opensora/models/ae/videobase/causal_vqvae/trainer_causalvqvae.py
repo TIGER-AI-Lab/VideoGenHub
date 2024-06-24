@@ -1,6 +1,6 @@
 import torch.nn.functional as F
-from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vqvae.trainer_videobase import \
-    VideoBaseTrainer
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.trainer_videobase import VideoBaseTrainer
 
 
 class CausalVQVAETrainer(VideoBaseTrainer):

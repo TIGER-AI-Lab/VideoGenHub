@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
-from networks.blocks.ifrnet import (
+from videogen_hub.pipelines.opensora_plan.opensora.models.frame_interpolation.networks.blocks.ifrnet import (
     convrelu, resize,
     ResBlock,
 )
-from utils.flow_utils import warp
+from videogen_hub.pipelines.opensora_plan.opensora.models.frame_interpolation.utils.flow_utils import warp
 
 
 def multi_flow_combine(comb_block, img0, img1, flow0, flow1, 

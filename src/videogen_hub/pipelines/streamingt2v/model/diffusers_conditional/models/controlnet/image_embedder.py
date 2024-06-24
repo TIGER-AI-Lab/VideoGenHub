@@ -1,13 +1,9 @@
-import math
-from typing import Any, Mapping
+import kornia
+import open_clip
 import torch
 import torch.nn as nn
-import kornia
-
-# import open_clip
-from transformers import AutoImageProcessor, AutoModel
-from transformers.models.bit.image_processing_bit import BitImageProcessor
 from einops import rearrange, repeat
+
 
 # FFN
 # from mamba_ssm import Mamba
@@ -49,6 +45,12 @@ class AbstractEncoder(nn.Module):
 
     def encode(self, *args, **kwargs):
         raise NotImplementedError
+
+
+def expand_dims_like(x, y):
+    while x.dim() != y.dim():
+        x = x.unsqueeze(-1)
+    return x
 
 
 class FrozenOpenCLIPImageEmbedder(AbstractEncoder):
@@ -118,6 +120,8 @@ class FrozenOpenCLIPImageEmbedder(AbstractEncoder):
         self.model = self.model.eval()
         for param in self.parameters():
             param.requires_grad = False
+
+    # From https://huggingface.co/spaces/multimodalart/stable-video-diffusion/blob/27994504c4633a7143aa955f5b9a7962dc92d2e4/sgm/util.py
 
     def forward(self, image, no_dropout=False):
         z = self.encode_with_vision_transformer(image)

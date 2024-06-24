@@ -15,34 +15,31 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import torch
-from torch import nn
-from torch.nn import functional as F
-from einops import rearrange, repeat
-
 from diffusers.configuration_utils import ConfigMixin, register_to_config
-from diffusers.utils import BaseOutput, logging
 from diffusers.models.attention_processor import AttentionProcessor, AttnProcessor
-
 # from diffusers.models.transformer_temporal import TransformerTemporalModel
 from diffusers.models.embeddings import TimestepEmbedding, Timesteps
 from diffusers.models.modeling_utils import ModelMixin
+from diffusers.utils import BaseOutput, logging
+from einops import rearrange, repeat
+from torch import nn
+from torch.nn import functional as F
+
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.conditioning import \
+    ConditionalModel
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.transformer_temporal import (
+    TransformerTemporalModel,
+)
 from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.unet_3d_blocks import (
     CrossAttnDownBlock3D,
-    CrossAttnUpBlock3D,
     DownBlock3D,
     UNetMidBlock3DCrossAttn,
-    UpBlock3D,
     get_down_block,
-    get_up_block,
     transformer_g_c,
 )
-
 # from diffusers.models.unet_3d_condition import UNet3DConditionModel
 from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.unet_3d_condition import (
     UNet3DConditionModel,
-)
-from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.transformer_temporal import (
-    TransformerTemporalModel,
 )
 from videogen_hub.pipelines.streamingt2v.model.layers.conv_channel_extension import (
     Conv2D_SubChannels,
@@ -127,6 +124,8 @@ class ZeroConv(nn.Module):
             model = nn.Conv2d(channels, channels, kernel_size=1)
             model = zero_module(model, reset=zero_init)
         elif mode.startswith("3d"):
+            # Was this also just left broken because it never runs in 3d Mode?
+            # noinspection PyUnresolvedReferences
             model = ZeroConv3D(
                 num_frames=num_frames, channels=channels, zero_init=zero_init
             )
@@ -212,6 +211,7 @@ class ControlNetConditioningEmbedding(nn.Module):
                 reset=zero_init,
             )
         else:
+            # noinspection PyUnresolvedReferences
             self.conv_temp = zero_module(
                 TemporalConvLayer_Custom(
                     num_frame_conditioning, num_frames, dropout=0.0
@@ -410,6 +410,8 @@ class ControlNetModel(ModelMixin, ConfigMixin):
         # control net conditioning embedding
 
         if condition_encoder == "temp_conv_vq":
+            # Pretty sure this isn't used, which is why the OG authors just left it broken
+            # noinspection PyUnresolvedReferences
             controlnet_cond_embedding = ControlNetConditioningEmbeddingVQ(
                 conditioning_embedding_channels=block_out_channels[0],
                 conditioning_channels=4,
@@ -421,6 +423,7 @@ class ControlNetModel(ModelMixin, ConfigMixin):
                 # zero_init=not merging_mode.startswith("attention"),
             )
         elif condition_encoder == "vq":
+            # noinspection PyUnresolvedReferences
             controlnet_cond_embedding = ControlNetConditioningOptVQ(
                 vq=vae,
                 conditioning_embedding_channels=block_out_channels[0],

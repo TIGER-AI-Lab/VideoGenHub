@@ -8,8 +8,8 @@ import torch
 import torch.distributed as dist
 import torch.nn.functional as F
 from torch import nn, Tensor
-from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.vqvae.modeling_videobase import VideoBaseAE
 
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modeling_videobase import VideoBaseAE
 from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.vqvae.configuration_vqvae import \
     VQVAEConfiguration
 
@@ -631,6 +631,7 @@ class SparseAttention(nn.Module):
 
     def get_ops(self):
         try:
+            # noinspection PyUnresolvedReferences
             from deepspeed.ops.sparse_attention import MatMul, Softmax
         except:
             raise Exception(
@@ -771,7 +772,8 @@ class VQVAEModel(VideoBaseAE):
             
     @classmethod
     def download_and_load_model(cls, model_name, cache_dir=None):
-        from videogen_hub.pipelines.opensora_plan.opensora.models.utils.downloader import gdown_download
+
+        from videogen_hub.pipelines.opensora_plan.opensora.utils.downloader import gdown_download
         path = gdown_download(
             cls.DOWNLOADED_VQVAE[model_name], model_name, cache_dir=cache_dir
         )

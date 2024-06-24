@@ -17,12 +17,9 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.utils.checkpoint
-
 from diffusers.configuration_utils import ConfigMixin, register_to_config
 from diffusers.loaders import UNet2DConditionLoadersMixin
-from diffusers.utils import BaseOutput, logging
 from diffusers.models.activations import get_activation
 from diffusers.models.attention_processor import AttentionProcessor, AttnProcessor
 from diffusers.models.embeddings import (
@@ -37,8 +34,10 @@ from diffusers.models.embeddings import (
     Timesteps,
 )
 from diffusers.models.modeling_utils import ModelMixin
+from diffusers.utils import BaseOutput, logging
+
 # from diffusers.models.transformer_temporal import TransformerTemporalModel
-from videogen_hub.pipelines.show_1.showone.models.transformer_temporal import  TransformerTemporalModel
+from videogen_hub.pipelines.show_1.showone.models.transformer_temporal import TransformerTemporalModel
 from videogen_hub.pipelines.show_1.showone.models.unet_3d_blocks import (
     CrossAttnDownBlock3D,
     CrossAttnUpBlock3D,
@@ -49,7 +48,6 @@ from videogen_hub.pipelines.show_1.showone.models.unet_3d_blocks import (
     get_down_block,
     get_up_block,
 )
-
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 

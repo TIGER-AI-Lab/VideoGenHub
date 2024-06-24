@@ -1,9 +1,9 @@
 import logging
 import torch
 from os import path as osp
-from basicsr.data import build_dataloader, build_dataset
-from basicsr.models import build_model
-from basicsr.utils.options import dict2str, parse_options
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.data import build_dataloader, build_dataset
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.models import build_model
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.options import dict2str, parse_options
 
 
 def image_sr(args):

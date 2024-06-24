@@ -1,44 +1,39 @@
+import warnings
 from pathlib import Path
-from typing import Any, Optional, Union, Callable
+from typing import Any
 
 import pytorch_lightning as pl
 import torch
-from diffusers import DDPMScheduler, DiffusionPipeline, AutoencoderKL, DDIMScheduler
+from diffusers import DDPMScheduler, AutoencoderKL, DDIMScheduler
+from diffusers.loaders import unet
 from diffusers.utils.import_utils import is_xformers_available
-from einops import rearrange, repeat
-
+from einops import rearrange
 from transformers import CLIPTextModel, CLIPTokenizer
-from videogen_hub.pipelines.streamingt2v.utils.video_utils import (
-    ResultProcessor,
-    save_videos_grid,
-    video_naming,
-)
 
-from videogen_hub.pipelines.streamingt2v.model. import pl_module_params_controlnet
-
+from videogen_hub.pipelines.streamingt2v.model import pl_module_params_controlnet
 from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.controlnet import (
     ControlNetModel,
-)
-from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.unet_3d_condition import (
-    UNet3DConditionModel,
-)
-from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.pipeline_text_to_video_w_controlnet_synth import (
-    TextToVideoSDPipeline,
-)
-
-from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.processor import (
-    set_use_memory_efficient_attention_xformers,
 )
 from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.mask_generator import (
     MaskGenerator,
 )
-
-import warnings
-
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.pipeline_text_to_video_w_controlnet_synth import (
+    TextToVideoSDPipeline,
+)
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.processor import (
+    set_use_memory_efficient_attention_xformers,
+)
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.unet_3d_condition import (
+    UNet3DConditionModel,
+)
 # from warnings import warn
 from videogen_hub.pipelines.streamingt2v.utils.iimage import IImage
-from videogen_hub.pipelines.streamingt2v.utils.object_loader import instantiate_object
 from videogen_hub.pipelines.streamingt2v.utils.object_loader import get_class
+from videogen_hub.pipelines.streamingt2v.utils.object_loader import instantiate_object
+from videogen_hub.pipelines.streamingt2v.utils.video_utils import (
+    ResultProcessor,
+    video_naming,
+)
 
 
 class VideoLDM(pl.LightningModule):
@@ -214,7 +209,7 @@ class VideoLDM(pl.LightningModule):
                 )
             elif unet_params.use_image_tokens_ctrl:
                 missing, unexpected = unet.load_state_dict(
-                    state_dict_proj, strict=False
+                    state_dict_proj
                 )
             assert len(unexpected) == 0, f"Unexpected entries {unexpected}"
             print(f"Missing keys state proj = {missing}")

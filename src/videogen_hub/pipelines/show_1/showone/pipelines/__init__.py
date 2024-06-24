@@ -3,7 +3,6 @@ from typing import List, Union
 
 import numpy as np
 import torch
-
 from diffusers.utils import BaseOutput, OptionalDependencyNotAvailable, is_torch_available, is_transformers_available
 
 

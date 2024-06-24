@@ -1,5 +1,5 @@
 import torch.nn.functional as F
-from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.vqvae.trainer_videobase import VideoBaseTrainer
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.trainer_videobase import VideoBaseTrainer
 
 
 class VQVAETrainer(VideoBaseTrainer):

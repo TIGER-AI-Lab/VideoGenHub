@@ -1,7 +1,6 @@
 import argparse
 import os
 
-import colossalai
 import numpy as np
 import pandas as pd
 import torch
@@ -11,7 +10,7 @@ from mmengine.dataset import Compose, default_collate
 from mmengine.registry import DefaultScope
 from mmocr.datasets import PackTextDetInputs
 from mmocr.registry import MODELS
-from tools.datasets.utils import extract_frames, is_video
+from videogen_hub.pipelines.opensora.tools.datasets.utils import extract_frames, is_video
 from torch.utils.data import DataLoader, DistributedSampler
 from torchvision.datasets.folder import pil_loader
 from torchvision.transforms import Resize, CenterCrop, Compose
@@ -87,8 +86,11 @@ def main():
     cfg = Config.fromfile('./tools/scoring/ocr/dbnetpp.py')
 
     meta_path = args.meta_path
-
-    colossalai.launch_from_torch({})
+    try:
+        import colossalai
+        colossalai.launch_from_torch({})
+    except:
+        print('==> ColossalAI not found, running in single node mode.')
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     DefaultScope.get_instance('ocr', scope_name='mmocr')  # use mmocr Registry as default
 

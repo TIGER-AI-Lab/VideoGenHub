@@ -9,7 +9,7 @@ from os import path as osp
 import cv2
 import imageio.v2 as imageio
 
-from basicsr.test_img import image_sr
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.test_img import image_sr
 
 
 def replace_filename(original_path, suffix):

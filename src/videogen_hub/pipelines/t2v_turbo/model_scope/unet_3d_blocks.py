@@ -19,7 +19,9 @@ from torch import nn
 from diffusers.models.resnet import Downsample2D, ResnetBlock2D, TemporalConvLayer, Upsample2D
 
 try:
+    # noinspection PyUnresolvedReferences
     from diffusers.models.transformer_2d import Transformer2DModel
+    # noinspection PyUnresolvedReferences
     from diffusers.models.transformer_temporal import TransformerTemporalModel
 except:
     from diffusers.models.transformers.transformer_2d import Transformer2DModel

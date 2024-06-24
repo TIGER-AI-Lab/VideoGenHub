@@ -4,8 +4,8 @@ from torch.utils.checkpoint import checkpoint
 import kornia
 import open_clip
 from transformers import T5Tokenizer, T5EncoderModel, CLIPTokenizer, CLIPTextModel
-from lvdm.common import autocast
-from utils import count_params
+from videogen_hub.pipelines.videocrafter.lvdm.common import autocast
+from videogen_hub.pipelines.videocrafter.utils import count_params
 
 class AbstractEncoder(nn.Module):
     def __init__(self):

@@ -2,7 +2,7 @@ import enum
 
 import numpy as np
 import torch as th
-from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.transport. import path
+from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.transport import path
 
 from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.transport.integrators import ode, sde
 from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.transport.utils import mean_flat

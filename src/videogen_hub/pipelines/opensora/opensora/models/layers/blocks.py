@@ -187,6 +187,7 @@ class Attention(nn.Module):
                 k = self.rotary_emb(k)
 
         if enable_flash_attn:
+            # noinspection PyUnresolvedReferences
             from flash_attn import flash_attn_func
 
             # (B, #heads, N, #dim) -> (B, N, #heads, #dim)
@@ -309,6 +310,7 @@ class KVCompressAttention(nn.Module):
         q, k = self.q_norm(q), self.k_norm(k)
 
         if enable_flash_attn:
+            # noinspection PyUnresolvedReferences
             from flash_attn import flash_attn_func
 
             x = flash_attn_func(
@@ -408,6 +410,7 @@ class SeqParallelAttention(Attention):
         q, k, v = qkv.unbind(0)
         q, k = self.q_norm(q), self.k_norm(k)
         if self.enable_flash_attn:
+            # noinspection PyUnresolvedReferences
             from flash_attn import flash_attn_func
 
             x = flash_attn_func(

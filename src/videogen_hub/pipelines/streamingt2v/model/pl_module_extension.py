@@ -120,14 +120,14 @@ class NoiseDecomposition():
         timesteps_alphas = repeat(timesteps_alphas, "B -> B F C W H",
                                   F=base_pred.shape[1], C=base_pred.shape[2], W=base_pred.shape[3], H=base_pred.shape[4])
         base_correction = math.sqrt(
-            lambda_f) * torch.sqrt(1-timesteps_alphas) * base_pred
+            self.lambda_f) * torch.sqrt(1-timesteps_alphas) * base_pred
 
         z_t_residual_dash = z_t_residual - base_correction
 
         residual_pred = unet(
             z_t_residual_dash, timesteps, encoder_hidden_states, x0=x0_residual).sample
         composed_pred = math.sqrt(
-            lambda_f)*base_pred.detach() + math.sqrt(1-lambda_f) * residual_pred
+            self.lambda_f)*base_pred.detach() + math.sqrt(1-self.lambda_f) * residual_pred
 
         loss_residual = torch.nn.functional.mse_loss(
             composed_noise.float(), composed_pred.float(), reduction=reduction)

@@ -3,9 +3,8 @@ import time
 import pandas as pd
 import torch
 import torchvision.transforms as transforms
+from videogen_hub.pipelines.opensora.tools.datasets.utils import extract_frames, is_video
 from torchvision.datasets.folder import pil_loader
-
-from tools.datasets.utils import extract_frames, is_video
 
 PROMPTS = {
     "image": {

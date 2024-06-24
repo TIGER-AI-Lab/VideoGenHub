@@ -163,6 +163,7 @@ class T5Encoder:
         self.output_dim = self.t5.model.config.d_model
         self.dtype = dtype
         try:
+            # noinspection PyUnresolvedReferences
             import colossalai
         except:
             shardformer = False
@@ -172,9 +173,11 @@ class T5Encoder:
 
     def shardformer_t5(self):
         try:
+            # noinspection PyUnresolvedReferences
             from colossalai.shardformer import ShardConfig, ShardFormer
-
+            # noinspection PyUnresolvedReferences
             from videogen_hub.pipelines.opensora.opensora.models.acceleration.shardformer.policy.t5_encoder import T5EncoderPolicy
+            # noinspection PyUnresolvedReferences
             from videogen_hub.pipelines.opensora.opensora.models.utils.misc import requires_grad
         except:
             return

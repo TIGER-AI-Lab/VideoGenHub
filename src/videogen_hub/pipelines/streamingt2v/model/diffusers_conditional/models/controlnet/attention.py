@@ -11,26 +11,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import math
-from typing import Callable, Optional
+from typing import Optional
 
 import torch
 import torch.nn.functional as F
-from torch import nn
-
+from diffusers.models.activations import GELU, ApproximateGELU
+from diffusers.models.normalization import AdaLayerNorm, AdaLayerNormZero
 from diffusers.utils.import_utils import is_xformers_available
+from torch import nn
 
 # from diffusers.models.attention_processor import Attention
 # from t2v_enhanced.model.diffusers_conditional.models.controlnet.attention import Attention
-from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.attention_processor import Attention
-from diffusers.models.embeddings import CombinedTimestepLabelEmbeddings
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.attention_processor import \
+    Attention
 
 # from t2v_enhanced.model.diffusers_conditional.models.controlnet.attention_processor import Attention
 
 
 if is_xformers_available():
-    import xformers
-    import xformers.ops
+    pass
 else:
     xformers = None
 

@@ -6,8 +6,8 @@ from typing import Any, Callable, Dict, List, Optional, Union
 
 import numpy as np
 import torch
-from transformers import CLIPImageProcessor, T5EncoderModel, T5Tokenizer
-
+from videogen_hub.pipelines.show_1.showone.pipelines import TextToVideoPipelineOutput
+from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 from diffusers.schedulers import DDPMScheduler
 from diffusers.utils import (
     BACKENDS_MAPPING,
@@ -16,14 +16,10 @@ from diffusers.utils import (
     is_bs4_available,
     is_ftfy_available,
     logging,
-    replace_example_docstring,
 )
 from diffusers.utils.torch_utils import randn_tensor
-from diffusers.pipelines.pipeline_utils import DiffusionPipeline
-
-from videogen_hub.pipelines.show_1.showone.pipelines.models import UNet3DConditionModel
-from videogen_hub.pipelines.show_1.showone.pipelines. import TextToVideoPipelineOutput
-
+from transformers import CLIPImageProcessor, T5EncoderModel, T5Tokenizer
+from videogen_hub.pipelines.show_1.showone.models import UNet3DConditionModel
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 

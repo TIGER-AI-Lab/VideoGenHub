@@ -1,8 +1,9 @@
-import torch
-import torch.nn as nn
-import numpy as np
 from functools import partial
 from inspect import isfunction
+
+import numpy as np
+import torch
+import torch.nn as nn
 
 
 def exists(x):

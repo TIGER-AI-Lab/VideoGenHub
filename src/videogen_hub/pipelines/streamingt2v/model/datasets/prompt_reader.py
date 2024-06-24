@@ -1,13 +1,12 @@
+import json
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict
 
 import numpy as np
 import pytorch_lightning as pl
 import torch
 from pytorch_lightning.utilities.types import EVAL_DATALOADERS
-
-from t2v_enhanced.model.datasets.video_dataset import Annotations
-import json
+from videogen_hub.pipelines.streamingt2v.model.datasets.video_dataset import Annotations
 
 
 class ConcatDataset(torch.utils.data.Dataset):

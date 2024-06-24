@@ -128,7 +128,9 @@ def main():
 
     has_colossal = False
     try:
+        # noinspection PyUnresolvedReferences
         import colossalai
+        # noinspection PyUnresolvedReferences
         from colossalai.cluster import DistCoordinator
     except:
         colossalai = None

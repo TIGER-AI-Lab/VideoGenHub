@@ -7,6 +7,7 @@ from typing import Union, Iterable
 
 import torch
 import torch.distributed as dist
+from mmengine import get_git_hash
 # from torch._six import inf
 from torch import inf
 from torch.utils.tensorboard import SummaryWriter
@@ -286,7 +287,6 @@ def save_video_grid(video, nrow=None):
 def collect_env():
     # Copyright (c) OpenMMLab. All rights reserved.
     from mmcv.utils import collect_env as collect_base_env
-    from mmcv.utils import get_git_hash
     """Collect the information of the running environments."""
 
     env_info = collect_base_env()

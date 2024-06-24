@@ -2,6 +2,7 @@
 
 import math
 from dataclasses import dataclass
+from typing import Optional
 
 import torch
 import torch.nn.functional as F
@@ -10,12 +11,12 @@ from diffusers.models.attention import FeedForward, AdaLayerNorm
 from diffusers.models.modeling_utils import ModelMixin
 from diffusers.utils import BaseOutput
 from diffusers.utils.import_utils import is_xformers_available
+from einops import rearrange, repeat
+from rotary_embedding_torch import RotaryEmbedding
 from torch import nn
 
 from videogen_hub.pipelines.lavie.lavie_src.vsr.models.resnet import ResnetBlock3DCNN
-from rotary_embedding_torch import RotaryEmbedding
-from typing import Optional
-from einops import rearrange, repeat
+
 
 @dataclass
 class Transformer3DModelOutput(BaseOutput):

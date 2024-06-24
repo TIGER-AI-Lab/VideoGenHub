@@ -1,12 +1,15 @@
-from typing import Optional
-import os
-from tqdm import tqdm
-from videogen_hub.infermodels import load_model
-import cv2, json 
-import numpy as np
 import argparse
-from videogen_hub.utils.file_helper import get_file_path
+import os
+from typing import Optional
+
+import cv2
+import json
+import numpy as np
 from moviepy.editor import ImageSequenceClip
+from tqdm import tqdm
+
+from videogen_hub.infermodels import load_model
+from videogen_hub.utils.file_helper import get_file_path
 
 
 def infer_text_guided_vg_bench(

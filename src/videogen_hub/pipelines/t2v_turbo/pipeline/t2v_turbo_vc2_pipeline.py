@@ -3,10 +3,10 @@ from diffusers import DiffusionPipeline
 
 from typing import List, Optional, Union, Dict, Any
 
-from diffusers import logging
+from diffusers.utils import logging
 from diffusers.utils.torch_utils import randn_tensor
-from videogen_hub.pipelines.t2v_turbo.pipeline.lvdm.models.ddpm3d import LatentDiffusion
-from videogen_hub.pipelines.t2v_turbo.pipeline.scheduler.t2v_turbo_scheduler import T2VTurboScheduler
+from videogen_hub.pipelines.t2v_turbo.lvdm.models.ddpm3d import LatentDiffusion
+from videogen_hub.pipelines.t2v_turbo.scheduler.t2v_turbo_scheduler import T2VTurboScheduler
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 

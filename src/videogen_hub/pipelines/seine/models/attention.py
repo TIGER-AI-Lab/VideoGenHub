@@ -4,7 +4,6 @@ import sys
 sys.path.append(os.path.split(sys.path[0])[0])
 
 from dataclasses import dataclass
-from typing import Optional
 
 import math
 import torch
@@ -16,12 +15,13 @@ from diffusers.utils import BaseOutput
 from diffusers.utils.import_utils import is_xformers_available
 from diffusers.models.attention import FeedForward, AdaLayerNorm
 from rotary_embedding_torch import RotaryEmbedding
-from typing import Callable, Optional
+from typing import Optional
 from einops import rearrange, repeat
 
 try:
     from diffusers.models.modeling_utils import ModelMixin
 except:
+    # noinspection PyUnresolvedReferences
     from diffusers.modeling_utils import ModelMixin # 0.11.1
 
 

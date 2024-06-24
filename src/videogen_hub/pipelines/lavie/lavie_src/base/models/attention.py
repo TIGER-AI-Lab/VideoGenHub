@@ -1,27 +1,24 @@
 # Adapted from https://github.com/huggingface/diffusers/blob/main/src/diffusers/models/attention.py
-import os
-import sys
 
-
-
-from dataclasses import dataclass
 
 import math
+from dataclasses import dataclass
+from typing import Optional
+
 import torch
 import torch.nn.functional as F
-from torch import nn
-
 from diffusers.configuration_utils import ConfigMixin, register_to_config
+from diffusers.models.attention import FeedForward, AdaLayerNorm
 from diffusers.utils import BaseOutput
 from diffusers.utils.import_utils import is_xformers_available
-from diffusers.models.attention import FeedForward, AdaLayerNorm
-from rotary_embedding_torch import RotaryEmbedding
-from typing import Optional
 from einops import rearrange, repeat
+from rotary_embedding_torch import RotaryEmbedding
+from torch import nn
 
 try:
     from diffusers.models.modeling_utils import ModelMixin
 except:
+    # noinspection PyUnresolvedReferences
     from diffusers.modeling_utils import ModelMixin  # 0.11.1
 
 

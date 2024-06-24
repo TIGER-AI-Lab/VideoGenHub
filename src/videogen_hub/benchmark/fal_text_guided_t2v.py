@@ -1,8 +1,12 @@
-from typing import Optional
+import json
 import os
-from tqdm import tqdm
-import json, requests
+import requests
+from typing import Optional
+
 import fal_client
+from tqdm import tqdm
+
+
 # import json
 
 def infer_text_guided_vg_bench(

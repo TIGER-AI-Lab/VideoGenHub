@@ -3,7 +3,7 @@ from os import path as osp
 
 import numpy as np
 import torch
-from basicsr.utils import scandir
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils import scandir
 from torch.nn import functional as F
 
 

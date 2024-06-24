@@ -1,16 +1,16 @@
-import os
-import math
-import torch
 import logging
+import math
+import os
 import subprocess
-import numpy as np
-import torch.distributed as dist
+from collections import OrderedDict
+from typing import Union, Iterable
 
+import numpy as np
+import torch
+import torch.distributed as dist
+from mmengine import get_git_hash
 # from torch._six import inf
 from torch import inf
-from PIL import Image
-from typing import Union, Iterable
-from collections import OrderedDict
 from torch.utils.tensorboard import SummaryWriter
 
 _tensor_or_tensors = Union[torch.Tensor, Iterable[torch.Tensor]]
@@ -350,7 +350,6 @@ def save_videos_grid_tav(videos: torch.Tensor, path: str, rescale=False, n_rows=
 def collect_env():
     # Copyright (c) OpenMMLab. All rights reserved.
     from mmcv.utils import collect_env as collect_base_env
-    from mmcv.utils import get_git_hash
     """Collect the information of the running environments."""
 
     env_info = collect_base_env()

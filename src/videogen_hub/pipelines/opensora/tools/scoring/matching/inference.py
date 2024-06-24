@@ -2,17 +2,15 @@ import argparse
 import os
 
 import clip
-import colossalai
 import numpy as np
 import pandas as pd
 import torch
 import torch.distributed as dist
 import torch.nn.functional as F
+from videogen_hub.pipelines.opensora.tools.datasets.utils import extract_frames, is_video
 from torch.utils.data import DataLoader, DistributedSampler
 from torchvision.datasets.folder import pil_loader
 from tqdm import tqdm
-
-from tools.datasets.utils import extract_frames, is_video
 
 
 class VideoTextDataset(torch.utils.data.Dataset):
@@ -68,7 +66,12 @@ def parse_args():
 
 
 def main():
-    colossalai.launch_from_torch({})
+    try:
+        import colossalai
+        colossalai.launch_from_torch({})
+    except:
+        print("ColossalAI not found, running in single-GPU mode.")
+        pass
     args = parse_args()
 
     meta_path = args.meta_path

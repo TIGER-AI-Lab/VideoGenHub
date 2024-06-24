@@ -13,17 +13,20 @@
 # limitations under the License.
 from typing import Any, Dict, Optional, Tuple
 
-import numpy as np
 import torch
 import torch.nn.functional as F
-from torch import nn
-
-from diffusers.utils import is_torch_version, logging
-from diffusers.models.normalization import AdaGroupNorm
 from diffusers.models.attention_processor import Attention, AttnAddedKVProcessor, AttnAddedKVProcessor2_0
 from diffusers.models.resnet import Downsample2D, ResnetBlock2D, TemporalConvLayer, Upsample2D
-from diffusers.models.transformer_2d import Transformer2DModel
-from diffusers.models.transformer_temporal import TransformerTemporalModel
+try:
+    # noinspection PyUnresolvedReferences
+    from diffusers.models.transformer_2d import Transformer2DModel
+    # noinspection PyUnresolvedReferences
+    from diffusers.models.transformer_temporal import TransformerTemporalModel
+except:
+    from diffusers.models.transformers.transformer_2d import Transformer2DModel
+    from diffusers.models.transformers.transformer_temporal import TransformerTemporalModel
+from diffusers.utils import is_torch_version, logging
+from torch import nn
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 

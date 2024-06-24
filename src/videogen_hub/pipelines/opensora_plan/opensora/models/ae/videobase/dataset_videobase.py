@@ -8,8 +8,9 @@ import torch.nn.functional as F
 import torch.utils.data as data
 from torchvision import transforms
 from torchvision.transforms import Lambda
-from videogen_hub.pipelines.opensora_plan.opensora.models.dataset.transform import ToTensorVideo, CenterCropVideo
-from videogen_hub.pipelines.opensora_plan.opensora.models.utils.dataset_utils import DecordInit
+
+from videogen_hub.pipelines.opensora.opensora.datasets.video_transforms import ToTensorVideo, CenterCropVideo
+from videogen_hub.pipelines.opensora_plan.opensora.utils.dataset_utils import DecordInit
 
 
 def TemporalRandomCrop(total_frames, size):

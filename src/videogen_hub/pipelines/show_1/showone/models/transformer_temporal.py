@@ -15,12 +15,11 @@ from dataclasses import dataclass
 from typing import Optional
 
 import torch
-from torch import nn
-
 from diffusers.configuration_utils import ConfigMixin, register_to_config
-from diffusers.utils import BaseOutput
 from diffusers.models.attention import BasicTransformerBlock
 from diffusers.models.modeling_utils import ModelMixin
+from diffusers.utils import BaseOutput
+from torch import nn
 
 
 @dataclass

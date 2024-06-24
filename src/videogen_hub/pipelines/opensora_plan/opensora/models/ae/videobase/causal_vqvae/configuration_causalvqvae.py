@@ -1,4 +1,5 @@
-from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vqvae.configuration_videobase import VideoBaseConfiguration
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.configuration_videobase import \
+    VideoBaseConfiguration
 
 
 class CausalVQVAEConfiguration(VideoBaseConfiguration):

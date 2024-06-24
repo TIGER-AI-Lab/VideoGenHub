@@ -1,6 +1,4 @@
 # Adapted from https://github.com/huggingface/diffusers/blob/main/src/diffusers/models/resnet.py
-import os
-import sys
 
 
 import torch

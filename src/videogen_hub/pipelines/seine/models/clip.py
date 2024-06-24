@@ -1,8 +1,8 @@
 import numpy
 import torch.nn as nn
+import transformers
 from transformers import CLIPTokenizer, CLIPTextModel
 
-import transformers
 transformers.logging.set_verbosity_error()
 
 """

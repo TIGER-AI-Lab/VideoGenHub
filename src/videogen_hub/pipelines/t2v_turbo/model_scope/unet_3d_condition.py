@@ -26,6 +26,7 @@ from diffusers.utils import BaseOutput, logging
 from diffusers.models.embeddings import TimestepEmbedding, Timesteps
 from diffusers.models.modeling_utils import ModelMixin
 try:
+    # noinspection PyUnresolvedReferences
     from diffusers.models.transformer_temporal import TransformerTemporalModel
 except:
     from diffusers.models.transformers.transformer_temporal import TransformerTemporalModelOutput

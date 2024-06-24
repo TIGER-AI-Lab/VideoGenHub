@@ -146,6 +146,7 @@ def load_from_sharded_state_dict(model, ckpt_path, model_name="model", strict=Fa
     # Attempt to import colossalAI first
     colossal_imported = False
     with suppress(ImportError):
+        # noinspection PyUnresolvedReferences
         from colossalai.checkpoint import GeneralCheckpointIO
         colossal_imported = True
 

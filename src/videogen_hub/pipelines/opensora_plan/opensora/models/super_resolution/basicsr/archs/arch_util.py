@@ -10,7 +10,7 @@ from torch.nn import init as init
 from torch.nn.modules.batchnorm import _BatchNorm
 
 
-# from basicsr.ops.dcn import ModulatedDeformConvPack, modulated_deform_conv
+# from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.ops.dcn import ModulatedDeformConvPack, modulated_deform_conv
 
 
 @torch.no_grad()

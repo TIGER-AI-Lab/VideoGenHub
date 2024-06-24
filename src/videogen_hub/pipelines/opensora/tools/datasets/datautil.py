@@ -22,6 +22,7 @@ try:
 
     PANDA_USE_PARALLEL = True
 except ImportError:
+    pandarallel = None
     PANDA_USE_PARALLEL = False
 
 
