@@ -1,12 +1,15 @@
 import os
 
+import torch
 from PIL import Image
 from huggingface_hub import hf_hub_download
 
 from videogen_hub import MODEL_PATH
+from videogen_hub.base.base_i2v_infer_model import BaseI2vInferModel
+from videogen_hub.pipelines.dynamicrafter.inference import DynamiCrafterPipeline, load_model
 
 
-class DynamiCrafter:
+class DynamiCrafter(BaseI2vInferModel):
     def __init__(self, version: str = "256"):
         """
         Initializes the DynamiCrafter model using the Doubiiu/DynamiCrafter_{version} checkpoint from the Hugging Face Hub.
@@ -46,6 +49,8 @@ class DynamiCrafter:
         else:
             raise ValueError("Invalid input. Please enter 256, 512, or 1024.")
 
+        self.resolution = [self.height, self.width]
+
         self.arg_list = [
             "--ckpt_path",
             self.model_path,
@@ -72,12 +77,55 @@ class DynamiCrafter:
             str(self.fs),
         ]
 
-        self.pipeline = DynamiCrafterPipeline(self.arg_list)
+    def load_pipeline(self):
+        if self.pipeline:
+            # If the pipeline is already loaded, check the model_path, height, width, and fs in the args.
+            if (
+                self.arg_list[1] == self.model_path
+                and self.arg_list[9] == self.height
+                and self.arg_list[11] == self.width
+                and self.arg_list[-1] == str(self.fs)
+            ):
+                return self.pipeline
+        if self.pipeline:
+            del self.pipeline
+            torch.cuda.empty_cache()
+        self.arg_list[1] = self.model_path
+        self.arg_list[9] = self.height
+        self.arg_list[11] = self.width
+        self.arg_list[-1] = str(self.fs)
+        self.pipeline = load_model(self.arg_list)
+
+    def download_models(self):
+        model_paths = []
+        mp = hf_hub_download(
+            repo_id="Doubiiu/DynamiCrafter",
+            filename="model.ckpt",
+            local_dir=os.path.join(MODEL_PATH, "dynamicrafter_256_v1"),
+        )
+        model_paths.append(mp)
+
+        mp = hf_hub_download(
+            repo_id="Doubiiu/DynamiCrafter_512",
+            filename="model.ckpt",
+            local_dir=os.path.join(MODEL_PATH, "dynamicrafter_512_v1"),
+        )
+        model_paths.append(mp)
+
+        mp = hf_hub_download(
+            repo_id="Doubiiu/DynamiCrafter_1024",
+            filename="model.ckpt",
+            local_dir=os.path.join(MODEL_PATH, "dynamicrafter_1024_v1"),
+        )
+        model_paths.append(mp)
+        return model_paths
 
     def infer_one_video(
             self,
-            input_image: Image.Image,
+            input_image: Image,
             prompt: str = None,
+            negative_prompt: str = None,
+            size: list = None,
             seconds: int = 2,
             fps: int = 8,
             seed: int = 42,
@@ -88,6 +136,7 @@ class DynamiCrafter:
         Args:
             input_image (PIL.Image.Image): The input image to use as the basis for video generation.
             prompt (str, optional): The text prompt that guides the video generation. If not specified, the video generation will rely solely on the input image. Defaults to None.
+            negative_prompt (str, optional): The negative text prompt that guides the video generation. If not specified, the video generation will rely solely on the input image. Defaults to None.
             size (list, optional): Specifies the resolution of the output video as [height, width]. Defaults to [320, 512].
             seconds (int, optional): The duration of the video in seconds. Defaults to 2.
             fps (int, optional): The number of frames per second in the generated video. This determines how smooth the video appears. Defaults to 8.
@@ -96,9 +145,14 @@ class DynamiCrafter:
         Returns:
             torch.Tensor: A tensor representing the generated video, structured as (time, channel, height, width).
         """
-        self.pipeline.args.seed = seed
-        self.pipeline.args.text_input = prompt
-        self.pipeline.args.video_length = fps * seconds
-        video = self.pipeline.run_inference(input_image)
+        gen_pipeline = DynamiCrafterPipeline(self.arg_list)
 
+        gen_pipeline.args.seed = seed
+        gen_pipeline.args.text_input = prompt
+        gen_pipeline.args.video_length = fps * seconds
+        if size is not None:
+            self.resolution = size
+        # This way, we can keep the pipeline in memory if we want
+        pipeline = self.load_pipeline()
+        video = self.pipeline(input_image, pipeline)
         return video

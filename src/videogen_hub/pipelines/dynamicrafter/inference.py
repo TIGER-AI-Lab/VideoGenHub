@@ -305,7 +305,20 @@ def get_parser():
     return parser
 
 
-class DynamiCrafterPipeline():
+def load_model(args):
+    config = OmegaConf.load(args.config)
+    model_config = config.pop("model", OmegaConf.create())
+
+    model_config['params']['unet_config']['params']['use_checkpoint'] = False
+    model = instantiate_from_config(model_config)
+    model = model.cuda()
+    model.perframe_ae = args.perframe_ae
+    assert os.path.exists(args.ckpt_path), "Error: checkpoint Not Found!"
+    model = load_model_checkpoint(model, args.ckpt_path)
+    model.eval()
+
+
+class DynamiCrafterPipeline:
     def __init__(self, args):
         """
         Initialize the parameters from args
@@ -316,7 +329,7 @@ class DynamiCrafterPipeline():
         parser = get_parser()
         self.args = parser.parse_args(args)
 
-    def run_inference(self, input_image):
+    def __call__(self, input_image, model=None):
         """
         Run inference from the input_image.
         This input image can either be a tensor or a string as the path of the image file.
@@ -328,18 +341,10 @@ class DynamiCrafterPipeline():
         """
         args = self.args
         seed_everything(args.seed)
-        ## model config
-        config = OmegaConf.load(self.args.config)
-        model_config = config.pop("model", OmegaConf.create())
 
-        ## set use_checkpoint as False as when using deepspeed, it encounters an error "deepspeed backend not set"
-        model_config['params']['unet_config']['params']['use_checkpoint'] = False
-        model = instantiate_from_config(model_config)
-        model = model.cuda()
-        model.perframe_ae = args.perframe_ae
-        assert os.path.exists(args.ckpt_path), "Error: checkpoint Not Found!"
-        model = load_model_checkpoint(model, args.ckpt_path)
-        model.eval()
+        ## model config
+        if model is None:
+            model = load_model(args)
 
         ## run over data
         assert (args.height % 16 == 0) and (args.width % 16 == 0), "Error: image size [h,w] should be multiples of 16!"
@@ -350,14 +355,6 @@ class DynamiCrafterPipeline():
         n_frames = args.video_length
         print(f'Inference with {n_frames} frames')
         noise_shape = [args.bs, channels, n_frames, h, w]
-
-        # fakedir = os.path.join(args.savedir, "samples")
-        # fakedir_separate = os.path.join(args.savedir, "samples_separate")
-
-        # os.makedirs(fakedir, exist_ok=True)
-        # os.makedirs(fakedir_separate, exist_ok=True)
-
-        ## prompt file setting
 
         if type(input_image) == str:
             args.prompt_dir = input_image
@@ -370,15 +367,6 @@ class DynamiCrafterPipeline():
             frame_tensor = processing_image(input_pil, (args.height, args.width), n_frames, args.interp)
             data_list, prompt_list = [frame_tensor], [args.text_input]
 
-        num_samples = len(prompt_list)
-        # print('Prompts testing [rank:%d] %d/%d samples loaded.'%(gpu_no, samples_split, num_samples))
-        # indices = random.choices(list(range(0, num_samples)), k=samples_per_device)
-        # indices = list(range(0, num_samples))
-        # prompt_list_rank = [prompt_list[i] for i in indices]
-        # data_list_rank = [data_list[i] for i in indices]
-        # filename_list_rank = [filename_list[i] for i in indices]
-
-        # start = time.time()
         with torch.no_grad(), torch.cuda.amp.autocast():
             # for idx, indice in tqdm(enumerate(range(0, len(prompt_list), args.bs)), desc='Sample Batch'):
             prompts = prompt_list[0]
@@ -390,19 +378,9 @@ class DynamiCrafterPipeline():
                 videos = videos.unsqueeze(0).to("cuda")
 
             batch_samples = image_guided_synthesis(model, prompts, videos, noise_shape, args.n_samples, args.ddim_steps,
-                                                   args.ddim_eta, \
-                                                   args.unconditional_guidance_scale, args.cfg_img, args.frame_stride,
+                                                   args.ddim_eta, args.unconditional_guidance_scale, args.cfg_img, args.frame_stride,
                                                    args.text_input, args.multiple_cond_cfg, args.loop, args.interp,
                                                    args.timestep_spacing, args.guidance_rescale)
 
             output = batch_samples.squeeze().permute(1, 0, 2, 3)
             return output
-            # save each example individually
-            # for nn, samples in enumerate(batch_samples):
-            #     ## samples : [n_samples,c,t,h,w]
-            #     prompt = prompts[nn]
-            #     filename = filenames[nn]
-            #     # save_results(prompt, samples, filename, fakedir, fps=8, loop=args.loop)
-            #     save_results_seperate(prompt, samples, filename, fakedir, fps=8, loop=args.loop)
-
-        # print(f"Saved in {args.savedir}. Time used: {(time.time() - start):.2f} seconds")

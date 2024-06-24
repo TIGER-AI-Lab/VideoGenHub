@@ -18,21 +18,7 @@ from videogen_hub.pipelines.consisti2v.consisti2v.pipelines.pipeline_conditional
 from videogen_hub.pipelines.consisti2v.consisti2v.utils.util import save_videos_grid
 
 
-def main(args, config):
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
-        datefmt="%m/%d/%Y %H:%M:%S",
-        level=logging.INFO,
-    )
-    diffusers.utils.logging.set_verbosity_info()
-
-    time_str = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
-    savedir = f"{config.output_dir}/{config.output_name}-{time_str}"
-    os.makedirs(savedir)
-
-    samples = []
-    sample_idx = 0
-
+def create_pipeline(config, device: str):
     ### >>> create validation pipeline >>> ###
     if config.pipeline_pretrained_path is None:
         noise_scheduler = DDIMScheduler(
@@ -107,7 +93,27 @@ def main(args, config):
             config.pipeline_pretrained_path
         )
 
-    pipeline.to("cuda")
+    pipeline.to(device)
+    return pipeline
+
+
+def main(args, config, pipeline=None):
+    logging.basicConfig(
+        format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+        datefmt="%m/%d/%Y %H:%M:%S",
+        level=logging.INFO,
+    )
+    diffusers.utils.logging.set_verbosity_info()
+
+    time_str = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+    savedir = f"{config.output_dir}/{config.output_name}-{time_str}"
+    os.makedirs(savedir)
+
+    samples = []
+    sample_idx = 0
+
+    if pipeline is None:
+        pipeline = create_pipeline(config)
 
     # (frameinit) initialize frequency filter for noise reinitialization -------------
     if config.frameinit_kwargs.enable:
