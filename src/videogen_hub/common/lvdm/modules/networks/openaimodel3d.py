@@ -6,16 +6,16 @@ import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
 
-from videogen_hub.pipelines.videocrafter.lvdm.basics import (
+from videogen_hub.common.lvdm.basics import (
     zero_module,
     conv_nd,
     linear,
     avg_pool_nd,
     normalization
 )
-from videogen_hub.pipelines.videocrafter.lvdm.common import checkpoint
-from videogen_hub.pipelines.videocrafter.lvdm.models.utils_diffusion import timestep_embedding
-from videogen_hub.pipelines.videocrafter.lvdm.modules.attention import SpatialTransformer, TemporalTransformer
+from videogen_hub.common.lvdm.common import checkpoint
+from videogen_hub.common.lvdm.models.utils_diffusion import timestep_embedding
+from videogen_hub.common.lvdm.modules.attention import SpatialTransformer, TemporalTransformer
 
 
 class TimestepBlock(nn.Module):

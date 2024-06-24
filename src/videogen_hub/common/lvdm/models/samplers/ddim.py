@@ -2,8 +2,8 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-from videogen_hub.pipelines.videocrafter.lvdm.common import noise_like
-from videogen_hub.pipelines.videocrafter.lvdm.models.utils_diffusion import make_ddim_sampling_parameters, \
+from videogen_hub.common.lvdm.common import noise_like
+from videogen_hub.common.lvdm.models.utils_diffusion import make_ddim_sampling_parameters, \
     make_ddim_timesteps
 
 

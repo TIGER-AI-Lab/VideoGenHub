@@ -6,8 +6,8 @@ import torch
 import torch.nn as nn
 from einops import rearrange
 
-from videogen_hub.pipelines.videocrafter.lvdm.distributions import DiagonalGaussianDistribution
-from videogen_hub.pipelines.videocrafter.lvdm.modules.attention import LinearAttention
+from videogen_hub.common.lvdm.distributions import DiagonalGaussianDistribution
+from videogen_hub.common.lvdm.modules.attention import LinearAttention
 from videogen_hub.pipelines.videocrafter.utils import instantiate_from_config
 
 

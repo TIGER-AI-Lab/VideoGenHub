@@ -20,12 +20,12 @@ import torch.nn as nn
 from torchvision.utils import make_grid
 import pytorch_lightning as pl
 from videogen_hub.pipelines.videocrafter.utils import instantiate_from_config
-from videogen_hub.pipelines.videocrafter.lvdm.ema import LitEma
-from videogen_hub.pipelines.videocrafter.lvdm.distributions import DiagonalGaussianDistribution
-from videogen_hub.pipelines.videocrafter.lvdm.models.utils_diffusion import make_beta_schedule
-from videogen_hub.pipelines.videocrafter.lvdm.modules.encoders.ip_resampler import ImageProjModel, Resampler
-from videogen_hub.pipelines.videocrafter.lvdm.basics import disabled_train
-from videogen_hub.pipelines.videocrafter.lvdm.common import (
+from videogen_hub.common.lvdm.ema import LitEma
+from videogen_hub.common.lvdm.distributions import DiagonalGaussianDistribution
+from videogen_hub.common.lvdm.models.utils_diffusion import make_beta_schedule
+from videogen_hub.common.lvdm.modules.encoders.ip_resampler import ImageProjModel, Resampler
+from videogen_hub.common.lvdm.basics import disabled_train
+from videogen_hub.common.lvdm.common import (
     extract_into_tensor,
     noise_like,
     exists,

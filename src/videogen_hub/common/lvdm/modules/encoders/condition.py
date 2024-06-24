@@ -5,7 +5,7 @@ import torch.nn as nn
 from torch.utils.checkpoint import checkpoint
 from transformers import T5Tokenizer, T5EncoderModel, CLIPTokenizer, CLIPTextModel
 
-from videogen_hub.pipelines.videocrafter.lvdm.common import autocast
+from videogen_hub.common.lvdm.common import autocast
 from videogen_hub.pipelines.videocrafter.utils import count_params
 
 
