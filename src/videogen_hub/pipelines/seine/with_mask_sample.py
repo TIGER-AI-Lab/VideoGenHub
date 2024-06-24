@@ -8,19 +8,6 @@
 Sample new images from a pre-trained DiT.
 """
 import os
-import sys
-
-try:
-    import utils
-    from diffusion import create_diffusion
-except:
-    # sys.path.append(os.getcwd())
-    sys.path.append(os.path.split(sys.path[0])[0])
-    # sys.path[0]                 
-    # os.path.split(sys.path[0])    
-    import utils
-
-    from diffusion import create_diffusion
 
 import torch
 
@@ -32,8 +19,7 @@ from PIL import Image
 import numpy as np
 from torchvision import transforms
 
-sys.path.append("..")
-from datasets_seine import video_transforms
+from videogen_hub.pipelines.seine.datasets_seine import video_transforms
 from natsort import natsorted
 
 

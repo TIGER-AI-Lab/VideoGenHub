@@ -9,7 +9,6 @@ import numpy as np
 import torch
 import torch.distributed as dist
 from mmengine import get_git_hash
-# from torch._six import inf
 from torch import inf
 from torch.utils.tensorboard import SummaryWriter
 

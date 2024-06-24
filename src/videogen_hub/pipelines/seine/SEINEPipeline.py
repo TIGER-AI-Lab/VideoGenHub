@@ -10,10 +10,10 @@ from videogen_hub import MODEL_PATH
 from videogen_hub.pipelines.seine.models import get_models
 from videogen_hub.pipelines.seine.models.clip import TextEmbedder
 from videogen_hub.pipelines.seine.utils import mask_generation_before
-from with_mask_sample import *
+from videogen_hub.pipelines.seine.with_mask_sample import *
 
 
-class SEINEPipeline():
+class SEINEPipeline:
     def __init__(self, seine_path: str = os.path.join(MODEL_PATH, "SEINE", "seine.pt"),
                  pretrained_model_path: str = os.path.join(MODEL_PATH, "SEINE", "stable-diffusion-v1-4"),
                  config_path: str = "src/videogen_hub/pipelines/seine/sample_i2v.yaml"):
