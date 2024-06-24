@@ -3,6 +3,8 @@ import operator
 import os
 from typing import Tuple
 
+import safetensors
+import safetensors.torch
 import torch
 import torch.distributed as dist
 from torchvision.datasets.utils import download_url
@@ -153,14 +155,13 @@ def load_from_sharded_state_dict(model, ckpt_path, model_name="model", strict=Fa
     if not colossal_imported:
         # Fall back to torch if colossalAI import fails
         import torch
-        from torch import load as torch_load
 
     def load_model_with_fallback(model, ckpt_path):
         if colossal_imported:
             ckpt_io = GeneralCheckpointIO()
             ckpt_io.load_model(model, ckpt_path)
         else:
-            model.load_state_dict(torch_load(os.path.join(ckpt_path, 'model.safetensors')))
+            safetensors.torch.load_model(model, os.path.join(ckpt_path, 'model.safetensors'))
 
     print(os.getcwd())
     print(f"path={os.path.join(ckpt_path, 'model')}")
