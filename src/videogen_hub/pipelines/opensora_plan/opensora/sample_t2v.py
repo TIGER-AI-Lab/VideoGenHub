@@ -1,8 +1,8 @@
 import argparse
 import math
 import os
-import sys
 
+import imageio
 import torch
 from diffusers.schedulers import (DDIMScheduler, DDPMScheduler, PNDMScheduler,
                                   EulerDiscreteScheduler, DPMSolverMultistepScheduler,
@@ -14,12 +14,8 @@ from transformers import T5EncoderModel, T5Tokenizer
 
 from videogen_hub.pipelines.opensora_plan.opensora.models.ae import ae_stride_config, getae_wrapper
 from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.latte.modeling_latte import LatteT2V
+from videogen_hub.pipelines.opensora_plan.opensora.pipeline_videogen import VideoGenPipeline
 from videogen_hub.pipelines.opensora_plan.opensora.utils.utils import save_video_grid
-
-sys.path.append(os.path.split(sys.path[0])[0])
-from pipeline_videogen import VideoGenPipeline
-
-import imageio
 
 
 def parse_args(arg_list):

@@ -1,8 +1,6 @@
 import os
 import sys
 
-sys.path.append(os.path.split(sys.path[0])[0])
-
 from videogen_hub.pipelines.seine.models.unet import UNet3DConditionModel
 
 

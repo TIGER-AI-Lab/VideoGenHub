@@ -1,6 +1,5 @@
 import glob
 import os
-import sys
 from collections import OrderedDict
 
 import cv2
@@ -9,7 +8,6 @@ import torch
 import torchvision
 from decord import VideoReader, cpu
 
-sys.path.insert(1, os.path.join(sys.path[0], '..', '..'))
 from videogen_hub.pipelines.videocrafter.lvdm.models.samplers.ddim import DDIMSampler
 
 

@@ -2,8 +2,6 @@
 import os
 import sys
 
-sys.path.append(os.path.split(sys.path[0])[0])
-
 from dataclasses import dataclass
 
 import math

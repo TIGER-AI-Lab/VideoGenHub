@@ -1,22 +1,18 @@
 # Adapted from https://github.com/huggingface/diffusers/blob/main/src/diffusers/models/unet_2d_condition.py
 
+import json
+import math
 import os
-import sys
 from dataclasses import dataclass
 from typing import List, Optional, Tuple, Union
 
-sys.path.append(os.path.split(sys.path[0])[0])
-
-import math
-import json
-import torch
 import einops
+import torch
 import torch.nn as nn
 import torch.utils.checkpoint
-
 from diffusers.configuration_utils import ConfigMixin, register_to_config
-from diffusers.utils import BaseOutput, logging
 from diffusers.models.embeddings import TimestepEmbedding, Timesteps
+from diffusers.utils import BaseOutput, logging
 
 try:
     from diffusers.models.modeling_utils import ModelMixin

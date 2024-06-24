@@ -1,8 +1,4 @@
 # Adapted from https://github.com/huggingface/diffusers/blob/main/src/diffusers/models/resnet.py
-import os
-import sys
-
-sys.path.append(os.path.split(sys.path[0])[0])
 
 import torch
 import torch.nn as nn

@@ -8,11 +8,10 @@ import cv2
 import numpy as np
 import torch
 
-sys.path.append('.')
-from utils.utils import (
+from videogen_hub.pipelines.opensora_plan.opensora.models.frame_interpolation.utils.utils import (
     img2tensor, tensor2img
 )
-from utils.build_utils import build_from_cfg
+from videogen_hub.pipelines.opensora_plan.opensora.models.frame_interpolation.utils.build_utils import build_from_cfg
 from utils.utils import InputPadder
 
 AMT_G = {

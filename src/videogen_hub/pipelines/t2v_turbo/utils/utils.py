@@ -48,26 +48,9 @@ def get_obj_from_str(string, reload=False):
         if current_dir == os.path.dirname(current_dir):  # Reached the root directory
             raise FileNotFoundError("Couldn't find 't2v_turbo' or 'videogen_hub' in the path hierarchy")
 
-    # Construct the paths for `pipelines` and `t2v_turbo`
-    paths_to_add = []
-    if os.path.basename(current_dir) == 't2v_turbo':
-        paths_to_add.append(current_dir)
-        paths_to_add.append(os.path.join(current_dir, '..'))  # Up one level to the 'pipelines' directory
-    elif os.path.basename(current_dir) == 'videogen_hub':
-        paths_to_add.append(os.path.join(current_dir, 'pipelines'))
-        paths_to_add.append(os.path.join(current_dir, 'pipelines', 't2v_turbo'))
-
-    # Normalize paths to avoid issues with '..'
-    paths_to_add = [os.path.normpath(path) for path in paths_to_add]
 
     print("+++++> string", string)
     print("+++++> base_dir", current_dir)
-    print("+++++> paths_to_add", paths_to_add)
-
-    # Add the paths to sys.path if they're not already there
-    for path in paths_to_add:
-        if path not in sys.path:
-            sys.path.insert(0, path)
 
     # Extract the module and class names
     module, cls = string.rsplit(".", 1)
