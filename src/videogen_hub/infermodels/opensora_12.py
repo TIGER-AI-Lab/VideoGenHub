@@ -41,7 +41,6 @@ class OpenSora12:
             "vae": {
                 "type": "OpenSoraVAE_V1_2",  # Type of the autoencoder
                 "from_pretrained": "hpcai-tech/OpenSora-VAE-v1.2",  # Pretrained model from Hugging Face
-                "cache_dir": os.path.join(MODEL_PATH, "OpenSora-VAE-v1.2"),  # Local cache directory for model weights
                 "micro_frame_size": 17,
                 "micro_batch_size": 4,  # Batch size for processing
             },
@@ -49,7 +48,6 @@ class OpenSora12:
             "text_encoder": {
                 "type": "t5",  # Text encoder model type
                 "from_pretrained": "DeepFloyd/t5-v1_1-xxl",  # Pretrained model
-                "cache_dir": os.path.join(MODEL_PATH, "t5-v1_1-xxl"),  # Cache directory
                 "model_max_length": 300,  # Max length of text inputs
             },
             # Scheduler settings for diffusion models
@@ -89,13 +87,13 @@ class OpenSora12:
         hf_hub_download(
             repo_id="hpcai-tech/OpenSora-VAE-v1.2",
             filename="model.safetensors",
-            local_dir=self.config.vae.cache_dir,
+            local_dir=os.path.join(MODEL_PATH, "OpenSora-VAE-v1.2"),
         )
 
         hf_hub_download(
             repo_id="DeepFloyd/t5-v1_1-xxl",
             filename="pytorch_model-00001-of-00002.bin",
-            local_dir=self.config.text_encoder.cache_dir,
+            local_dir=os.path.join(MODEL_PATH, "t5-v1_1-xxl"),
         )
 
     def infer_one_video(
