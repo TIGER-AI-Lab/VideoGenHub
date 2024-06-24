@@ -159,7 +159,7 @@ def load_from_sharded_state_dict(model, ckpt_path, model_name="model", strict=Fa
     def load_model_with_fallback(model, ckpt_path):
         if colossal_imported:
             ckpt_io = GeneralCheckpointIO()
-            ckpt_io.load_model(model, ckpt_path)
+            ckpt_io.load_pipeline(model, ckpt_path)
         else:
             safetensors.torch.load_model(model, os.path.join(ckpt_path, 'model.safetensors'))
 
