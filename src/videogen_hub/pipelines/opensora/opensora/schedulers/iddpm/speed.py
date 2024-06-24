@@ -2,10 +2,10 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from videogen_hub.pipelines.opensora.opensora.registry import SCHEDULERS
 
-from . import gaussian_diffusion as gd
-from .respace import SpacedDiffusion, space_timesteps
+from videogen_hub.pipelines.opensora.opensora.schedulers.iddpm import gaussian_diffusion as gd
+from videogen_hub.pipelines.opensora.opensora.schedulers.iddpm.respace import SpacedDiffusion, space_timesteps
+from videogen_hub.pipelines.opensora.opensora.registry import SCHEDULERS
 
 
 @SCHEDULERS.register_module("iddpm-speed")
@@ -67,7 +67,7 @@ class SpeeDiffusion(SpacedDiffusion):
         t = torch.cat([t, dual_t], dim=0)[:n]
         return t
 
-    def training_losses(self, model, x, t, *args, **kwargs):  # pylint: disable=signature-differs
+    def training_losses(self, model, x, *args, **kwargs):  # pylint: disable=signature-differs
         t = self.t_sample(x.shape[0], x.device)
         return super().training_losses(model, x, t, weights=self.weights, *args, **kwargs)
 

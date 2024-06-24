@@ -1,6 +1,14 @@
-from colossalai.shardformer.modeling.jit import get_jit_fused_dropout_add_func
-from colossalai.shardformer.modeling.t5 import get_jit_fused_T5_layer_ff_forward, get_T5_layer_self_attention_forward
-from colossalai.shardformer.policies.base_policy import Policy, SubModuleReplacementDescription
+try:
+    from colossalai.shardformer.modeling.jit import get_jit_fused_dropout_add_func
+    from colossalai.shardformer.modeling.t5 import get_jit_fused_T5_layer_ff_forward, \
+        get_T5_layer_self_attention_forward
+    from colossalai.shardformer.policies.base_policy import Policy, SubModuleReplacementDescription
+except ImportError:
+    get_jit_fused_dropout_add_func = None
+    get_jit_fused_T5_layer_ff_forward = None
+    get_T5_layer_self_attention_forward = None
+    Policy = object
+    SubModuleReplacementDescription = object
 
 
 class T5EncoderPolicy(Policy):
@@ -18,7 +26,7 @@ class T5EncoderPolicy(Policy):
 
         # check whether apex is installed
         try:
-            from videogen_hub.pipelines.opensora.opensora.acceleration.shardformer.modeling.t5 import T5LayerNorm
+            from colossalai.acceleration.shardformer.modeling.t5 import T5LayerNorm
 
             # recover hf from fused rms norm to T5 norm which is faster
             self.append_or_create_submodule_replacement(
@@ -43,7 +51,7 @@ class T5EncoderPolicy(Policy):
             pass
 
         # use jit operator
-        if self.shard_config.enable_jit_fused:
+        if self.shard_config.enable_jit_fused and get_jit_fused_T5_layer_ff_forward and get_jit_fused_dropout_add_func:
             self.append_or_create_method_replacement(
                 description={
                     "forward": get_jit_fused_T5_layer_ff_forward(),

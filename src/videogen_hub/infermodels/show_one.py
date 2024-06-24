@@ -1,4 +1,7 @@
-import torch
+import os
+
+
+from videogen_hub import MODEL_PATH
 
 
 class ShowOne():
@@ -11,27 +14,32 @@ class ShowOne():
 
         base_path = snapshot_download(
             repo_id="showlab/show-1-base",
-            local_dir="./checkpoints/showlab/show-1-base"
+            local_dir=os.path.join(MODEL_PATH, "showlab", "show-1-base"),
+            local_dir_use_symlinks = False
         )
 
         interp_path = snapshot_download(
             repo_id="showlab/show-1-interpolation",
-            local_dir="./checkpoints/showlab/show-1-interpolation"
+            local_dir=os.path.join(MODEL_PATH, "showlab", "show-1-interpolation"),
+            
         )
 
         deepfloyd_path = snapshot_download(
             repo_id="DeepFloyd/IF-II-L-v1.0",
-            local_dir="./checkpoints/DeepFloyd/IF-II-L-v1.0"
+            local_dir=os.path.join(MODEL_PATH, "DeepFloyd/IF-II-L-v1.0"),
+            
         )
 
         sr1_path = snapshot_download(
             repo_id="showlab/show-1-sr1",
-            local_dir="./checkpoints/showlab/show-1-sr1"
+            local_dir=os.path.join(MODEL_PATH, "showlab", "show-1-sr1"),
+            
         )
 
         sr2_path = snapshot_download(
             repo_id="showlab/show-1-sr2",
-            local_dir="./checkpoints/showlab/show-1-sr2"
+            local_dir=os.path.join(MODEL_PATH, "showlab", "show-1-sr2"),
+            
         )
 
         self.pipeline = ShowOnePipeline(base_path, interp_path, deepfloyd_path, sr1_path, sr2_path)

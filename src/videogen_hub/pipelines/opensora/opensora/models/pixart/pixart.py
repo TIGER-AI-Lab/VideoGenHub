@@ -61,13 +61,13 @@ class PixArtBlock(nn.Module):
         num_heads,
         mlp_ratio=4.0,
         drop_path=0.0,
-        enable_flashattn=False,
+        enable_flash_attn=False,
         enable_layernorm_kernel=False,
         enable_sequence_parallelism=False,
     ):
         super().__init__()
         self.hidden_size = hidden_size
-        self.enable_flashattn = enable_flashattn
+        self.enable_flash_attn = enable_flash_attn
         self._enable_sequence_parallelism = enable_sequence_parallelism
 
         if enable_sequence_parallelism:
@@ -82,7 +82,7 @@ class PixArtBlock(nn.Module):
             hidden_size,
             num_heads=num_heads,
             qkv_bias=True,
-            enable_flashattn=enable_flashattn,
+            enable_flash_attn=enable_flash_attn,
         )
         self.cross_attn = self.mha_cls(hidden_size, num_heads)
         self.norm2 = get_layernorm(hidden_size, eps=1e-6, affine=False, use_kernel=enable_layernorm_kernel)
@@ -105,7 +105,7 @@ class PixArtBlock(nn.Module):
         return x
 
 
-@MODELS.register_module(force=True)
+@MODELS.register_module()
 class PixArt(nn.Module):
     """
     Diffusion model with a Transformer backbone.
@@ -130,9 +130,10 @@ class PixArt(nn.Module):
         freeze=None,
         space_scale=1.0,
         time_scale=1.0,
-        enable_flashattn=False,
+        enable_flash_attn=False,
         enable_layernorm_kernel=False,
         enable_sequence_parallelism=False,
+        base_size=None,
     ):
         super().__init__()
         assert enable_sequence_parallelism is False, "Sequence parallelism is not supported in this version."
@@ -146,13 +147,16 @@ class PixArt(nn.Module):
         self.num_patches = num_patches
         self.num_temporal = input_size[0] // patch_size[0]
         self.num_spatial = num_patches // self.num_temporal
-        self.base_size = int(np.sqrt(self.num_spatial))
+        if base_size is None:
+            self.base_size = int(np.sqrt(self.num_spatial))
+        else:
+            self.base_size = base_size // patch_size[1]
         self.num_heads = num_heads
         self.dtype = dtype
         self.no_temporal_pos_emb = no_temporal_pos_emb
         self.depth = depth
         self.mlp_ratio = mlp_ratio
-        self.enable_flashattn = enable_flashattn
+        self.enable_flash_attn = enable_flash_attn
         self.enable_layernorm_kernel = enable_layernorm_kernel
         self.space_scale = space_scale
         self.time_scale = time_scale
@@ -179,7 +183,7 @@ class PixArt(nn.Module):
                     num_heads,
                     mlp_ratio=mlp_ratio,
                     drop_path=drop_path[i],
-                    enable_flashattn=enable_flashattn,
+                    enable_flash_attn=enable_flash_attn,
                     enable_layernorm_kernel=enable_layernorm_kernel,
                 )
                 for i in range(depth)
@@ -309,7 +313,7 @@ class PixArt(nn.Module):
         nn.init.constant_(self.final_layer.linear.bias, 0)
 
 
-@MODELS.register_module(force=True)
+@MODELS.register_module()
 class PixArtMS(PixArt):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -375,7 +379,7 @@ class PixArtMS(PixArt):
         return x
 
 
-@MODELS.register_module("PixArt-XL/2", force=True)
+@MODELS.register_module("PixArt-XL/2")
 def PixArt_XL_2(from_pretrained=None, **kwargs):
     model = PixArt(depth=28, hidden_size=1152, patch_size=(1, 2, 2), num_heads=16, **kwargs)
     if from_pretrained is not None:
@@ -383,7 +387,15 @@ def PixArt_XL_2(from_pretrained=None, **kwargs):
     return model
 
 
-@MODELS.register_module("PixArtMS-XL/2", force=True)
+@MODELS.register_module("PixArt-1B/2")
+def PixArt_1B_2(from_pretrained=None, **kwargs):
+    model = PixArt(depth=28, hidden_size=1872, patch_size=(1, 2, 2), num_heads=26, **kwargs)
+    if from_pretrained is not None:
+        load_checkpoint(model, from_pretrained)
+    return model
+
+
+@MODELS.register_module("PixArtMS-XL/2")
 def PixArtMS_XL_2(from_pretrained=None, **kwargs):
     model = PixArtMS(depth=28, hidden_size=1152, patch_size=(1, 2, 2), num_heads=16, **kwargs)
     if from_pretrained is not None:

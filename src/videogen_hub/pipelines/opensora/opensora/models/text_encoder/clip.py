@@ -78,7 +78,7 @@ class FrozenCLIPEmbedder(AbstractEncoder):
         return self(text)
 
 
-@MODELS.register_module("clip", force=True)
+@MODELS.register_module("clip")
 class ClipEncoder:
     """
     Embeds text prompt into vector representations. Also handles text dropout for classifier-free guidance.

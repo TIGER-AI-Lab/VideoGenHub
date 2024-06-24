@@ -2,10 +2,9 @@ import json
 import os
 import re
 
-import colossalai
+
 import torch
 import torch.distributed as dist
-from colossalai.cluster import DistCoordinator
 from mmengine.runner import set_random_seed
 
 from videogen_hub.pipelines.opensora.opensora.acceleration.parallel_states import set_sequence_parallel_group
@@ -127,8 +126,16 @@ def main():
     cfg = parse_configs(training=False)
     print(cfg)
 
+    has_colossal = False
+    try:
+        import colossalai
+        from colossalai.cluster import DistCoordinator
+    except:
+        colossalai = None
+        has_colossal = False
+
     # init distributed
-    if os.environ.get("WORLD_SIZE", None):
+    if os.environ.get("WORLD_SIZE", None) and has_colossal:
         use_dist = True
         colossalai.launch_from_torch({})
         coordinator = DistCoordinator()

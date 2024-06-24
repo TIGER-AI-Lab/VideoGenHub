@@ -3,11 +3,13 @@ from huggingface_hub import hf_hub_download
 from pathlib import Path
 import os
 
+from videogen_hub import MODEL_PATH
+
 
 class VideoCrafter2():
     def __init__(self, device="cuda"):
         """
-        1. Download the pretrained model and put it inside checkpoints/videocrafter2
+        1. Download the pretrained model and put it inside MODEL_PATH/videocrafter2
         2. Create Pipeline
         Args:
             device: 'cuda' or 'cpu' the device to use the model
@@ -16,7 +18,7 @@ class VideoCrafter2():
 
         model_path = hf_hub_download(repo_id="VideoCrafter/VideoCrafter2",
                                      filename="model.ckpt",
-                                     local_dir="./checkpoints/videocrafter2")
+                                     local_dir=os.path.join(MODEL_PATH, "videocrafter2"))
         config_path = str(Path(__file__).parent.parent.absolute())
         config_path = os.path.join(config_path, 'pipelines/videocrafter/inference_t2v_512_v2.0.yaml')
 

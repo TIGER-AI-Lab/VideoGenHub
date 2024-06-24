@@ -1,11 +1,15 @@
+import os
+
 from huggingface_hub import hf_hub_download, snapshot_download
 import torch
+
+from videogen_hub import MODEL_PATH
 
 
 class T2VTurbo():
     def __init__(self, base_model="vc2", merged=True, device="cuda"):
         """
-    1. Download the pretrained model and put it inside checkpoints/
+    1. Download the pretrained model and put it inside MODEL_PATH
     2. Create Pipeline
     Args:
         device: 'cuda' or 'cpu' the device to use the model
@@ -92,26 +96,27 @@ class T2VTurbo():
         if base_model == "vc2" and merged:
             merged_model_path = hf_hub_download(repo_id="jiachenli-ucsb/T2V-Turbo-VC2-Merged",
                                                 filename="t2v_turbo_vc2.pt",
-                                                local_dir="./checkpoints/T2V-Turbo-VC2")
+                                                local_dir=os.path.join(MODEL_PATH, "T2V-Turbo-VC2"))
             self.pipeline = T2VTurboVC2Pipeline1(self.config, merged, device, None, merged_model_path)
 
         elif base_model == "vc2":
             base_model_path = hf_hub_download(repo_id="VideoCrafter/VideoCrafter2",
                                               filename="model.ckpt",
-                                              local_dir="./checkpoints/videocrafter2")
+                                              local_dir=os.path.join(MODEL_PATH, "videocrafter2"))
 
             unet_lora_path = hf_hub_download(repo_id="jiachenli-ucsb/T2V-Turbo-VC2",
                                              filename="unet_lora.pt",
-                                             local_dir="./checkpoints/T2V-Turbo-VC2")
+                                             local_dir=os.path.join(MODEL_PATH, "T2V-Turbo-VC2"))
             # It uses the config provided above.
             self.pipeline = T2VTurboVC2Pipeline1(self.config, merged, device, unet_lora_path, base_model_path)
         else:
             base_model_path = snapshot_download(repo_id="ali-vilab/text-to-video-ms-1.7b",
-                                                local_dir="./checkpoints/modelscope_1.7b")
+                                                local_dir=os.path.join(MODEL_PATH, "modelscope_1.7b"))
 
             unet_lora_path = hf_hub_download(repo_id="jiachenli-ucsb/T2V-Turbo-MS",
                                              filename="unet_lora.pt",
-                                             local_dir="./checkpoints/T2V-Turbo-MS")
+                                             local_dir=os.path.join(MODEL_PATH, "T2V-Turbo-MS"))
+
             # It uses the config provided by base_model.
             self.pipeline = T2VTurboMSPipeline1(device, unet_lora_path, base_model_path)
 

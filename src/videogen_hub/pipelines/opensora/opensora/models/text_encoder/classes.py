@@ -3,7 +3,7 @@ import torch
 from videogen_hub.pipelines.opensora.opensora.registry import MODELS
 
 
-@MODELS.register_module("classes", force=True)
+@MODELS.register_module("classes")
 class ClassEncoder:
     def __init__(self, num_classes, model_max_length=None, device="cuda", dtype=torch.float):
         self.num_classes = num_classes

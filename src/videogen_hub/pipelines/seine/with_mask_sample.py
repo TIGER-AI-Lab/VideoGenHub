@@ -9,7 +9,6 @@ Sample new images from a pre-trained DiT.
 """
 import os
 import sys
-import math
 
 try:
     import utils
@@ -27,25 +26,15 @@ import torch
 
 torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True
-import argparse
-import torchvision
 
 from einops import rearrange
-from models import get_models
-from torchvision.utils import save_image
-from diffusers.models import AutoencoderKL
-from models.clip import TextEmbedder
-from omegaconf import OmegaConf
 from PIL import Image
 import numpy as np
 from torchvision import transforms
 
 sys.path.append("..")
-from datasets import video_transforms
-from utils import mask_generation_before
+from datasets_seine import video_transforms
 from natsort import natsorted
-from diffusers.utils.import_utils import is_xformers_available
-import pdb
 
 
 def get_input(args):

@@ -1,5 +1,9 @@
+import os
+
 import torch
 from huggingface_hub import snapshot_download
+
+from videogen_hub import MODEL_PATH
 
 
 class ModelScope:
@@ -16,7 +20,8 @@ class ModelScope:
 
         model_dir = snapshot_download(
             repo_id="ali-vilab/modelscope-damo-text-to-video-synthesis",
-            local_dir="./checkpoints/modelscope",
+            local_dir=os.path.join(MODEL_PATH, "modelscope"),
+            
         )
         model = Model.from_pretrained(model_dir)
         self.pipeline = pipeline("text-to-video-synthesis", model=model, device=device)

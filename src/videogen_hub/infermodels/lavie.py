@@ -1,15 +1,17 @@
 import os, sys
 import torch
 
+from videogen_hub import MODEL_PATH
+
 
 class LaVie():
-    def __init__(self, model_path="checkpoints/lavie", device="cuda"):
+    def __init__(self, model_path=os.path.join(MODEL_PATH, "lavie"), device="cuda"):
         """
         1. Download all necessary models from huggingface.
         2. Initializes the LaVie model with a specific model path and device.
 
         Args:
-            model_path (str, optional): The path to the model checkpoints. Defaults to "checkpoints/lavie".
+            model_path (str, optional): The path to the model checkpoints. Defaults to "MODEL_PATH/lavie".
             device (str, optional): The device to run the model on. Defaults to "cuda".
         """
 
@@ -24,9 +26,9 @@ class LaVie():
         from omegaconf import OmegaConf
 
         snapshot_download(repo_id="Vchitect/LaVie", local_dir=model_path)
-        snapshot_download(repo_id="CompVis/stable-diffusion-v1-4", local_dir=model_path + "/stable-diffusion-v1-4")
+        snapshot_download(repo_id="CompVis/stable-diffusion-v1-4", local_dir=os.path.join(model_path, "/stable-diffusion-v1-4"))
         snapshot_download(repo_id="stabilityai/stable-diffusion-x4-upscaler",
-                          local_dir=model_path + "/stable-diffusion-x4-upscaler")
+                          local_dir=os.path.join(model_path, "/stable-diffusion-x4-upscaler"))
 
         torch.set_grad_enabled(False)
         self.device = device

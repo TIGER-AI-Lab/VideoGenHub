@@ -12,9 +12,8 @@
 
 
 import torch
-from colossalai.utils import get_current_device
 
-from .gaussian_diffusion import GaussianDiffusion
+from videogen_hub.pipelines.opensora.opensora.schedulers.iddpm.gaussian_diffusion import GaussianDiffusion
 
 
 def space_timesteps(num_timesteps, section_counts):
@@ -89,6 +88,10 @@ class SpacedDiffusion(GaussianDiffusion):
                 self.timestep_map.append(i)
         kwargs["betas"] = torch.FloatTensor(new_betas)
         super().__init__(**kwargs)
+        try:
+            from colossalai.utils import get_current_device
+        except ImportError:
+            get_current_device = lambda: torch.device("cuda")
         self.map_tensor = torch.tensor(self.timestep_map, device=get_current_device())
 
     def p_mean_variance(self, model, *args, **kwargs):  # pylint: disable=signature-differs
