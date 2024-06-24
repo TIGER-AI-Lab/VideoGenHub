@@ -145,7 +145,6 @@ class VideoAutoencoderPipelineConfig(PretrainedConfig):
         super().__init__(**kwargs)
 
 
-@MODELS.register_module()
 class VideoAutoencoderPipeline(PreTrainedModel):
     config_class = VideoAutoencoderPipelineConfig
 
@@ -247,12 +246,13 @@ class VideoAutoencoderPipeline(PreTrainedModel):
 
 @MODELS.register_module()
 def OpenSoraVAE_V1_2(
-        micro_batch_size=4,
-        micro_frame_size=17,
-        from_pretrained=None,
-        local_files_only=False,
-        freeze_vae_2d=False,
-        cal_loss=False,
+    micro_batch_size=4,
+    micro_frame_size=17,
+    from_pretrained=None,
+    local_files_only=False,
+    freeze_vae_2d=False,
+    cal_loss=False,
+    force_huggingface=False,
 ):
     vae_2d = dict(
         type="VideoAutoencoderKL",
@@ -277,7 +277,7 @@ def OpenSoraVAE_V1_2(
         scale=scale,
     )
 
-    if from_pretrained is not None and not os.path.isdir(from_pretrained):
+    if force_huggingface or (from_pretrained is not None and not os.path.exists(from_pretrained)):
         model = VideoAutoencoderPipeline.from_pretrained(from_pretrained, **kwargs)
     else:
         config = VideoAutoencoderPipelineConfig(**kwargs)

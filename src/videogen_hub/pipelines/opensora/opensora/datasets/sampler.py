@@ -27,13 +27,13 @@ def apply(data, method=None, frame_interval=None, seed=None, num_bucket=None):
 
 class StatefulDistributedSampler(DistributedSampler):
     def __init__(
-            self,
-            dataset: Dataset,
-            num_replicas: Optional[int] = None,
-            rank: Optional[int] = None,
-            shuffle: bool = True,
-            seed: int = 0,
-            drop_last: bool = False,
+        self,
+        dataset: Dataset,
+        num_replicas: Optional[int] = None,
+        rank: Optional[int] = None,
+        shuffle: bool = True,
+        seed: int = 0,
+        drop_last: bool = False,
     ) -> None:
         super().__init__(dataset, num_replicas, rank, shuffle, seed, drop_last)
         self.start_index: int = 0
@@ -59,16 +59,16 @@ class StatefulDistributedSampler(DistributedSampler):
 
 class VariableVideoBatchSampler(DistributedSampler):
     def __init__(
-            self,
-            dataset: VariableVideoTextDataset,
-            bucket_config: dict,
-            num_replicas: Optional[int] = None,
-            rank: Optional[int] = None,
-            shuffle: bool = True,
-            seed: int = 0,
-            drop_last: bool = False,
-            verbose: bool = False,
-            num_bucket_build_workers: int = 1,
+        self,
+        dataset: VariableVideoTextDataset,
+        bucket_config: dict,
+        num_replicas: Optional[int] = None,
+        rank: Optional[int] = None,
+        shuffle: bool = True,
+        seed: int = 0,
+        drop_last: bool = False,
+        verbose: bool = False,
+        num_bucket_build_workers: int = 1,
     ) -> None:
         super().__init__(
             dataset=dataset, num_replicas=num_replicas, rank=rank, shuffle=shuffle, seed=seed, drop_last=drop_last

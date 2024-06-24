@@ -26,17 +26,18 @@ def get_seed_worker(seed):
 
 
 def prepare_dataloader(
-        dataset,
-        batch_size=None,
-        shuffle=False,
-        seed=1024,
-        drop_last=False,
-        pin_memory=False,
-        num_workers=0,
-        process_group: Optional[ProcessGroup] = None,
-        bucket_config=None,
-        num_bucket_build_workers=1,
-        **kwargs,
+    dataset,
+    batch_size=None,
+    shuffle=False,
+    seed=1024,
+    drop_last=False,
+    pin_memory=False,
+    num_workers=0,
+    process_group: Optional[ProcessGroup] = None,
+    bucket_config=None,
+    num_bucket_build_workers=1,
+    prefetch_factor=None,
+    **kwargs,
 ):
     _kwargs = kwargs.copy()
     if isinstance(dataset, VariableVideoTextDataset):
@@ -59,6 +60,7 @@ def prepare_dataloader(
                 pin_memory=pin_memory,
                 num_workers=num_workers,
                 collate_fn=collate_fn_default,
+                prefetch_factor=prefetch_factor,
                 **_kwargs,
             ),
             batch_sampler,
@@ -81,6 +83,7 @@ def prepare_dataloader(
                 pin_memory=pin_memory,
                 num_workers=num_workers,
                 collate_fn=collate_fn_default,
+                prefetch_factor=prefetch_factor,
                 **_kwargs,
             ),
             sampler,
@@ -100,6 +103,7 @@ def prepare_dataloader(
                 pin_memory=pin_memory,
                 num_workers=num_workers,
                 collate_fn=collate_fn_batch,
+                prefetch_factor=prefetch_factor,
                 **_kwargs,
             ),
             sampler,
