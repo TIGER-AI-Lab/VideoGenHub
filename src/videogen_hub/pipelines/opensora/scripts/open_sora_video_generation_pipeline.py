@@ -100,8 +100,7 @@ class OpenSoraVideoGenerationPipeline(DiffusionPipeline):
         self.text_encoder.y_embedder = self.model.y_embedder  # HACK: for classifier-free guidance
         self.scheduler = build_module(config.scheduler, SCHEDULERS)
 
-    def prepare_inputs(self, prompts):
-        config = self.config
+    def prepare_inputs(self, prompts, config):
         if prompts is None:
             prompts = config.get("prompt", None)
             start_idx = config.get("start_index", 0)
@@ -112,18 +111,26 @@ class OpenSoraVideoGenerationPipeline(DiffusionPipeline):
                     prompts = [config.get("prompt_generator", "")] * 1_000_000  # endless loop
 
         reference_path = config.get("reference_path", [""] * len(prompts))
+        if reference_path is None:
+            reference_path = [""] * len(prompts)
+
         mask_strategy = config.get("mask_strategy", [""] * len(prompts))
-        assert len(reference_path) == len(prompts), "Length of reference must be the same as prompts"
-        assert len(mask_strategy) == len(prompts), "Length of mask_strategy must be the same as prompts"
+        if mask_strategy is None:
+            mask_strategy = [""] * len(prompts)
+        if isinstance(reference_path, str):
+            reference_path = [reference_path]
+        if isinstance(mask_strategy, str):
+            mask_strategy = [mask_strategy]
+        assert len(reference_path) == len(prompts), f"Length of reference must be the same as prompts"
+        assert len(mask_strategy) == len(prompts), f"Length of mask_strategy must be the same as prompts"
 
         return prompts, reference_path, mask_strategy
 
     def __call__(self, config: mmengine_config, return_dict=True):
-        config = self.config
         torch.set_grad_enabled(False)
         prompts = config.get("prompt", None)
 
-        prompts, reference_path, mask_strategy = self.prepare_inputs(prompts)
+        prompts, reference_path, mask_strategy = self.prepare_inputs(prompts, config)
 
         fps = config.get("fps", 24)
         save_fps = config.get("save_fps", fps // config.get("frame_interval", 1))
@@ -263,3 +270,4 @@ class OpenSoraVideoGenerationPipeline(DiffusionPipeline):
             return video_clips
 
         return OpenSoraVideoGenerationPipelineOutput(frames=video_clips)
+

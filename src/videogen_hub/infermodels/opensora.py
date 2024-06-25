@@ -1,14 +1,10 @@
 import os
 
-from PIL.Image import Image
 from huggingface_hub import hf_hub_download
+from mmengine import Config as mmengine_config
 
 from videogen_hub import MODEL_PATH
 from videogen_hub.base.base_i2v_infer_model import BaseI2vInferModel
-from videogen_hub.base.base_t2v_infer_model import BaseT2vInferModel
-from videogen_hub.pipelines.opensora.scripts.inference import main
-from mmengine import Config as mmengine_config
-
 from videogen_hub.pipelines.opensora.scripts.open_sora_video_generation_pipeline import OpenSoraVideoGenerationPipeline
 
 
@@ -129,7 +125,7 @@ class OpenSora(BaseI2vInferModel):
 
     def load_pipeline(self):
         if self.pipeline is None:
-            self.pipeline = OpenSoraVideoGenerationPipeline(self.config)
+            self.pipeline = OpenSoraVideoGenerationPipeline(self.config).to(self.device)
 
     def infer_one_video(
             self,
@@ -166,7 +162,7 @@ class OpenSora(BaseI2vInferModel):
         if not size:
             size = self.resolution
         self.config.image_size = size
-
+        self.load_pipeline()
         all_batch_samples = self.pipeline(self.config)
 
         sample = all_batch_samples[0][0]
