@@ -94,6 +94,7 @@ We included more than 10 Models in video generation.
 * [ ] Add ComfyUI Support 
 * [ ] Add Metrics Support
 * [ ] Add Visualization Support (Similar to [ImagenHub](https://chromaica.github.io/#imagen-museum))
+* [ ] Add Video Editing Task
 
 ## 🎫 License [🔝](#-table-of-contents)
 
