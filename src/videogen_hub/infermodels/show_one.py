@@ -1,5 +1,7 @@
 import os
 
+from huggingface_hub.utils import GatedRepoError
+
 from videogen_hub import MODEL_PATH
 from videogen_hub.base.base_t2v_infer_model import BaseT2vInferModel
 from videogen_hub.pipelines.show_1.run_inference import ShowOnePipeline
@@ -25,12 +27,14 @@ class ShowOne(BaseT2vInferModel):
             local_dir=os.path.join(MODEL_PATH, "showlab", "show-1-interpolation"),
 
         )
-
-        deepfloyd_path = snapshot_download(
-            repo_id="DeepFloyd/IF-II-L-v1.0",
-            local_dir=os.path.join(MODEL_PATH, "DeepFloyd/IF-II-L-v1.0"),
-
-        )
+        deepfloyd_path = None
+        try:
+            deepfloyd_path = snapshot_download(
+                repo_id="camenduru/IF-II-L-v1.0",
+                local_dir=os.path.join(MODEL_PATH, "DeepFloyd/IF-II-L-v1.0"),
+            )
+        except GatedRepoError:
+            print("DeepFloyd model is not available. Skipping download. Please set your 'HF_TOKEN' environment variable to download the model.")
 
         sr1_path = snapshot_download(
             repo_id="showlab/show-1-sr1",
@@ -43,7 +47,9 @@ class ShowOne(BaseT2vInferModel):
             local_dir=os.path.join(MODEL_PATH, "showlab", "show-1-sr2"),
 
         )
-        model_paths = [base_path, interp_path, deepfloyd_path, sr1_path, sr2_path]
+        model_paths = [base_path, interp_path, sr1_path, sr2_path]
+        if deepfloyd_path:
+            model_paths.insert(2, deepfloyd_path)
         return model_paths
 
     def load_pipeline(self):

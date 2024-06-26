@@ -68,6 +68,8 @@ class Svd(BaseI2vInferModel):
                 self.model_path, torch_dtype=torch.float16, variant="fp16"
             )
             self.pipeline.enable_model_cpu_offload()
+            # TODO: Test if this makes things faster
+            self.pipeline.unet.enable_forward_chunking()
         self.to(self.device)
         return self.pipeline
 
@@ -80,7 +82,9 @@ class Svd(BaseI2vInferModel):
             seconds: int = 2,
             fps: int = 8,
             seed: int = 42,
-            unload: bool = True
+            unload: bool = True,
+            motion_bucket_id: int = 180,
+            noise_aug_strength: float = 0.1,
     ):
         """
         Generates a single video based on the provided prompt and parameters.
@@ -95,6 +99,8 @@ class Svd(BaseI2vInferModel):
             fps (int, optional): The frames per second of the video. Defaults to 8.
             seed (int, optional): The seed for random number generation. Defaults to 42.
             unload (bool, optional): Whether to unload the model from the device after generating the video. Defaults to True
+            motion_bucket_id (int, optional): The motion bucket id to use for video generation. Defaults to 180.
+            noise_aug_strength (float, optional): The strength of the noise augmentation. Defaults to 0.1.
 
         Returns:
             torch.Tensor: The generated video as a tensor.
@@ -106,7 +112,15 @@ class Svd(BaseI2vInferModel):
         image = load_image(input_image)
         generator = torch.manual_seed(seed)
         num_frames = fps * seconds
-        video = self.pipeline(image, height=size[0], width=size[1], num_frames=num_frames, output_type="np", decode_chunk_size=8, generator=generator).frames[0]
+        video = self.pipeline(
+            image,
+            height=size[0],
+            width=size[1],
+            num_frames=num_frames,
+            output_type="np",
+            decode_chunk_size=8,
+            generator=generator
+        ).frames[0]
         video = torch.from_numpy(video).squeeze(0).permute(0, 3, 1, 2)
         if unload:
             self.to("cpu")
