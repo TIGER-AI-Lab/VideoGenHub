@@ -316,71 +316,106 @@ def load_model(args):
     assert os.path.exists(args.ckpt_path), "Error: checkpoint Not Found!"
     model = load_model_checkpoint(model, args.ckpt_path)
     model.eval()
+    return model
 
 
 class DynamiCrafterPipeline:
-    def __init__(self, args):
+    def __init__(self, ckpt_path, dtype=torch.float32, device='cuda'):
         """
-        Initialize the parameters from args
-        Args:
-            args: is a list consisting of arguments needed for parser.
-            e.g. ["--ckpt_path", <the model path>, ......]
-        """
-        parser = get_parser()
-        self.args = parser.parse_args(args)
+        Initialize the DynamiCrafterPipeline with the necessary parameters to load the model.
 
-    def __call__(self, input_image, model=None):
+        Args:
+            ckpt_path: Path to the model checkpoint.
+            dtype: Data type for the model.
+            device: Device to run the model on.
+        """
+        self.ckpt_path = ckpt_path
+        self.dtype = dtype
+        self.device = device
+        self.model = self.load_model()
+
+    def load_model(self):
+        """
+        Load the model from the checkpoint path.
+        """
+        # Assuming load_model is a function that loads the model from the checkpoint
+        model = load_model(self.ckpt_path)
+        model.to(self.device).type(self.dtype)
+        return model
+
+    def to(self, device):
+        """
+        Move the model to the specified device.
+
+        Args:
+            device: The device to move the model to.
+        """
+        self.device = device
+        self.model.to(device)
+
+    def __call__(self, input_image, height, width, bs, video_length, seed, text_input, interp,
+                 n_samples, ddim_steps, ddim_eta, unconditional_guidance_scale, cfg_img,
+                 frame_stride, multiple_cond_cfg, loop, timestep_spacing, guidance_rescale):
         """
         Run inference from the input_image.
-        This input image can either be a tensor or a string as the path of the image file.
+
         Args:
             input_image: tensor or string.
+            height: Height of the input image.
+            width: Width of the input image.
+            bs: Batch size.
+            video_length: Length of the output video.
+            seed: Seed for randomness.
+            text_input: Text input for generation.
+            interp: Interpolation method.
+            n_samples: Number of samples.
+            ddim_steps: Number of DDIM steps.
+            ddim_eta: DDIM eta parameter.
+            unconditional_guidance_scale: Unconditional guidance scale.
+            cfg_img: Configuration for the image.
+            frame_stride: Stride for frames.
+            multiple_cond_cfg: Multiple condition configuration.
+            loop: Loop parameter.
+            timestep_spacing: Timestep spacing.
+            guidance_rescale: Guidance rescale.
 
         Returns: a tensor representing the generated video of shape (num_frames, channels, height, width)
-
         """
-        args = self.args
-        seed_everything(args.seed)
+        # Setting the seed for reproducibility
+        seed_everything(seed)
 
-        ## model config
-        if model is None:
-            model = load_model(args)
+        # Run over data
+        assert (height % 16 == 0) and (width % 16 == 0), "Error: image size [h,w] should be multiples of 16!"
+        assert bs == 1, "Current implementation only support [batch size = 1]!"
 
-        ## run over data
-        assert (args.height % 16 == 0) and (args.width % 16 == 0), "Error: image size [h,w] should be multiples of 16!"
-        assert args.bs == 1, "Current implementation only support [batch size = 1]!"
-        ## latent noise shape
-        h, w = args.height // 8, args.width // 8
-        channels = model.model.diffusion_model.out_channels
-        n_frames = args.video_length
+        # Latent noise shape
+        h, w = height // 8, width // 8
+        channels = self.model.model.diffusion_model.out_channels
+        n_frames = video_length
         print(f'Inference with {n_frames} frames')
-        noise_shape = [args.bs, channels, n_frames, h, w]
+        noise_shape = [bs, channels, n_frames, h, w]
 
-        if type(input_image) == str:
-            args.prompt_dir = input_image
-            assert os.path.exists(args.prompt_dir), "Error: prompt file Not Found!"
-            filename_list, data_list, prompt_list = load_data_prompts(args.prompt_dir,
-                                                                      video_size=(args.height, args.width),
-                                                                      video_frames=n_frames, interp=args.interp)
+        if isinstance(input_image, str):
+            assert os.path.exists(input_image), "Error: prompt file Not Found!"
+            filename_list, data_list, prompt_list = load_data_prompts(input_image, video_size=(height, width),
+                                                                      video_frames=n_frames, interp=interp)
         else:
             input_pil = (transforms.ToPILImage())(input_image)
-            frame_tensor = processing_image(input_pil, (args.height, args.width), n_frames, args.interp)
-            data_list, prompt_list = [frame_tensor], [args.text_input]
+            frame_tensor = processing_image(input_pil, (height, width), n_frames, interp)
+            data_list, prompt_list = [frame_tensor], [text_input]
 
         with torch.no_grad(), torch.cuda.amp.autocast():
-            # for idx, indice in tqdm(enumerate(range(0, len(prompt_list), args.bs)), desc='Sample Batch'):
             prompts = prompt_list[0]
             videos = data_list[0]
-            # filenames = filename_list[0]
             if isinstance(videos, list):
-                videos = torch.stack(videos, dim=0).to("cuda")
+                videos = torch.stack(videos, dim=0).to(self.device)
             else:
-                videos = videos.unsqueeze(0).to("cuda")
+                videos = videos.unsqueeze(0).to(self.device)
 
-            batch_samples = image_guided_synthesis(model, prompts, videos, noise_shape, args.n_samples, args.ddim_steps,
-                                                   args.ddim_eta, args.unconditional_guidance_scale, args.cfg_img, args.frame_stride,
-                                                   args.text_input, args.multiple_cond_cfg, args.loop, args.interp,
-                                                   args.timestep_spacing, args.guidance_rescale)
+            batch_samples = image_guided_synthesis(self.model, prompts, videos, noise_shape, n_samples, ddim_steps,
+                                                   ddim_eta, unconditional_guidance_scale, cfg_img, frame_stride,
+                                                   text_input, multiple_cond_cfg, loop, interp,
+                                                   timestep_spacing, guidance_rescale)
 
             output = batch_samples.squeeze().permute(1, 0, 2, 3)
             return output

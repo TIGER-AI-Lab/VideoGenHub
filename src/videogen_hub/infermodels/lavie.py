@@ -50,31 +50,31 @@ class LaVie(BaseT2vInferModel):
         self.config = OmegaConf.create(config)
 
     def load_pipeline(self):
-        if self.pipeline is not None:
-            return self.pipeline
-        self.download_models()
-        sd_path = os.path.join(self.model_path, "stable-diffusion-v1-4")
-        unet = UNet3DConditionModel.from_pretrained_2d(sd_path, subfolder="unet").to(self.device, dtype=torch.float16)
-        state_dict = find_model(os.path.join(self.model_path, "lavie_base.pt"))
-        unet.load_state_dict(state_dict)
+        if self.pipeline is None:
+            self.download_models()
+            sd_path = os.path.join(self.model_path, "stable-diffusion-v1-4")
+            unet = UNet3DConditionModel.from_pretrained_2d(sd_path, subfolder="unet").to(self.device, dtype=torch.float16)
+            state_dict = find_model(os.path.join(self.model_path, "lavie_base.pt"))
+            unet.load_state_dict(state_dict)
 
-        vae = AutoencoderKL.from_pretrained(sd_path, subfolder="vae", torch_dtype=torch.float16).to(self.device)
-        tokenizer_one = CLIPTokenizer.from_pretrained(sd_path, subfolder="tokenizer")
-        text_encoder_one = CLIPTextModel.from_pretrained(sd_path, subfolder="text_encoder",
-                                                         torch_dtype=torch.float16).to(self.device)  # huge
+            vae = AutoencoderKL.from_pretrained(sd_path, subfolder="vae", torch_dtype=torch.float16).to(self.device)
+            tokenizer_one = CLIPTokenizer.from_pretrained(sd_path, subfolder="tokenizer")
+            text_encoder_one = CLIPTextModel.from_pretrained(sd_path, subfolder="text_encoder",
+                                                             torch_dtype=torch.float16).to(self.device)  # huge
 
-        scheduler = DDPMScheduler.from_pretrained(sd_path,
-                                                  subfolder="scheduler",
-                                                  beta_start=self.config.scheduler_config.beta_start,
-                                                  beta_end=self.config.scheduler_config.beta_end,
-                                                  beta_schedule=self.config.scheduler_config.beta_schedule)
+            scheduler = DDPMScheduler.from_pretrained(sd_path,
+                                                      subfolder="scheduler",
+                                                      beta_start=self.config.scheduler_config.beta_start,
+                                                      beta_end=self.config.scheduler_config.beta_end,
+                                                      beta_schedule=self.config.scheduler_config.beta_schedule)
 
-        self.pipeline = VideoGenPipeline(vae=vae,
-                                         text_encoder=text_encoder_one,
-                                         tokenizer=tokenizer_one,
-                                         scheduler=scheduler,
-                                         unet=unet).to(self.device)
-        self.pipeline.enable_xformers_memory_efficient_attention()
+            self.pipeline = VideoGenPipeline(vae=vae,
+                                             text_encoder=text_encoder_one,
+                                             tokenizer=tokenizer_one,
+                                             scheduler=scheduler,
+                                             unet=unet).to(self.device)
+            self.pipeline.enable_xformers_memory_efficient_attention()
+        self.to(self.device)
         return self.pipeline
 
     def download_models(self):
@@ -95,7 +95,9 @@ class LaVie(BaseT2vInferModel):
                         size: list = None,
                         seconds: int = 2,
                         fps: int = 8,
-                        seed: int = 42):
+                        seed: int = 42,
+                        unload: bool = True
+                        ):
         """
         Generates a single video based on the provided prompt and parameters.
 
@@ -106,6 +108,7 @@ class LaVie(BaseT2vInferModel):
             seconds (int, optional): The duration of the video in seconds. Defaults to 2.
             fps (int, optional): The frames per second of the video. Defaults to 8.
             seed (int, optional): The seed for random number generation. Defaults to 42.
+            unload (bool, optional): Whether to unload the model from the device after generating the video. Defaults to True
 
         Returns:
             torch.Tensor: The generated video as a tensor.
@@ -120,4 +123,6 @@ class LaVie(BaseT2vInferModel):
                                width=size[1],
                                num_inference_steps=self.config.model_config.num_sampling_steps,
                                guidance_scale=self.config.model_config.guidance_scale).video
+        if unload:
+            self.to("cpu")
         return videos[0]

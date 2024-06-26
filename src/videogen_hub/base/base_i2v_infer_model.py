@@ -13,5 +13,6 @@ class BaseI2vInferModel(BaseInferModel):
             seconds: int = 2,
             fps: int = 8,
             seed: int = 42,
+            unload: bool = True
     ):
         pass

@@ -20,7 +20,7 @@ from videogen_hub.pipelines.streamingt2v.model_init import (
 from videogen_hub.pipelines.streamingt2v.model_func import *
 
 
-def pipeline(prompt, size, seconds, fps, seed):
+def pipeline(input_image, prompt, negative_prompt, size, seconds, fps, seed):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--prompt",
@@ -29,7 +29,7 @@ def pipeline(prompt, size, seconds, fps, seed):
         help="The prompt to guide video generation.",
     )
     parser.add_argument(
-        "--image", type=str, default="", help="Path to image conditioning."
+        "--image", type=str, default=input_image, help="Path to image conditioning."
     )
     # parser.add_argument('--video', type=str, default="", help="Path to video conditioning.")
     parser.add_argument(
@@ -54,7 +54,7 @@ def pipeline(prompt, size, seconds, fps, seed):
     parser.add_argument(
         "--negative_prompt_enhancer",
         type=str,
-        default=None,
+        default=negative_prompt,
         help="The prompt to guide what to not include in video enhancement. "
              "By default is the same as --negative_prompt",
     )

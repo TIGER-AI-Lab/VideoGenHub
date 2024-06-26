@@ -37,13 +37,16 @@ class ModelScope(BaseT2vInferModel):
         return model_dir
 
     def load_pipeline(self):
-        self.download_models()
         # Store both model and pipeline in self so we can manipulate them later if desired
         if not self.pipeline or not self.model:
+            self.download_models()
             self.model = Model.from_pretrained(self.model_path)
+            self.components = [self.model]
             self.pipeline = pipeline("text-to-video-synthesis", model=self.model, device=self.device)
         self.pipeline.model.config.model.model_args.max_frames = self.fps * self.seconds
         self.model.config.model.model_args.max_frames = self.fps * self.seconds
+        self.to(self.device)
+        return self.pipeline
 
     def infer_one_video(
             self,
@@ -52,7 +55,8 @@ class ModelScope(BaseT2vInferModel):
             size: list = None,
             seconds: int = 2,
             fps: int = 8,
-            seed: int = 42
+            seed: int = 42,
+            unload: bool = True
     ):
         """
         Generates a single video based on the provided prompt and parameters.
@@ -65,6 +69,7 @@ class ModelScope(BaseT2vInferModel):
             seconds (int, optional): The duration of the video in seconds. Defaults to 2.
             fps (int, optional): The frames per second of the video. Defaults to 8.
             seed (int, optional): The seed for random number generation. Defaults to 42.
+            unload (bool, optional): Whether to unload the model from the device after generating the video. Defaults to True
 
         Returns:
             torch.Tensor: The generated video as a tensor.
@@ -85,4 +90,6 @@ class ModelScope(BaseT2vInferModel):
         result = io.BytesIO(output_video_path)
         result = VideoReader(result, ctx=cpu(0))
         result = torch.from_numpy(result.get_batch(range(len(result))).asnumpy())
+        if unload:
+            self.to("cpu")
         return result

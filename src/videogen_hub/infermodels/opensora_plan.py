@@ -22,6 +22,7 @@ class OpenSoraPlan(BaseT2vInferModel):
         self.model_path = os.path.join(MODEL_PATH, 'Open-Sora-Plan-v1.1.0')
         self.resolution = [320, 512]
         self.device = device
+        self.pipeline = None
 
     def download_models(self) -> str:
         self.model_path = snapshot_download('LanguageBind/Open-Sora-Plan-v1.1.0',
@@ -47,6 +48,8 @@ class OpenSoraPlan(BaseT2vInferModel):
                         '--num_sampling_steps', '150',
                         '--enable_tiling']
             self.pipeline = OpenSoraPlanPipeline(arg_list, self.device)
+        self.to(self.device)
+        return self.pipeline
 
     def infer_one_video(
             self,
@@ -56,6 +59,7 @@ class OpenSoraPlan(BaseT2vInferModel):
             seconds: int = 2,
             fps: int = 8,
             seed: int = 42,
+            unload: bool = True
     ):
         """
     Generates a single video based on the provided prompt and parameters.
@@ -68,6 +72,7 @@ class OpenSoraPlan(BaseT2vInferModel):
         seconds (int, optional): The duration of the video in seconds. Defaults to 2.
         fps (int, optional): The frames per second of the video. Defaults to 8.
         seed (int, optional): The seed for random number generation. Defaults to 42.
+        unload (bool, optional): Whether to unload the model from the device after generating the video. Defaults to True
 
     Returns:
         torch.Tensor: The generated video as a tensor.
@@ -88,4 +93,7 @@ class OpenSoraPlan(BaseT2vInferModel):
         # samples is torch.Size([B, T, H, W, C])
 
         output = samples.squeeze(0).permute(0, 3, 1, 2).cpu().float()
+        if unload:
+            self.to("cpu")
+
         return output

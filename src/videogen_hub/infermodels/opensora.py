@@ -125,10 +125,11 @@ class OpenSora(BaseI2vInferModel):
 
     def load_pipeline(self):
         if self.pipeline is None:
+            self.download_models()
             print("Loading pipeline")
-            self.pipeline = OpenSoraVideoGenerationPipeline(self.config).to(self.device)
-        else:
-            print("Pipeline already loaded")
+            self.pipeline = OpenSoraVideoGenerationPipeline(self.config)
+        self.to(self.device)
+        return self.pipeline
 
     def infer_one_video(
             self,
@@ -139,6 +140,7 @@ class OpenSora(BaseI2vInferModel):
             seconds: int = 2,
             fps: int = 8,
             seed: int = 42,
+            unload: bool = True
     ):
         f"""
         Generates a single video based on the provided prompt and parameters.
@@ -152,6 +154,7 @@ class OpenSora(BaseI2vInferModel):
             size (list, optional): The size of the video as [height, width]. Defaults to {self.resolution}.
             fps (int, optional): The frames per second of the video. Defaults to 8.
             seed (int, optional): The seed for random number generation. Defaults to 42.
+            unload (bool, optional): Whether to unload the model from the device after generating the video. Defaults to True
 
         Returns:
             torch.Tensor: The generated video as a tensor.
@@ -166,4 +169,6 @@ class OpenSora(BaseI2vInferModel):
             size = self.resolution
         self.config.image_size = size
         self.load_pipeline()
-        return self.pipeline(self.config)
+        video = self.pipeline(self.config)
+        if unload:
+            self.to("cpu")

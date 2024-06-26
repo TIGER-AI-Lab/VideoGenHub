@@ -10,13 +10,14 @@ from videogen_hub.base.base_i2v_infer_model import BaseI2vInferModel
 
 
 class I2VGenXL(BaseI2vInferModel):
-    def __init__(self):
+    def __init__(self, device="cuda"):
         """
         Initializes the I2VGenXL model using the ali-vilab/i2vgen-xl checkpoint from the Hugging Face Hub.
 
         Args: None
         """
         self.resolution = [320, 512]
+        self.device = device
         self.model_path = os.path.join(MODEL_PATH, "i2vgen-xl")
 
     def download_models(self) -> str:
@@ -31,6 +32,7 @@ class I2VGenXL(BaseI2vInferModel):
             self.pipeline = I2VGenXLPipeline.from_pretrained(
                 self.model_path, torch_dtype=torch.float16, variant="fp16"
             )
+        self.to(self.device)
         return self.pipeline
 
     def infer_one_video(
@@ -42,6 +44,7 @@ class I2VGenXL(BaseI2vInferModel):
             seconds: int = 2,
             fps: int = 8,
             seed: int = 42,
+            unload: bool = True
     ):
         f"""
         Generates a single video based on a textual prompt and first frame image, using either a provided image or an image path as the starting point. The output is a tensor representing the video.
@@ -54,6 +57,7 @@ class I2VGenXL(BaseI2vInferModel):
             seconds (int, optional): The duration of the video in seconds. Defaults to 2.
             fps (int, optional): The number of frames per second in the generated video. This determines how smooth the video appears. Defaults to 8.
             seed (int, optional): A seed value for random number generation, ensuring reproducibility of the video generation process. Defaults to 42.
+            unload (bool, optional): Whether to unload the model from the device after generating the video. Defaults to True
 
         Returns:
             torch.Tensor: A tensor representing the generated video, structured as (time, channel, height, width).
@@ -62,7 +66,8 @@ class I2VGenXL(BaseI2vInferModel):
             size = self.resolution
 
         self.load_pipeline()
-        return self.pipeline(
+
+        video = self.pipeline(
             prompt=prompt,
             image=input_image,
             height=size[0],
@@ -71,3 +76,7 @@ class I2VGenXL(BaseI2vInferModel):
             num_frames=seconds * fps,
             generator=torch.manual_seed(seed),
         )
+        if unload:
+            self.to("cpu")
+        return video
+
