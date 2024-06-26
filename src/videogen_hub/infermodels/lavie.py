@@ -79,13 +79,17 @@ class LaVie(BaseT2vInferModel):
 
     def download_models(self):
         model_paths = []
-        mp = snapshot_download(repo_id="Vchitect/LaVie", local_dir=self.model_path)
+        mp = snapshot_download(repo_id="Vchitect/LaVie", local_dir=self.model_path,
+                               ignore_patterns=["*fp16*", "*non_ema.bin", "diffusion_pytorch_model.bin", "diffusion_pytorch_model_fp16.bin"])
         model_paths.append(mp)
         mp = snapshot_download(repo_id="CompVis/stable-diffusion-v1-4",
-                               local_dir=os.path.join(self.model_path, "/stable-diffusion-v1-4"))
+                               local_dir=os.path.join(self.model_path, "/stable-diffusion-v1-4"),
+                               ignore_patterns=["*fp16*", "*non_ema.bin", "diffusion_pytorch_model.bin", "diffusion_pytorch_model_fp16.bin"])
         model_paths.append(mp)
         mp = snapshot_download(repo_id="stabilityai/stable-diffusion-x4-upscaler",
-                               local_dir=os.path.join(self.model_path, "/stable-diffusion-x4-upscaler"))
+                               local_dir=os.path.join(self.model_path, "/stable-diffusion-x4-upscaler"),
+                               ignore_patterns=["*fp16*", "*non_ema.bin", "diffusion_pytorch_model.bin", "diffusion_pytorch_model_fp16.bin"]
+        )
         model_paths.append(mp)
         return model_paths
 
