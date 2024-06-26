@@ -1,15 +1,14 @@
 import os
 
 from huggingface_hub import hf_hub_download
-from mmengine import Config as mmengine_config
-
 from videogen_hub import MODEL_PATH
 from videogen_hub.base.base_i2v_infer_model import BaseI2vInferModel
 from videogen_hub.pipelines.opensora.scripts.open_sora_video_generation_pipeline import OpenSoraVideoGenerationPipeline
+from mmengine import Config as mmConfig
 
 
 class OpenSora12(BaseI2vInferModel):
-    def __init__(self, device="gpu"):
+    def __init__(self, device="cuda"):
         """
         1. Download the pretrained model and put it inside MODEL_PATH/modelscope
         2. Create Pipeline
@@ -96,14 +95,15 @@ class OpenSora12(BaseI2vInferModel):
             "condition_frame_length": 5,
             "condition_frame_edit": 0.0,
         }
-        self.config = mmengine_config(self.config)
+        self.config = mmConfig(self.config)
+        self.pipeline = None  # Initialize the pipeline to None
 
     def download_models(self):
         model_paths = []
         mp = hf_hub_download(
             repo_id="hpcai-tech/OpenSora-STDiT-v3",
             filename="model.safetensors",
-            local_dir=self.config.model.from_pretrained,
+            local_dir=os.path.join(MODEL_PATH, "STDiT3-XL_2")
         )
         model_paths.append(mp)
 
@@ -114,7 +114,7 @@ class OpenSora12(BaseI2vInferModel):
         )
         model_paths.append(mp)
 
-        hf_hub_download(
+        mp = hf_hub_download(
             repo_id="DeepFloyd/t5-v1_1-xxl",
             filename="pytorch_model-00001-of-00002.bin",
             local_dir=os.path.join(MODEL_PATH, "t5-v1_1-xxl"),
@@ -136,7 +136,7 @@ class OpenSora12(BaseI2vInferModel):
             fps: int = 8,
             seed: int = 42,
     ):
-        f"""
+        """
         Generates a single video based on the provided prompt and parameters.
         The generated video always has resolution 256x256
 
@@ -161,16 +161,5 @@ class OpenSora12(BaseI2vInferModel):
         if not size:
             size = self.resolution
         self.config.image_size = size
-
         self.load_pipeline()
-
-        all_batch_samples = self.pipeline(self.config)
-
-        sample = all_batch_samples[0][0]
-        # sample is torch.Size([1, C, f, H, W])
-
-        output = sample.squeeze(0).permute(1, 2, 3, 0).cpu().float()
-        # torch.Size([1, C, f, H, W]) -> torch.Size([f, H, W, C])
-        # BFloat16 -> Float
-
-        return output
+        return self.pipeline(self.config)

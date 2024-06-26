@@ -132,6 +132,12 @@ class T5Embedder:
             )["last_hidden_state"].detach()
         return text_encoder_embs, attention_mask
 
+    def to(self, device, dtype):
+        self.model.to(device=device, dtype=dtype)
+        self.device = device
+        self.torch_dtype = dtype
+        return self
+
 
 @MODELS.register_module("t5")
 class T5Encoder:
@@ -206,6 +212,10 @@ class T5Encoder:
     def null(self, n):
         null_y = self.y_embedder.y_embedding[None].repeat(n, 1, 1)[:, None]
         return null_y
+
+    def to(self, device, dtype):
+        self.t5.model.to(device=device, dtype=dtype)
+        return self
 
 
 def basic_clean(text):

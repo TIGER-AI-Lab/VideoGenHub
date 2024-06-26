@@ -7,10 +7,9 @@ import PIL.Image
 import numpy as np
 import torch
 import torch.distributed as dist
-from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 from diffusers.utils import BaseOutput, logging
-from mmengine.runner import set_random_seed
 from mmengine import Config as mmengine_config
+from mmengine.runner import set_random_seed
 from tqdm import tqdm
 
 from videogen_hub.pipelines.opensora.opensora.acceleration.parallel_states import set_sequence_parallel_group
@@ -44,11 +43,13 @@ class OpenSoraVideoGenerationPipelineOutput(BaseOutput):
     frames: Union[List[List[PIL.Image.Image]], np.ndarray, torch.Tensor]
 
 
-class OpenSoraVideoGenerationPipeline(DiffusionPipeline):
-    def __init__(self, config):
+class OpenSoraVideoGenerationPipeline:
+    def __init__(self, config, device="cuda", dtype=torch.bfloat16):
         super().__init__()
         torch.backends.cuda.matmul.allow_tf32 = True
         torch.backends.cudnn.allow_tf32 = True
+        self.device = torch.device(device)
+        self.dtype = dtype
 
         try:
             import colossalai
@@ -99,6 +100,15 @@ class OpenSoraVideoGenerationPipeline(DiffusionPipeline):
 
         self.text_encoder.y_embedder = self.model.y_embedder  # HACK: for classifier-free guidance
         self.scheduler = build_module(config.scheduler, SCHEDULERS)
+
+    def to(self, device, dtype=None):
+        self.device = device
+        if dtype:
+            self.dtype = dtype
+        self.vae = self.vae.to(device, self.dtype)
+        self.model = self.model.to(device, self.dtype)
+        self.text_encoder = self.text_encoder.to(device, self.dtype)
+        return self
 
     def prepare_inputs(self, prompts, config):
         if prompts is None:
@@ -266,8 +276,9 @@ class OpenSoraVideoGenerationPipeline(DiffusionPipeline):
                             add_watermark(save_path)
             start_idx += len(batch_prompts)
 
-        if not return_dict:
-            return video_clips
+        sample = video_clips[0][0]
+        output = sample.squeeze(0).permute(1, 2, 3, 0).cpu().float()
+        # torch.Size([1, C, N, H, W]) -> torch.Size([N, H, W, C])
+        # BFloat16 -> Float
 
-        return OpenSoraVideoGenerationPipelineOutput(frames=video_clips)
-
+        return output

@@ -14,7 +14,7 @@ import io
 
 
 class ModelScope(BaseT2vInferModel):
-    def __init__(self, device="gpu"):
+    def __init__(self, device="cuda"):
         """
         1. Download the pretrained model and put it inside checkpoints/modelscope
         2. Create Pipeline

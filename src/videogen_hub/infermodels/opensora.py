@@ -1,15 +1,14 @@
 import os
 
 from huggingface_hub import hf_hub_download
-from mmengine import Config as mmengine_config
-
 from videogen_hub import MODEL_PATH
 from videogen_hub.base.base_i2v_infer_model import BaseI2vInferModel
 from videogen_hub.pipelines.opensora.scripts.open_sora_video_generation_pipeline import OpenSoraVideoGenerationPipeline
+from mmengine import Config as mmConfig
 
 
 class OpenSora(BaseI2vInferModel):
-    def __init__(self, device="gpu"):
+    def __init__(self, device="cuda"):
         """
         1. Download the pretrained model and put it inside MODEL_PATH/modelscope
         2. Create Pipeline
@@ -97,7 +96,8 @@ class OpenSora(BaseI2vInferModel):
             "condition_frame_length": 5,
             "condition_frame_edit": 0.0,
         }
-        self.config = mmengine_config(self.config)
+        self.config = mmConfig(self.config)
+        self.pipeline = None  # Initialize the pipeline to None
 
     def download_models(self):
         model_paths = []
@@ -125,7 +125,10 @@ class OpenSora(BaseI2vInferModel):
 
     def load_pipeline(self):
         if self.pipeline is None:
+            print("Loading pipeline")
             self.pipeline = OpenSoraVideoGenerationPipeline(self.config).to(self.device)
+        else:
+            print("Pipeline already loaded")
 
     def infer_one_video(
             self,
@@ -163,13 +166,4 @@ class OpenSora(BaseI2vInferModel):
             size = self.resolution
         self.config.image_size = size
         self.load_pipeline()
-        all_batch_samples = self.pipeline(self.config)
-
-        sample = all_batch_samples[0][0]
-        # sample is torch.Size([1, C, f, H, W])
-
-        output = sample.squeeze(0).permute(1, 2, 3, 0).cpu().float()
-        # torch.Size([1, C, f, H, W]) -> torch.Size([f, H, W, C])
-        # BFloat16 -> Float
-
-        return output
+        return self.pipeline(self.config)

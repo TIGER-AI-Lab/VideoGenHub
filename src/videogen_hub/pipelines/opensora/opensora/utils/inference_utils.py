@@ -3,9 +3,10 @@ import os
 import re
 
 import torch
+from PIL.Image import Image
 
 from videogen_hub.pipelines.opensora.opensora.datasets import IMG_FPS
-from videogen_hub.pipelines.opensora.opensora.datasets.utils import read_from_path
+from videogen_hub.pipelines.opensora.opensora.datasets.utils import read_from_path, get_transforms_image
 
 
 def prepare_multi_resolution_info(info_type, batch_size, image_size, num_frames, fps, device, dtype):
@@ -83,6 +84,27 @@ def extract_json_from_prompts(prompts, reference, mask_strategy):
     return ret_prompts, reference, mask_strategy
 
 
+def handle_reference(reference, vae, image_size):
+    if isinstance(reference, str):
+        r = read_from_path(reference, image_size, transform_name="resize_crop")
+    elif isinstance(reference, Image):
+        transform = get_transforms_image(image_size=image_size, name="resize_crop")
+        r = transform(reference)
+        r = r.unsqueeze(0).repeat(1, 1, 1, 1)  # add batch and temporal dimension
+        r = r.permute(1, 0, 2, 3)  # Change to (C, T, H, W)
+    elif isinstance(reference, torch.Tensor):
+        r = reference
+        if r.dim() == 3:  # If it's a single image tensor (C, H, W)
+            r = r.unsqueeze(0).repeat(1, 1, 1, 1)  # add batch and temporal dimension
+            r = r.permute(1, 0, 2, 3)  # Change to (C, T, H, W)
+        elif r.dim() == 4:  # If it's a video tensor (C, T, H, W)
+            r = r.permute(1, 0, 2, 3)  # Change to (C, T, H, W)
+    else:
+        raise ValueError("Unsupported reference type")
+    r_x = vae.encode(r.unsqueeze(0).to(vae.device, vae.dtype))
+    return r_x.squeeze(0)
+
+
 def collect_references_batch(reference_paths, vae, image_size):
     refs_x = []  # refs_x: [batch, ref_num, C, T, H, W]
     for reference_path in reference_paths:
@@ -92,9 +114,7 @@ def collect_references_batch(reference_paths, vae, image_size):
         ref_path = reference_path.split(";")
         ref = []
         for r_path in ref_path:
-            r = read_from_path(r_path, image_size, transform_name="resize_crop")
-            r_x = vae.encode(r.unsqueeze(0).to(vae.device, vae.dtype))
-            r_x = r_x.squeeze(0)
+            r_x = handle_reference(r_path, vae, image_size)
             ref.append(r_x)
         refs_x.append(ref)
     return refs_x
