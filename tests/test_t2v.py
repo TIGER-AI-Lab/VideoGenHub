@@ -1,6 +1,9 @@
 import os, sys
 import torch
 
+from videogen_hub import all_text2video_models
+import sys
+
 # Directly run `python -m pytest` or
 # Directly run `python -m pytest -v -s --disable-warnings` for Debugging
 
@@ -14,82 +17,31 @@ dummy_prompts = [
     "jungle river at sunset, ultra quality",
     "a shark swimming in clear Carribean ocean, 2k, high quality",
     "a Corgi walking in the park at sunrise, oil painting style",
+    "a cat playing with a ball of yarn, 2k, high quality",
+    "a dog playing fetch in the park, 2k, high quality",
+    "a cat sleeping on the couch, 2k, high quality",
+    "a dog chasing its tail, 2k, high quality",
+    "a cat chasing a mouse, 2k, high quality",
 ]
 
-import sys
 sys.path.append("src")
 
-def test_LaVie():
-    from videogen_hub.infermodels import LaVie
-
-    model = LaVie()
-    assert model is not None
-    out_video = model.infer_one_video(dummy_prompts[0])
-    assert out_video is not None
-    # check if out_video is a tensor or not
-    assert isinstance(out_video, torch.Tensor)
-    print(out_video.shape)
+all_t2v_models = all_text2video_models()
 
 
-def test_VideoCrafter2():
-    from videogen_hub.infermodels import VideoCrafter2
-
-    model = VideoCrafter2()
-    assert model is not None
-    out_video = model.infer_one_video(dummy_prompts[0])
-    assert out_video is not None
-    # check if out_video is a tensor or not
-    assert isinstance(out_video, torch.Tensor)
-    print(out_video.shape)
-
-def test_ModelScope():
-    from videogen_hub.infermodels import ModelScope
-    model = ModelScope()
-    assert model is not None
-    out_video = model.infer_one_video(dummy_prompts[0])
-    print("video ouputted")
-    assert out_video is not None
-    # check if out_video is a tensor or not
-    assert isinstance(out_video, torch.Tensor)
-    print(out_video.shape)
-
-def test_StreamingT2V():
-    from videogen_hub.infermodels import StreamingT2V
-
-    model = StreamingT2V()
-    assert model is not None
-    out_video = model.infer_one_video(dummy_prompts[0])
-    print("video ouputted")
-    assert out_video is not None
-    # check if out_video is a tensor or not
-    assert isinstance(out_video, torch.Tensor)
-    print(out_video.shape)
-
-def test_OpenSora():
-    from videogen_hub.infermodels import OpenSora
-
-    model = OpenSora()
-    assert model is not None
-    out_video = model.infer_one_video(dummy_prompts[0])
-    assert out_video is not None
-    # check if out_video is a tensor or not
-    assert isinstance(out_video, torch.Tensor)
-    print(out_video.shape)
-
-
-def test_ShowOne():
-    from videogen_hub.infermodels import ShowOne
-
-    model = ShowOne()
-    assert model is not None
-    out_video = model.infer_one_video(dummy_prompts[0])
-    assert out_video is not None
-    # check if out_video is a tensor or not
-    assert isinstance(out_video, torch.Tensor)
-    print(out_video.shape)
+def test_models(model_name=None):
+    for i, model in enumerate(all_t2v_models):
+        if model_name is not None and model.__name__ != model_name:
+            continue
+        print(f"Testing {i + 1}. {model.__name__}")
+        out_video = model().infer_one_video(dummy_prompts[i])
+        assert isinstance(out_video, torch.Tensor)
+        print(out_video.shape)
 
 
 if __name__ == "__main__":
-    test_ShowOne()
-    print("Everything passed")
-    pass
+    # See if there's an argument to test a specific model
+    if len(sys.argv) > 1:
+        test_models(sys.argv[1])
+    else:
+        test_models()
