@@ -2,6 +2,7 @@ import inspect
 import os
 
 from videogen_hub._version import __version__
+from videogen_hub.base.base_i2v_infer_model import BaseI2vInferModel
 from videogen_hub.base.base_infer_model import BaseInferModel
 from videogen_hub.base.base_t2v_infer_model import BaseT2vInferModel
 
@@ -28,7 +29,7 @@ def all_image2video_models():
     # Find all models which inherit from BaseT2vInferModel in the infermodels directory
     from videogen_hub import infermodels
     all_infer_models = [cls for name, cls in inspect.getmembers(infermodels, inspect.isclass) if
-                        issubclass(cls, BaseT2vInferModel)]
+                        issubclass(cls, BaseI2vInferModel)]
     return all_infer_models
 
 
