@@ -26,7 +26,7 @@ class Svd(BaseI2vInferModel):
         self.model_path = None
 
         self.pipeline = None  # Initialize the pipeline to None
-        self.model_dict = models = {
+        self.model_dict = {
             "xt": {
                 "repo": "stabilityai/stable-video-diffusion-img2vid-xt",
                 "filename": "svd_xt.safetensors",
