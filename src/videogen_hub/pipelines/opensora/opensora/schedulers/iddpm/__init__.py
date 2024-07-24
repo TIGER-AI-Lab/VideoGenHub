@@ -2,28 +2,27 @@ from functools import partial
 
 import torch
 
-
+from videogen_hub.pipelines.opensora.opensora.registry import SCHEDULERS
 from videogen_hub.pipelines.opensora.opensora.schedulers.iddpm import gaussian_diffusion as gd
 from videogen_hub.pipelines.opensora.opensora.schedulers.iddpm.respace import SpacedDiffusion, space_timesteps
 from videogen_hub.pipelines.opensora.opensora.schedulers.iddpm.speed import SpeeDiffusion
-from videogen_hub.pipelines.opensora.opensora.registry import SCHEDULERS
 
 
 @SCHEDULERS.register_module("iddpm")
 class IDDPM(SpacedDiffusion):
     def __init__(
-        self,
-        num_sampling_steps=None,
-        timestep_respacing=None,
-        noise_schedule="linear",
-        use_kl=False,
-        sigma_small=False,
-        predict_xstart=False,
-        learn_sigma=True,
-        rescale_learned_sigmas=False,
-        diffusion_steps=1000,
-        cfg_scale=4.0,
-        cfg_channel=None,
+            self,
+            num_sampling_steps=None,
+            timestep_respacing=None,
+            noise_schedule="linear",
+            use_kl=False,
+            sigma_small=False,
+            predict_xstart=False,
+            learn_sigma=True,
+            rescale_learned_sigmas=False,
+            diffusion_steps=1000,
+            cfg_scale=4.0,
+            cfg_channel=None,
     ):
         betas = gd.get_named_beta_schedule(noise_schedule, diffusion_steps)
         if use_kl:
@@ -53,15 +52,15 @@ class IDDPM(SpacedDiffusion):
         self.cfg_channel = cfg_channel
 
     def sample(
-        self,
-        model,
-        text_encoder,
-        z,
-        prompts,
-        device,
-        additional_args=None,
-        mask=None,
-        progress=True,
+            self,
+            model,
+            text_encoder,
+            z,
+            prompts,
+            device,
+            additional_args=None,
+            mask=None,
+            progress=True,
     ):
         n = len(prompts)
         z = torch.cat([z, z], 0)

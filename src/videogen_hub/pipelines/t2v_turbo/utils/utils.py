@@ -1,16 +1,18 @@
 import importlib
 import os
-import numpy as np
+import sys
+
 import cv2
+import numpy as np
 import torch
 import torch.distributed as dist
 import torchvision
-import sys
+
 
 def count_params(model, verbose=False):
     total_params = sum(p.numel() for p in model.parameters())
     if verbose:
-        print(f"{model.__class__.__name__} has {total_params*1.e-6:.2f} M params.")
+        print(f"{model.__class__.__name__} has {total_params * 1.e-6:.2f} M params.")
     return total_params
 
 
@@ -35,37 +37,21 @@ def instantiate_from_config(config):
         raise KeyError("Expected key `target` to instantiate.")
     return get_obj_from_str(config["target"])(**config.get("params", dict()))
 
+
 def get_obj_from_str(string, reload=False):
     # Get the current directory
     current_dir = os.path.abspath(os.path.dirname(__file__))
-    
+
     # Move up to the `t2v_turbo` directory
     while os.path.basename(current_dir) not in ['t2v_turbo', 'videogen_hub']:
         current_dir = os.path.dirname(current_dir)
         if current_dir == os.path.dirname(current_dir):  # Reached the root directory
             raise FileNotFoundError("Couldn't find 't2v_turbo' or 'videogen_hub' in the path hierarchy")
-    
-    # Construct the paths for `pipelines` and `t2v_turbo`
-    paths_to_add = []
-    if os.path.basename(current_dir) == 't2v_turbo':
-        paths_to_add.append(current_dir)
-        paths_to_add.append(os.path.join(current_dir, '..'))  # Up one level to the 'pipelines' directory
-    elif os.path.basename(current_dir) == 'videogen_hub':
-        paths_to_add.append(os.path.join(current_dir, 'pipelines'))
-        paths_to_add.append(os.path.join(current_dir, 'pipelines', 't2v_turbo'))
 
-    # Normalize paths to avoid issues with '..'
-    paths_to_add = [os.path.normpath(path) for path in paths_to_add]
 
     print("+++++> string", string)
     print("+++++> base_dir", current_dir)
-    print("+++++> paths_to_add", paths_to_add)
 
-    # Add the paths to sys.path if they're not already there
-    for path in paths_to_add:
-        if path not in sys.path:
-            sys.path.insert(0, path)
-    
     # Extract the module and class names
     module, cls = string.rsplit(".", 1)
 
@@ -73,9 +59,10 @@ def get_obj_from_str(string, reload=False):
     module_imp = importlib.import_module(module)
     if reload:
         importlib.reload(module_imp)
-    
+
     # Get the class from the module
     return getattr(module_imp, cls)
+
 
 """
 def get_obj_from_str(string, reload=False):
@@ -85,6 +72,7 @@ def get_obj_from_str(string, reload=False):
         importlib.reload(module_imp)
     return getattr(importlib.import_module(module, package=None), cls)
 """
+
 
 def load_npz_from_dir(data_dir):
     data = [
@@ -107,7 +95,7 @@ def resize_numpy_image(image, max_resolution=512 * 512, resize_short_edge=None):
         k = resize_short_edge / min(h, w)
     else:
         k = max_resolution / (h * w)
-        k = k**0.5
+        k = k ** 0.5
     h = int(np.round(h * k / 64)) * 64
     w = int(np.round(w * k / 64)) * 64
     image = cv2.resize(image, (w, h), interpolation=cv2.INTER_LANCZOS4)

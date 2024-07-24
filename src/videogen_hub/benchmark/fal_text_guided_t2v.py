@@ -1,17 +1,21 @@
-from typing import Optional
+import json
 import os
-from tqdm import tqdm
-import json, requests
+from typing import Optional
+
 import fal_client
+import requests
+from tqdm import tqdm
+
+
 # import json
 
 def infer_text_guided_vg_bench(
-    model_name,
-    result_folder: str = "results",
-    experiment_name: str = "Exp_Text-Guided_VG",
-    overwrite_model_outputs: bool = False,
-    overwrite_inputs: bool = False,
-    limit_videos_amount: Optional[int] = None,
+        model_name,
+        result_folder: str = "results",
+        experiment_name: str = "Exp_Text-Guided_VG",
+        overwrite_model_outputs: bool = False,
+        overwrite_inputs: bool = False,
+        limit_videos_amount: Optional[int] = None,
 ):
     """
     Performs inference on the VideogenHub dataset using the provided text-guided video generation model.
@@ -52,7 +56,7 @@ def infer_text_guided_vg_bench(
         "| Model:",
         model_name,
     )
-    
+
     if model_name == 'AnimateDiff':
         fal_model_name = 'fast-animatediff/text-to-video'
     elif model_name == 'AnimateDiffTurbo':
@@ -73,14 +77,14 @@ def infer_text_guided_vg_bench(
         dest_file = os.path.join(dest_folder, file_basename)
         if overwrite_model_outputs or not os.path.exists(dest_file):
             print("========> Inferencing", dest_file)
-            
+
             handler = fal_client.submit(
                 f"fal-ai/{fal_model_name}",
                 arguments={
                     "prompt": prompt["prompt_en"]
                 },
             )
-            
+
             # for event in handler.iter_events(with_logs=True):
             #     if isinstance(event, fal_client.InProgress):
             #         print('Request in progress')
@@ -94,6 +98,7 @@ def infer_text_guided_vg_bench(
 
         if limit_videos_amount is not None and (idx >= limit_videos_amount):
             break
+
 
 def download_mp4(url, filename):
     try:
@@ -111,7 +116,8 @@ def download_mp4(url, filename):
 
     except requests.exceptions.RequestException as e:
         print(f"Error downloading file: {e}")
-        
+
+
 if __name__ == "__main__":
     pass
     # infer_text_guided_vg_bench(model_name="AnimateDiff")

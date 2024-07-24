@@ -1,7 +1,8 @@
 from copy import deepcopy
 
-from basicsr.utils.registry import METRIC_REGISTRY
-from .psnr_ssim import calculate_psnr, calculate_ssim
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.metrics.psnr_ssim import \
+    calculate_psnr, calculate_ssim
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.registry import METRIC_REGISTRY
 
 __all__ = ['calculate_psnr', 'calculate_ssim']
 

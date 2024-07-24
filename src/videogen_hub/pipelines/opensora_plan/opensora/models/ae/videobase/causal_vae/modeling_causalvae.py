@@ -1,43 +1,46 @@
-from ..modeling_videobase import VideoBaseAE_PL
-from ..modules import Normalize
-from ..modules.ops import nonlinearity
-from typing import List, Tuple
-import torch.nn as nn
-from ..utils.module_utils import resolve_str_to_obj, Module
-from ..utils.distrib_utils import DiagonalGaussianDistribution
-from ..utils.scheduler_utils import cosine_scheduler
+from typing import Tuple
+
 import torch
+import torch.nn as nn
 from diffusers.configuration_utils import register_to_config
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modeling_videobase import VideoBaseAE_PL
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.normalize import Normalize
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.ops import nonlinearity
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.utils.distrib_utils import \
+    DiagonalGaussianDistribution
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.utils.module_utils import \
+    resolve_str_to_obj, Module
 
 
 class Encoder(nn.Module):
     def __init__(
-        self,
-        z_channels: int,
-        hidden_size: int,
-        hidden_size_mult: Tuple[int] = (1, 2, 4, 4),
-        attn_resolutions: Tuple[int] = (16,),
-        conv_in: Module = "Conv2d",
-        conv_out: Module = "CasualConv3d",
-        attention: Module = "AttnBlock",
-        resnet_blocks: Tuple[Module] = (
-            "ResnetBlock2D",
-            "ResnetBlock2D",
-            "ResnetBlock2D",
-            "ResnetBlock3D",
-        ),
-        spatial_downsample: Tuple[Module] = (
-            "Downsample",
-            "Downsample",
-            "Downsample",
-            "",
-        ),
-        temporal_downsample: Tuple[Module] = ("", "", "TimeDownsampleRes2x", ""),
-        mid_resnet: Module = "ResnetBlock3D",
-        dropout: float = 0.0,
-        resolution: int = 256,
-        num_res_blocks: int = 2,
-        double_z: bool = True,
+            self,
+            z_channels: int,
+            hidden_size: int,
+            hidden_size_mult: Tuple[int] = (1, 2, 4, 4),
+            attn_resolutions: Tuple[int] = (16,),
+            conv_in: Module = "Conv2d",
+            conv_out: Module = "CasualConv3d",
+            attention: Module = "AttnBlock",
+            resnet_blocks: Tuple[Module] = (
+                    "ResnetBlock2D",
+                    "ResnetBlock2D",
+                    "ResnetBlock2D",
+                    "ResnetBlock3D",
+            ),
+            spatial_downsample: Tuple[Module] = (
+                    "Downsample",
+                    "Downsample",
+                    "Downsample",
+                    "",
+            ),
+            temporal_downsample: Tuple[Module] = ("", "", "TimeDownsampleRes2x", ""),
+            mid_resnet: Module = "ResnetBlock3D",
+            dropout: float = 0.0,
+            resolution: int = 256,
+            num_res_blocks: int = 2,
+            double_z: bool = True,
     ) -> None:
         super().__init__()
         assert len(resnet_blocks) == len(hidden_size_mult), print(
@@ -137,31 +140,31 @@ class Encoder(nn.Module):
 
 class Decoder(nn.Module):
     def __init__(
-        self,
-        z_channels: int,
-        hidden_size: int,
-        hidden_size_mult: Tuple[int] = (1, 2, 4, 4),
-        attn_resolutions: Tuple[int] = (16,),
-        conv_in: Module = "Conv2d",
-        conv_out: Module = "CasualConv3d",
-        attention: Module = "AttnBlock",
-        resnet_blocks: Tuple[Module] = (
-            "ResnetBlock3D",
-            "ResnetBlock3D",
-            "ResnetBlock3D",
-            "ResnetBlock3D",
-        ),
-        spatial_upsample: Tuple[Module] = (
-            "",
-            "SpatialUpsample2x",
-            "SpatialUpsample2x",
-            "SpatialUpsample2x",
-        ),
-        temporal_upsample: Tuple[Module] = ("", "", "", "TimeUpsampleRes2x"),
-        mid_resnet: Module = "ResnetBlock3D",
-        dropout: float = 0.0,
-        resolution: int = 256,
-        num_res_blocks: int = 2,
+            self,
+            z_channels: int,
+            hidden_size: int,
+            hidden_size_mult: Tuple[int] = (1, 2, 4, 4),
+            attn_resolutions: Tuple[int] = (16,),
+            conv_in: Module = "Conv2d",
+            conv_out: Module = "CasualConv3d",
+            attention: Module = "AttnBlock",
+            resnet_blocks: Tuple[Module] = (
+                    "ResnetBlock3D",
+                    "ResnetBlock3D",
+                    "ResnetBlock3D",
+                    "ResnetBlock3D",
+            ),
+            spatial_upsample: Tuple[Module] = (
+                    "",
+                    "SpatialUpsample2x",
+                    "SpatialUpsample2x",
+                    "SpatialUpsample2x",
+            ),
+            temporal_upsample: Tuple[Module] = ("", "", "", "TimeUpsampleRes2x"),
+            mid_resnet: Module = "ResnetBlock3D",
+            dropout: float = 0.0,
+            resolution: int = 256,
+            num_res_blocks: int = 2,
     ):
         super().__init__()
         # ---- Config ----
@@ -253,71 +256,71 @@ class CausalVAEModel(VideoBaseAE_PL):
 
     @register_to_config
     def __init__(
-        self,
-        lr: float = 1e-5,
-        hidden_size: int = 128,
-        z_channels: int = 4,
-        hidden_size_mult: Tuple[int] = (1, 2, 4, 4),
-        attn_resolutions: Tuple[int] = [],
-        dropout: float = 0.0,
-        resolution: int = 256,
-        double_z: bool = True,
-        embed_dim: int = 4,
-        num_res_blocks: int = 2,
-        loss_type: str = "videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.losses.LPIPSWithDiscriminator",
-        loss_params: dict = {
-            "kl_weight": 0.000001,
-            "logvar_init": 0.0,
-            "disc_start": 2001,
-            "disc_weight": 0.5,
-        },
-        q_conv: str = "CausalConv3d",
-        encoder_conv_in: Module = "CausalConv3d",
-        encoder_conv_out: Module = "CausalConv3d",
-        encoder_attention: Module = "AttnBlock3D",
-        encoder_resnet_blocks: Tuple[Module] = (
-            "ResnetBlock3D",
-            "ResnetBlock3D",
-            "ResnetBlock3D",
-            "ResnetBlock3D",
-        ),
-        encoder_spatial_downsample: Tuple[Module] = (
-            "SpatialDownsample2x",
-            "SpatialDownsample2x",
-            "SpatialDownsample2x",
-            "",
-        ),
-        encoder_temporal_downsample: Tuple[Module] = (
-            "",
-            "TimeDownsample2x",
-            "TimeDownsample2x",
-            "",
-        ),
-        encoder_mid_resnet: Module = "ResnetBlock3D",
-        decoder_conv_in: Module = "CausalConv3d",
-        decoder_conv_out: Module = "CausalConv3d",
-        decoder_attention: Module = "AttnBlock3D",
-        decoder_resnet_blocks: Tuple[Module] = (
-            "ResnetBlock3D",
-            "ResnetBlock3D",
-            "ResnetBlock3D",
-            "ResnetBlock3D",
-        ),
-        decoder_spatial_upsample: Tuple[Module] = (
-            "",
-            "SpatialUpsample2x",
-            "SpatialUpsample2x",
-            "SpatialUpsample2x",
-        ),
-        decoder_temporal_upsample: Tuple[Module] = ("", "", "TimeUpsample2x", "TimeUpsample2x"),
-        decoder_mid_resnet: Module = "ResnetBlock3D",
+            self,
+            lr: float = 1e-5,
+            hidden_size: int = 128,
+            z_channels: int = 4,
+            hidden_size_mult: Tuple[int] = (1, 2, 4, 4),
+            attn_resolutions: Tuple[int] = [],
+            dropout: float = 0.0,
+            resolution: int = 256,
+            double_z: bool = True,
+            embed_dim: int = 4,
+            num_res_blocks: int = 2,
+            loss_type: str = "videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.losses.LPIPSWithDiscriminator",
+            loss_params: dict = {
+                "kl_weight": 0.000001,
+                "logvar_init": 0.0,
+                "disc_start": 2001,
+                "disc_weight": 0.5,
+            },
+            q_conv: str = "CausalConv3d",
+            encoder_conv_in: Module = "CausalConv3d",
+            encoder_conv_out: Module = "CausalConv3d",
+            encoder_attention: Module = "AttnBlock3D",
+            encoder_resnet_blocks: Tuple[Module] = (
+                    "ResnetBlock3D",
+                    "ResnetBlock3D",
+                    "ResnetBlock3D",
+                    "ResnetBlock3D",
+            ),
+            encoder_spatial_downsample: Tuple[Module] = (
+                    "SpatialDownsample2x",
+                    "SpatialDownsample2x",
+                    "SpatialDownsample2x",
+                    "",
+            ),
+            encoder_temporal_downsample: Tuple[Module] = (
+                    "",
+                    "TimeDownsample2x",
+                    "TimeDownsample2x",
+                    "",
+            ),
+            encoder_mid_resnet: Module = "ResnetBlock3D",
+            decoder_conv_in: Module = "CausalConv3d",
+            decoder_conv_out: Module = "CausalConv3d",
+            decoder_attention: Module = "AttnBlock3D",
+            decoder_resnet_blocks: Tuple[Module] = (
+                    "ResnetBlock3D",
+                    "ResnetBlock3D",
+                    "ResnetBlock3D",
+                    "ResnetBlock3D",
+            ),
+            decoder_spatial_upsample: Tuple[Module] = (
+                    "",
+                    "SpatialUpsample2x",
+                    "SpatialUpsample2x",
+                    "SpatialUpsample2x",
+            ),
+            decoder_temporal_upsample: Tuple[Module] = ("", "", "TimeUpsample2x", "TimeUpsample2x"),
+            decoder_mid_resnet: Module = "ResnetBlock3D",
     ) -> None:
         super().__init__()
         self.tile_sample_min_size = 256
         self.tile_sample_min_size_t = 65
         self.tile_latent_min_size = int(self.tile_sample_min_size / (2 ** (len(hidden_size_mult) - 1)))
         t_down_ratio = [i for i in encoder_temporal_downsample if len(i) > 0]
-        self.tile_latent_min_size_t = int((self.tile_sample_min_size_t-1) / (2 ** len(t_down_ratio))) + 1
+        self.tile_latent_min_size_t = int((self.tile_sample_min_size_t - 1) / (2 ** len(t_down_ratio))) + 1
         self.tile_overlap_factor = 0.25
         self.use_tiling = False
 
@@ -371,9 +374,9 @@ class CausalVAEModel(VideoBaseAE_PL):
 
     def encode(self, x):
         if self.use_tiling and (
-            x.shape[-1] > self.tile_sample_min_size
-            or x.shape[-2] > self.tile_sample_min_size
-            or x.shape[-3] > self.tile_sample_min_size_t
+                x.shape[-1] > self.tile_sample_min_size
+                or x.shape[-2] > self.tile_sample_min_size
+                or x.shape[-3] > self.tile_sample_min_size_t
         ):
             return self.tiled_encode(x)
         h = self.encoder(x)
@@ -383,9 +386,9 @@ class CausalVAEModel(VideoBaseAE_PL):
 
     def decode(self, z):
         if self.use_tiling and (
-            z.shape[-1] > self.tile_latent_min_size
-            or z.shape[-2] > self.tile_latent_min_size
-            or z.shape[-3] > self.tile_latent_min_size_t
+                z.shape[-1] > self.tile_latent_min_size
+                or z.shape[-2] > self.tile_latent_min_size
+                or z.shape[-3] > self.tile_latent_min_size_t
         ):
             return self.tiled_decode(z)
         z = self.post_quant_conv(z)
@@ -440,7 +443,7 @@ class CausalVAEModel(VideoBaseAE_PL):
         inputs = self.get_input(batch, "video")
         reconstructions, posterior = self(inputs)
         opt1, opt2 = self.optimizers()
-        
+
         # ---- AE Loss ----
         aeloss, log_dict_ae = self.loss(
             inputs,
@@ -536,32 +539,32 @@ class CausalVAEModel(VideoBaseAE_PL):
             return self.decoder.conv_out.weight
 
     def blend_v(
-        self, a: torch.Tensor, b: torch.Tensor, blend_extent: int
+            self, a: torch.Tensor, b: torch.Tensor, blend_extent: int
     ) -> torch.Tensor:
         blend_extent = min(a.shape[3], b.shape[3], blend_extent)
         for y in range(blend_extent):
             b[:, :, :, y, :] = a[:, :, :, -blend_extent + y, :] * (
-                1 - y / blend_extent
+                    1 - y / blend_extent
             ) + b[:, :, :, y, :] * (y / blend_extent)
         return b
 
     def blend_h(
-        self, a: torch.Tensor, b: torch.Tensor, blend_extent: int
+            self, a: torch.Tensor, b: torch.Tensor, blend_extent: int
     ) -> torch.Tensor:
         blend_extent = min(a.shape[4], b.shape[4], blend_extent)
         for x in range(blend_extent):
             b[:, :, :, :, x] = a[:, :, :, :, -blend_extent + x] * (
-                1 - x / blend_extent
+                    1 - x / blend_extent
             ) + b[:, :, :, :, x] * (x / blend_extent)
         return b
 
     def tiled_encode(self, x):
         t = x.shape[2]
-        t_chunk_idx = [i for i in range(0, t, self.tile_sample_min_size_t-1)]
+        t_chunk_idx = [i for i in range(0, t, self.tile_sample_min_size_t - 1)]
         if len(t_chunk_idx) == 1 and t_chunk_idx[0] == 0:
             t_chunk_start_end = [[0, t]]
         else:
-            t_chunk_start_end = [[t_chunk_idx[i], t_chunk_idx[i+1]+1] for i in range(len(t_chunk_idx)-1)]
+            t_chunk_start_end = [[t_chunk_idx[i], t_chunk_idx[i + 1] + 1] for i in range(len(t_chunk_idx) - 1)]
             if t_chunk_start_end[-1][-1] > t:
                 t_chunk_start_end[-1][-1] = t
             elif t_chunk_start_end[-1][-1] < t:
@@ -578,14 +581,14 @@ class CausalVAEModel(VideoBaseAE_PL):
         moments = torch.cat(moments, dim=2)
         posterior = DiagonalGaussianDistribution(moments)
         return posterior
-    
+
     def tiled_decode(self, x):
         t = x.shape[2]
-        t_chunk_idx = [i for i in range(0, t, self.tile_latent_min_size_t-1)]
+        t_chunk_idx = [i for i in range(0, t, self.tile_latent_min_size_t - 1)]
         if len(t_chunk_idx) == 1 and t_chunk_idx[0] == 0:
             t_chunk_start_end = [[0, t]]
         else:
-            t_chunk_start_end = [[t_chunk_idx[i], t_chunk_idx[i+1]+1] for i in range(len(t_chunk_idx)-1)]
+            t_chunk_start_end = [[t_chunk_idx[i], t_chunk_idx[i + 1] + 1] for i in range(len(t_chunk_idx) - 1)]
             if t_chunk_start_end[-1][-1] > t:
                 t_chunk_start_end[-1][-1] = t
             elif t_chunk_start_end[-1][-1] < t:
@@ -613,12 +616,12 @@ class CausalVAEModel(VideoBaseAE_PL):
             row = []
             for j in range(0, x.shape[4], overlap_size):
                 tile = x[
-                    :,
-                    :,
-                    :,
-                    i : i + self.tile_sample_min_size,
-                    j : j + self.tile_sample_min_size,
-                ]
+                       :,
+                       :,
+                       :,
+                       i: i + self.tile_sample_min_size,
+                       j: j + self.tile_sample_min_size,
+                       ]
                 tile = self.encoder(tile)
                 tile = self.quant_conv(tile)
                 row.append(tile)
@@ -655,12 +658,12 @@ class CausalVAEModel(VideoBaseAE_PL):
             row = []
             for j in range(0, z.shape[4], overlap_size):
                 tile = z[
-                    :,
-                    :,
-                    :,
-                    i : i + self.tile_latent_min_size,
-                    j : j + self.tile_latent_min_size,
-                ]
+                       :,
+                       :,
+                       :,
+                       i: i + self.tile_latent_min_size,
+                       j: j + self.tile_latent_min_size,
+                       ]
                 tile = self.post_quant_conv(tile)
                 decoded = self.decoder(tile)
                 row.append(decoded)
@@ -699,14 +702,12 @@ class CausalVAEModel(VideoBaseAE_PL):
                     print("Deleting key {} from state_dict.".format(k))
                     del sd[k]
         self.load_state_dict(sd, strict=False)
-        
+
     def validation_step(self, batch, batch_idx):
-        
-        from ..utils.video_utils import tensor_to_video
+
+        from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.utils.video_utils import tensor_to_video
         inputs = self.get_input(batch, 'video')
         latents = self.encode(inputs).sample()
         video_recon = self.decode(latents)
         for idx in range(len(video_recon)):
             self.logger.log_video(f"recon {batch_idx} {idx}", [tensor_to_video(video_recon[idx])], fps=[10])
-            
-        

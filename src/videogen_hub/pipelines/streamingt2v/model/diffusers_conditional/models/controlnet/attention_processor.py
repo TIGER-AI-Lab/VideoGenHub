@@ -11,19 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from einops import repeat
 from typing import Callable, Optional, Union
 
 import torch
 import torch.nn.functional as F
-from torch import nn
-
+from diffusers.models.attention_processor import AttnProcessor, LoRAAttnProcessor, LoRAXFormersAttnProcessor, \
+    XFormersAttnProcessor, SlicedAttnAddedKVProcessor, SlicedAttnProcessor, AttnAddedKVProcessor
 from diffusers.utils import deprecate, logging
 from diffusers.utils.import_utils import is_xformers_available
-
+from torch import nn
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
-
 
 if is_xformers_available():
     import xformers
@@ -48,26 +46,26 @@ class Attention(nn.Module):
     """
 
     def __init__(
-        self,
-        query_dim: int,
-        is_spatial_attention: bool,
-        cross_attention_dim: Optional[int] = None,
-        heads: int = 8,
-        dim_head: int = 64,
-        dropout: float = 0.0,
-        bias=False,
-        upcast_attention: bool = False,
-        upcast_softmax: bool = False,
-        cross_attention_norm: Optional[str] = None,
-        cross_attention_norm_num_groups: int = 32,
-        added_kv_proj_dim: Optional[int] = None,
-        norm_num_groups: Optional[int] = None,
-        out_bias: bool = True,
-        scale_qk: bool = True,
-        only_cross_attention: bool = False,
-        processor: Optional["AttnProcessor"] = None,
-        use_image_embedding: bool = False,
-        unet_params=None,
+            self,
+            query_dim: int,
+            is_spatial_attention: bool,
+            cross_attention_dim: Optional[int] = None,
+            heads: int = 8,
+            dim_head: int = 64,
+            dropout: float = 0.0,
+            bias=False,
+            upcast_attention: bool = False,
+            upcast_softmax: bool = False,
+            cross_attention_norm: Optional[str] = None,
+            cross_attention_norm_num_groups: int = 32,
+            added_kv_proj_dim: Optional[int] = None,
+            norm_num_groups: Optional[int] = None,
+            out_bias: bool = True,
+            scale_qk: bool = True,
+            only_cross_attention: bool = False,
+            processor: Optional["AttnProcessor"] = None,
+            use_image_embedding: bool = False,
+            unet_params=None,
     ):
         super().__init__()
         inner_dim = dim_head * heads
@@ -79,7 +77,7 @@ class Attention(nn.Module):
         self.train_image_cond_weight = use_image_embedding
         self.use_image_embedding = use_image_embedding
 
-        self.scale = dim_head**-0.5 if scale_qk else 1.0
+        self.scale = dim_head ** -0.5 if scale_qk else 1.0
 
         self.heads = heads
         # for slice_size > 0 the attention score computation
@@ -160,7 +158,7 @@ class Attention(nn.Module):
         self.set_processor(processor)
 
     def set_use_memory_efficient_attention_xformers(
-        self, use_memory_efficient_attention_xformers: bool, attention_op: Optional[Callable] = None
+            self, use_memory_efficient_attention_xformers: bool, attention_op: Optional[Callable] = None
     ):
         is_lora = hasattr(self, "processor") and isinstance(
             self.processor, (LoRAAttnProcessor, LoRAXFormersAttnProcessor)
@@ -244,9 +242,9 @@ class Attention(nn.Module):
         # if current processor is in `self._modules` and if passed `processor` is not, we need to
         # pop `processor` from `self._modules`
         if (
-            hasattr(self, "processor")
-            and isinstance(self.processor, torch.nn.Module)
-            and not isinstance(processor, torch.nn.Module)
+                hasattr(self, "processor")
+                and isinstance(self.processor, torch.nn.Module)
+                and not isinstance(processor, torch.nn.Module)
         ):
             logger.info(
                 f"You are removing possibly trained weights of {self.processor} with {processor}")
@@ -379,8 +377,6 @@ class Attention(nn.Module):
         return encoder_hidden_states
 
 
-
-
 class AttnProcessor2_0:
     def __init__(self):
         if not hasattr(F, "scaled_dot_product_attention"):
@@ -436,7 +432,6 @@ class AttnProcessor2_0:
         # dropout
         hidden_states = attn.to_out[1](hidden_states)
         return hidden_states
-
 
 
 AttentionProcessor = Union[

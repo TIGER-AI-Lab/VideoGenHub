@@ -12,6 +12,7 @@ import numpy as np
 import torch
 import torch.distributed as dist
 
+
 # ======================================================
 # Logging
 # ======================================================
@@ -85,8 +86,8 @@ def create_tensorboard_writer(exp_dir):
 
 
 def format_numel_str(numel: int) -> str:
-    B = 1024**3
-    M = 1024**2
+    B = 1024 ** 3
+    M = 1024 ** 2
     K = 1024
     if numel >= B:
         return f"{numel / B:.2f} B"

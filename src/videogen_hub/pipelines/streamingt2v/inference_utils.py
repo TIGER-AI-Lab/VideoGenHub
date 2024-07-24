@@ -1,14 +1,13 @@
 # import argparse
-import sys
+from copy import deepcopy
 from pathlib import Path
-from pytorch_lightning.cli import LightningCLI
-from PIL import Image
+from typing import List, Optional
 
 # For streaming
 import yaml
-from copy import deepcopy
-from typing import List, Optional
+from PIL import Image
 from jsonargparse.typing import restricted_string_type
+from pytorch_lightning.cli import LightningCLI
 
 
 # --------------------------------------
@@ -27,9 +26,10 @@ class CustomCLI(LightningCLI):
         CodeType = restricted_string_type(
             'CodeType', '(medium)|(high)|(highest)')
         parser.add_argument("--matmul_precision", type=CodeType)
-        parser.add_argument("--ckpt", type=Path,)
+        parser.add_argument("--ckpt", type=Path, )
         parser.add_argument("--n_predictions", type=int)
         return parser
+
 
 def remove_value(dictionary, x):
     for key, value in list(dictionary.items()):
@@ -39,6 +39,7 @@ def remove_value(dictionary, x):
             remove_value(value, x)
     return dictionary
 
+
 def legacy_transformation(cfg: yaml):
     cfg = deepcopy(cfg)
     cfg["trainer"]["devices"] = "1"
@@ -46,7 +47,8 @@ def legacy_transformation(cfg: yaml):
 
     if not "class_path" in cfg["model"]["inference_params"]:
         cfg["model"]["inference_params"] = {
-            "class_path": "t2v_enhanced.model.pl_module_params.InferenceParams", "init_args": cfg["model"]["inference_params"]}
+            "class_path": "t2v_enhanced.model.pl_module_params.InferenceParams",
+            "init_args": cfg["model"]["inference_params"]}
     return cfg
 
 
@@ -61,6 +63,7 @@ def add_margin(pil_img, top, right, bottom, left, color):
     result.paste(pil_img, (left, top))
     return result
 
+
 def resize_to_fit(image, size):
     W, H = size
     w, h = image.size
@@ -72,6 +75,7 @@ def resize_to_fit(image, size):
         H_ = H
     return image.resize((W_, H_))
 
+
 def pad_to_fit(image, size):
     W, H = size
     w, h = image.size
@@ -79,22 +83,24 @@ def pad_to_fit(image, size):
     pad_w = (W - w) // 2
     return add_margin(image, pad_h, pad_w, pad_h, pad_w, (0, 0, 0))
 
+
 def resize_and_keep(pil_img):
     myheight = 576
-    hpercent = (myheight/float(pil_img.size[1]))
-    wsize = int((float(pil_img.size[0])*float(hpercent)))
+    hpercent = (myheight / float(pil_img.size[1]))
+    wsize = int((float(pil_img.size[0]) * float(hpercent)))
     pil_img = pil_img.resize((wsize, myheight))
     return pil_img
+
 
 def center_crop(pil_img):
     width, height = pil_img.size
     new_width = 576
     new_height = 576
 
-    left = (width - new_width)/2
-    top = (height - new_height)/2
-    right = (width + new_width)/2
-    bottom = (height + new_height)/2
+    left = (width - new_width) / 2
+    top = (height - new_height) / 2
+    right = (width + new_width) / 2
+    bottom = (height + new_height) / 2
 
     # Crop the center of the image
     pil_img = pil_img.crop((left, top, right, bottom))
@@ -106,7 +112,7 @@ def v2v_to_device(pipe_enhance, device):
 
     pipe_enhance.model = pipe_enhance.model.to(device)
     pipe_enhance.model.device = device
-    
+
     pipe_enhance.model.clip_encoder.model = pipe_enhance.model.clip_encoder.model.to(device)
     pipe_enhance.model.clip_encoder.device = device
 
@@ -116,6 +122,7 @@ def v2v_to_device(pipe_enhance, device):
         pipe_enhance.model.generator = pipe_enhance.model.generator.half()
     pipe_enhance.model.negative_y = pipe_enhance.model.negative_y.to(device)
     return pipe_enhance
+
 
 def st2v_to_device(stream_model, device):
     stream_model = stream_model.to(device)

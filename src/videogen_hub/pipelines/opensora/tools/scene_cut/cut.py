@@ -43,15 +43,15 @@ def process_single_row(row, args, log_name=None):
 
 
 def split_video(
-    video_path,
-    scene_list,
-    save_dir,
-    min_seconds=2.0,
-    max_seconds=15.0,
-    target_fps=30,
-    shorter_size=720,
-    verbose=False,
-    logger=None,
+        video_path,
+        scene_list,
+        save_dir,
+        min_seconds=2.0,
+        max_seconds=15.0,
+        target_fps=30,
+        shorter_size=720,
+        verbose=False,
+        logger=None,
 ):
     """
     scenes shorter than min_seconds will be ignored;

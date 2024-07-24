@@ -1,7 +1,6 @@
 import argparse
 import os
 
-import colossalai
 import numpy as np
 import pandas as pd
 import torch
@@ -12,9 +11,8 @@ from torch.utils.data import DataLoader, DistributedSampler
 from torchvision.transforms.functional import pil_to_tensor
 from tqdm import tqdm
 
-from tools.datasets.utils import extract_frames
-
-from .unimatch import UniMatch
+from videogen_hub.pipelines.opensora.tools.datasets.utils import extract_frames
+from videogen_hub.pipelines.opensora.tools.scoring.optical_flow.unimatch import UniMatch
 
 
 def merge_scores(gathered_list: list, meta: pd.DataFrame):
@@ -70,7 +68,12 @@ def parse_args():
 def main():
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
-    colossalai.launch_from_torch({})
+    try:
+        import colossalai
+        colossalai.launch_from_torch({})
+    except ImportError:
+        print("ColossalAI is not installed. Running in single-GPU mode.")
+
     args = parse_args()
 
     meta_path = args.meta_path

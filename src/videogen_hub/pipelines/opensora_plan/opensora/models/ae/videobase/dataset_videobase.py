@@ -2,15 +2,16 @@ import os.path as osp
 import random
 from glob import glob
 
-from torchvision import transforms
 import numpy as np
 import torch
-import torch.utils.data as data
 import torch.nn.functional as F
+import torch.utils.data as data
+from torchvision import transforms
 from torchvision.transforms import Lambda
 
-from ....dataset.transform import ToTensorVideo, CenterCropVideo
-from ....utils.dataset_utils import DecordInit
+from videogen_hub.pipelines.opensora.opensora.datasets.video_transforms import ToTensorVideo, CenterCropVideo
+from videogen_hub.pipelines.opensora_plan.opensora.utils.dataset_utils import DecordInit
+
 
 def TemporalRandomCrop(total_frames, size):
     """
@@ -32,6 +33,7 @@ def TemporalRandomCrop(total_frames, size):
     end_index = min(begin_index + size, total_frames)
     return begin_index, end_index
 
+
 def resize(x, resolution):
     height, width = x.shape[-2:]
     resolution = min(2 * resolution, height, width)
@@ -45,11 +47,14 @@ def resize(x, resolution):
     resized_x = F.interpolate(x, size=(new_height, new_width), mode='bilinear', align_corners=True, antialias=True)
     return resized_x
 
+
 class VideoDataset(data.Dataset):
     """ Generic dataset for videos files stored in folders
     Returns BCTHW videos in the range [-0.5, 0.5] """
     video_exts = ['avi', 'mp4', 'webm']
-    def __init__(self, video_folder, sequence_length, image_folder=None, train=True, resolution=64, sample_rate=1, dynamic_sample=True):
+
+    def __init__(self, video_folder, sequence_length, image_folder=None, train=True, resolution=64, sample_rate=1,
+                 dynamic_sample=True):
 
         self.train = train
         self.sequence_length = sequence_length
@@ -71,7 +76,7 @@ class VideoDataset(data.Dataset):
     def _make_dataset(self):
         samples = []
         samples += sum([glob(osp.join(self.video_folder, '**', f'*.{ext}'), recursive=True)
-                            for ext in self.video_exts], [])
+                        for ext in self.video_exts], [])
         return samples
 
     def __len__(self):
@@ -86,7 +91,7 @@ class VideoDataset(data.Dataset):
             return dict(video=video, label="")
         except Exception as e:
             print(f'Error with {e}, {video_path}')
-            return self.__getitem__(random.randint(0, self.__len__()-1))
+            return self.__getitem__(random.randint(0, self.__len__() - 1))
 
     def decord_read(self, path):
         decord_vr = self.v_decoder(path)

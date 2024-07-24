@@ -5,7 +5,7 @@ import torch
 import torchvision.transforms as transforms
 from torchvision.datasets.folder import pil_loader
 
-from tools.datasets.utils import extract_frames, is_video
+from videogen_hub.pipelines.opensora.tools.datasets.utils import extract_frames, is_video
 
 PROMPTS = {
     "image": {
@@ -45,7 +45,6 @@ PROMPTS = {
         "type": "video",
     },
 }
-
 
 NUM_FRAMES_POINTS = {
     1: (0.5,),

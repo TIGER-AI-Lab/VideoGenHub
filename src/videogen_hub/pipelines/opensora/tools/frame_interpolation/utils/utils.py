@@ -5,8 +5,8 @@ import sys
 import numpy as np
 import torch
 import torch.nn.functional as F
-from imageio import imread, imwrite
 from PIL import ImageFile
+from imageio import imread, imwrite
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -77,7 +77,7 @@ class InputPadder:
     def _unpad(self, x):
         ht, wd = x.shape[-2:]
         c = [self._pad[2], ht - self._pad[3], self._pad[0], wd - self._pad[1]]
-        return x[..., c[0] : c[1], c[2] : c[3]]
+        return x[..., c[0]: c[1], c[2]: c[3]]
 
 
 def img2tensor(img):

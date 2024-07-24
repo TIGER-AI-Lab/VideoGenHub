@@ -1,13 +1,14 @@
+import importlib
+
+import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
-import pytorch_lightning as pl
-import argparse, os, sys, datetime, glob, importlib
 
-from .model import Encoder, Decoder
-from .quantize import VectorQuantizer2 as VectorQuantizer
-from .quantize import GumbelQuantize
-from .quantize import EMAVectorQuantizer
-
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.imagebase.vqvae.model import Encoder, Decoder
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.imagebase.vqvae.quantize import EMAVectorQuantizer
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.imagebase.vqvae.quantize import GumbelQuantize
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.imagebase.vqvae.quantize import \
+    VectorQuantizer2 as VectorQuantizer
 
 
 def get_obj_from_str(string, reload=False):
@@ -51,7 +52,7 @@ class VQModel(pl.LightningModule):
             self.init_from_ckpt(ckpt_path, ignore_keys=ignore_keys)
         self.image_key = image_key
         if colorize_nlabels is not None:
-            assert type(colorize_nlabels)==int
+            assert type(colorize_nlabels) == int
             self.register_buffer("colorize", torch.randn(3, colorize_nlabels, 1, 1))
         if monitor is not None:
             self.monitor = monitor
@@ -111,7 +112,7 @@ class VQModel(pl.LightningModule):
         if optimizer_idx == 1:
             # discriminator
             discloss, log_dict_disc = self.loss(qloss, x, xrec, optimizer_idx, self.global_step,
-                                            last_layer=self.get_last_layer(), split="train")
+                                                last_layer=self.get_last_layer(), split="train")
             self.log("train/discloss", discloss, prog_bar=True, logger=True, on_step=True, on_epoch=True)
             self.log_dict(log_dict_disc, prog_bar=False, logger=True, on_step=True, on_epoch=True)
             return discloss
@@ -120,25 +121,25 @@ class VQModel(pl.LightningModule):
         x = self.get_input(batch, self.image_key)
         xrec, qloss = self(x)
         aeloss, log_dict_ae = self.loss(qloss, x, xrec, 0, self.global_step,
-                                            last_layer=self.get_last_layer(), split="val")
+                                        last_layer=self.get_last_layer(), split="val")
 
         discloss, log_dict_disc = self.loss(qloss, x, xrec, 1, self.global_step,
                                             last_layer=self.get_last_layer(), split="val")
         rec_loss = log_dict_ae["val/rec_loss"]
         self.log("val/rec_loss", rec_loss,
-                   prog_bar=True, logger=True, on_step=True, on_epoch=True, sync_dist=True)
+                 prog_bar=True, logger=True, on_step=True, on_epoch=True, sync_dist=True)
         self.log("val/aeloss", aeloss,
-                   prog_bar=True, logger=True, on_step=True, on_epoch=True, sync_dist=True)
+                 prog_bar=True, logger=True, on_step=True, on_epoch=True, sync_dist=True)
         self.log_dict(log_dict_ae)
         self.log_dict(log_dict_disc)
         return self.log_dict
 
     def configure_optimizers(self):
         lr = self.learning_rate
-        opt_ae = torch.optim.Adam(list(self.encoder.parameters())+
-                                  list(self.decoder.parameters())+
-                                  list(self.quantize.parameters())+
-                                  list(self.quant_conv.parameters())+
+        opt_ae = torch.optim.Adam(list(self.encoder.parameters()) +
+                                  list(self.decoder.parameters()) +
+                                  list(self.quantize.parameters()) +
+                                  list(self.quant_conv.parameters()) +
                                   list(self.post_quant_conv.parameters()),
                                   lr=lr, betas=(0.5, 0.9))
         opt_disc = torch.optim.Adam(self.loss.discriminator.parameters(),
@@ -167,7 +168,7 @@ class VQModel(pl.LightningModule):
         if not hasattr(self, "colorize"):
             self.register_buffer("colorize", torch.randn(3, x.shape[1], 1, 1).to(x))
         x = F.conv2d(x, weight=self.colorize)
-        x = 2.*(x-x.min())/(x.max()-x.min()) - 1.
+        x = 2. * (x - x.min()) / (x.max() - x.min()) - 1.
         return x
 
 
@@ -178,10 +179,10 @@ class VQSegmentationModel(VQModel):
 
     def configure_optimizers(self):
         lr = self.learning_rate
-        opt_ae = torch.optim.Adam(list(self.encoder.parameters())+
-                                  list(self.decoder.parameters())+
-                                  list(self.quantize.parameters())+
-                                  list(self.quant_conv.parameters())+
+        opt_ae = torch.optim.Adam(list(self.encoder.parameters()) +
+                                  list(self.decoder.parameters()) +
+                                  list(self.quantize.parameters()) +
+                                  list(self.quant_conv.parameters()) +
                                   list(self.post_quant_conv.parameters()),
                                   lr=lr, betas=(0.5, 0.9))
         return opt_ae
@@ -264,12 +265,12 @@ class VQNoDiscModel(VQModel):
         return output
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(list(self.encoder.parameters())+
-                                  list(self.decoder.parameters())+
-                                  list(self.quantize.parameters())+
-                                  list(self.quant_conv.parameters())+
-                                  list(self.post_quant_conv.parameters()),
-                                  lr=self.learning_rate, betas=(0.5, 0.9))
+        optimizer = torch.optim.Adam(list(self.encoder.parameters()) +
+                                     list(self.decoder.parameters()) +
+                                     list(self.quantize.parameters()) +
+                                     list(self.quant_conv.parameters()) +
+                                     list(self.post_quant_conv.parameters()),
+                                     lr=self.learning_rate, betas=(0.5, 0.9))
         return optimizer
 
 
@@ -309,7 +310,7 @@ class GumbelVQ(VQModel):
                                        kl_weight=kl_weight, temp_init=1.0,
                                        remap=remap)
 
-        self.temperature_scheduler = instantiate_from_config(temperature_scheduler_config)   # annealing of temp
+        self.temperature_scheduler = instantiate_from_config(temperature_scheduler_config)  # annealing of temp
 
         if ckpt_path is not None:
             self.init_from_ckpt(ckpt_path, ignore_keys=ignore_keys)
@@ -342,7 +343,7 @@ class GumbelVQ(VQModel):
         if optimizer_idx == 1:
             # discriminator
             discloss, log_dict_disc = self.loss(qloss, x, xrec, optimizer_idx, self.global_step,
-                                            last_layer=self.get_last_layer(), split="train")
+                                                last_layer=self.get_last_layer(), split="train")
             self.log_dict(log_dict_disc, prog_bar=False, logger=True, on_step=True, on_epoch=True)
             return discloss
 
@@ -406,12 +407,13 @@ class EMAVQ(VQModel):
                                            embedding_dim=embed_dim,
                                            beta=0.25,
                                            remap=remap)
+
     def configure_optimizers(self):
         lr = self.learning_rate
-        #Remove self.quantize from parameter list since it is updated via EMA
-        opt_ae = torch.optim.Adam(list(self.encoder.parameters())+
-                                  list(self.decoder.parameters())+
-                                  list(self.quant_conv.parameters())+
+        # Remove self.quantize from parameter list since it is updated via EMA
+        opt_ae = torch.optim.Adam(list(self.encoder.parameters()) +
+                                  list(self.decoder.parameters()) +
+                                  list(self.quant_conv.parameters()) +
                                   list(self.post_quant_conv.parameters()),
                                   lr=lr, betas=(0.5, 0.9))
         opt_disc = torch.optim.Adam(self.loss.discriminator.parameters(),

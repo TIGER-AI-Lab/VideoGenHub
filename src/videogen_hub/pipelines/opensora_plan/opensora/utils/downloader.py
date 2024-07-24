@@ -1,5 +1,6 @@
-import gdown
 import os
+
+import gdown
 
 opensora_cache_home = os.path.expanduser(
     os.getenv("OPENSORA_HOME", os.path.join("~/.cache", "opensora"))

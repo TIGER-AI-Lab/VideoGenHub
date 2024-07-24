@@ -1,10 +1,6 @@
-from ..trainer_videobase import VideoBaseTrainer
 import torch.nn.functional as F
-from typing import Optional
-import os
-import torch
-from transformers.utils import WEIGHTS_NAME
-import json
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.trainer_videobase import VideoBaseTrainer
+
 
 class VQVAETrainer(VideoBaseTrainer):
 
@@ -19,4 +15,3 @@ class VQVAETrainer(VideoBaseTrainer):
         commitment_loss = vq_output['commitment_loss']
         loss = recon_loss + commitment_loss
         return loss
-

@@ -1,40 +1,24 @@
 import argparse
 import datetime
-import random
-import os
 import logging
-from omegaconf import OmegaConf
-
-import torch
+import os
+import random
 
 import diffusers
+import torch
 from diffusers import AutoencoderKL, DDIMScheduler
-
+from diffusers.utils.import_utils import is_xformers_available
+from omegaconf import OmegaConf
 from transformers import CLIPTextModel, CLIPTokenizer
 
-from consisti2v.models.videoldm_unet import VideoLDMUNet3DConditionModel
-from consisti2v.pipelines.pipeline_conditional_animation import (
+from videogen_hub.pipelines.consisti2v.consisti2v.models.videoldm_unet import VideoLDMUNet3DConditionModel
+from videogen_hub.pipelines.consisti2v.consisti2v.pipelines.pipeline_conditional_animation import (
     ConditionalAnimationPipeline,
 )
-from consisti2v.utils.util import save_videos_grid
-from diffusers.utils.import_utils import is_xformers_available
+from videogen_hub.pipelines.consisti2v.consisti2v.utils.util import save_videos_grid
 
 
-def main(args, config):
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
-        datefmt="%m/%d/%Y %H:%M:%S",
-        level=logging.INFO,
-    )
-    diffusers.utils.logging.set_verbosity_info()
-
-    time_str = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
-    savedir = f"{config.output_dir}/{config.output_name}-{time_str}"
-    os.makedirs(savedir)
-
-    samples = []
-    sample_idx = 0
-
+def create_pipeline(config, device: str):
     ### >>> create validation pipeline >>> ###
     if config.pipeline_pretrained_path is None:
         noise_scheduler = DDIMScheduler(
@@ -109,7 +93,27 @@ def main(args, config):
             config.pipeline_pretrained_path
         )
 
-    pipeline.to("cuda")
+    pipeline.to(device)
+    return pipeline
+
+
+def main(args, config, pipeline=None):
+    logging.basicConfig(
+        format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+        datefmt="%m/%d/%Y %H:%M:%S",
+        level=logging.INFO,
+    )
+    diffusers.utils.logging.set_verbosity_info()
+
+    time_str = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+    savedir = f"{config.output_dir}/{config.output_name}-{time_str}"
+    os.makedirs(savedir)
+
+    samples = []
+    sample_idx = 0
+
+    if pipeline is None:
+        pipeline = create_pipeline(config)
 
     # (frameinit) initialize frequency filter for noise reinitialization -------------
     if config.frameinit_kwargs.enable:
@@ -157,7 +161,7 @@ def main(args, config):
         }
     )
     for prompt_idx, (prompt, n_prompt, first_frame_path, random_seed) in enumerate(
-        zip(prompts, n_prompts, first_frame_paths, random_seeds)
+            zip(prompts, n_prompts, first_frame_paths, random_seeds)
     ):
         # manually set random seed for reproduction
         if random_seed != -1:

@@ -12,7 +12,7 @@ from torchvision.datasets.folder import IMG_EXTENSIONS, pil_loader
 from torchvision.io import write_video
 from torchvision.utils import save_image
 
-from . import video_transforms
+from videogen_hub.pipelines.opensora.opensora.datasets import video_transforms
 
 VID_EXTENSIONS = (".mp4", ".avi", ".mov", ".mkv")
 
@@ -195,7 +195,7 @@ def center_crop_arr(pil_image, image_size):
     arr = np.array(pil_image)
     crop_y = (arr.shape[0] - image_size) // 2
     crop_x = (arr.shape[1] - image_size) // 2
-    return Image.fromarray(arr[crop_y : crop_y + image_size, crop_x : crop_x + image_size])
+    return Image.fromarray(arr[crop_y: crop_y + image_size, crop_x: crop_x + image_size])
 
 
 def resize_crop_to_fill(pil_image, image_size):
@@ -214,4 +214,4 @@ def resize_crop_to_fill(pil_image, image_size):
         j = 0
     arr = np.array(image)
     assert i + th <= arr.shape[0] and j + tw <= arr.shape[1]
-    return Image.fromarray(arr[i : i + th, j : j + tw])
+    return Image.fromarray(arr[i: i + th, j: j + tw])

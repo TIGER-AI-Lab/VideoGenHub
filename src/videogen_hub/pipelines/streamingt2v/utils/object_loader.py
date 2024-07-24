@@ -18,7 +18,6 @@ def get_class(cls_path: str, *args, **kwargs):
 
 
 if __name__ == "__main__":
-
     class_ = get_class(
         "diffusers.schedulers.scheduling_euler_discrete.EulerDiscreteScheduler")
     scheduler = class_.from_config("stabilityai/stable-diffusion-2-1",

@@ -36,7 +36,7 @@ kornia>=0.6
 diffusers>=0.18.0
 accelerate>=0.20.3
 safetensors
-datasets
+datasets>=2.18.0
 tqdm>=4.64.1
 matplotlib>=3.7.1
 taming-transformers-rom1504~=0.0.6
@@ -62,3 +62,7 @@ av
 natsort
 tensorboard
 wandb
+SwissArmyTransformer>=0.4.11; platform_system != "Windows"
+icetk
+gifmaker
+

@@ -35,8 +35,8 @@ noise_scheduler_kwargs:
   steps_offset: 1
   clip_sample: false
   rescale_betas_zero_snr: false     # true if using zero terminal snr
-  timestep_spacing:       "leading" # "trailing" if using zero terminal snr
-  prediction_type:        "epsilon" # "v_prediction" if using zero terminal snr
+  timestep_spacing: "leading" # "trailing" if using zero terminal snr
+  prediction_type: "epsilon" # "v_prediction" if using zero terminal snr
 
 frameinit_kwargs:
   enable: true

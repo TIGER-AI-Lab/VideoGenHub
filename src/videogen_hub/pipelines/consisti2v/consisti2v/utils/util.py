@@ -1,24 +1,22 @@
 import os
-import imageio
-import numpy as np
 from typing import Union
 
+import imageio
+import numpy as np
 import torch
-import torchvision
 import torch.distributed as dist
-import wandb
-
-from tqdm import tqdm
+import torchvision
 from einops import rearrange
-
 from torchmetrics.image.fid import _compute_fid
+from tqdm import tqdm
 
 
 def zero_rank_print(s):
     if (not dist.is_initialized()) or (dist.is_initialized() and dist.get_rank() == 0): print("### " + s)
 
 
-def save_videos_grid(videos: torch.Tensor, path: str, rescale=False, n_rows=6, fps=8, wandb=False, global_step=0, format="gif"):
+def save_videos_grid(videos: torch.Tensor, path: str, rescale=False, n_rows=6, fps=8, wandb=False, global_step=0,
+                     format="gif"):
     videos = rearrange(videos, "b c t h w -> t b c h w")
     outputs = []
     for x in videos:
@@ -32,12 +30,13 @@ def save_videos_grid(videos: torch.Tensor, path: str, rescale=False, n_rows=6, f
     if wandb:
         wandb_video = wandb.Video(outputs, fps=fps)
         wandb.log({"val_videos": wandb_video}, step=global_step)
-        
+
     os.makedirs(os.path.dirname(path), exist_ok=True)
     if format == "gif":
         imageio.mimsave(path, outputs, fps=fps)
     elif format == "mp4":
         torchvision.io.write_video(path, np.array(outputs), fps=fps, video_codec='h264', options={'crf': '10'})
+
 
 # DDIM Inversion
 @torch.no_grad()
@@ -74,7 +73,8 @@ def next_step(model_output: Union[torch.FloatTensor, np.ndarray], timestep: int,
 
 
 def get_noise_pred_single(latents, t, context, first_frame_latents, frame_stride, unet):
-    noise_pred = unet(latents, t, encoder_hidden_states=context, first_frame_latents=first_frame_latents, frame_stride=frame_stride).sample
+    noise_pred = unet(latents, t, encoder_hidden_states=context, first_frame_latents=first_frame_latents,
+                      frame_stride=frame_stride).sample
     return noise_pred
 
 
@@ -93,8 +93,10 @@ def ddim_loop(pipeline, ddim_scheduler, latent, num_inv_steps, prompt, first_fra
 
 
 @torch.no_grad()
-def ddim_inversion(pipeline, ddim_scheduler, video_latent, num_inv_steps, prompt="", first_frame_latents=None, frame_stride=3):
-    ddim_latents = ddim_loop(pipeline, ddim_scheduler, video_latent, num_inv_steps, prompt, first_frame_latents, frame_stride)
+def ddim_inversion(pipeline, ddim_scheduler, video_latent, num_inv_steps, prompt="", first_frame_latents=None,
+                   frame_stride=3):
+    ddim_latents = ddim_loop(pipeline, ddim_scheduler, video_latent, num_inv_steps, prompt, first_frame_latents,
+                             frame_stride)
     return ddim_latents
 
 
@@ -140,7 +142,7 @@ def compute_inception_score(gen_probs, num_splits=10):
     scores = []
     np.random.RandomState(42).shuffle(gen_probs)
     for i in range(num_splits):
-        part = gen_probs[i * num_gen // num_splits : (i + 1) * num_gen // num_splits]
+        part = gen_probs[i * num_gen // num_splits: (i + 1) * num_gen // num_splits]
         kl = part * (np.log(part) - np.log(np.mean(part, axis=0, keepdims=True)))
         kl = np.mean(np.sum(kl, axis=1))
         scores.append(np.exp(kl))

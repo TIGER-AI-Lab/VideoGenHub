@@ -1,33 +1,13 @@
 # General
-import os
-from os.path import join as opj
 import argparse
-import datetime
-from pathlib import Path
-import torch
-import gradio as gr
-import tempfile
-import yaml
-from model.video_ldm import VideoLDM
-from typing import List, Optional
-from model.callbacks import SaveConfigCallback
-from PIL.Image import Image, fromarray
-
-from einops import rearrange, repeat
-
+import os
 import sys
 
 from videogen_hub import MODEL_PATH
 
 sys.path.append("thirdparty")
-from modelscope.pipelines import pipeline
-from modelscope.outputs import OutputKeys
-import imageio
-import pathlib
-import numpy as np
 
 # Utilities
-from inference_utils import *
 from model_init import *
 from model_func import *
 
@@ -67,7 +47,7 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="The prompt to guide what to not include in video enhancement. "
-        "By default is the same as --negative_prompt",
+             "By default is the same as --negative_prompt",
     )
     parser.add_argument(
         "--num_steps", type=int, default=50, help="The number of denoising steps."
@@ -152,9 +132,9 @@ if __name__ == "__main__":
     # ------------------
     now = datetime.datetime.now()
     name = (
-        args.prompt[:100].replace(" ", "_")
-        + "_"
-        + str(now.time()).replace(":", "_").replace(".", "_")
+            args.prompt[:100].replace(" ", "_")
+            + "_"
+            + str(now.time()).replace(":", "_").replace(".", "_")
     )
 
     inference_generator = torch.Generator(device="cuda")

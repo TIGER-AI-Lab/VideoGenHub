@@ -1,10 +1,10 @@
-import cv2
+from os import path as osp
+
 import numpy as np
 import torch
-from os import path as osp
 from torch.nn import functional as F
 
-from basicsr.utils import img2tensor, scandir
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils import scandir
 
 
 def generate_frame_indices(crt_idx, max_frame_num, num_frames, padding='reflection'):

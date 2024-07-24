@@ -6,7 +6,7 @@ pretrained_path: "../pretrained_models"
 # model config: 
 model: UNet
 video_length: 16
-image_size: [320, 512]
+image_size: [ 320, 512 ]
 
 # beta schedule
 beta_start: 0.0001
@@ -24,10 +24,10 @@ guidance_scale: 7.5
 sample_method: 'ddpm'
 num_sampling_steps: 50
 text_prompt: [
-              'a teddy bear walking on the street, 2k, high quality',
-              'a panda taking a selfie, 2k, high quality',
-              'a polar bear playing drum kit in NYC Times Square, 4k, high resolution',
-              'jungle river at sunset, ultra quality',
-              'a shark swimming in clear Carribean ocean, 2k, high quality',
-              'a Corgi walking in the park at sunrise, oil painting style'
-       ] 
+  'a teddy bear walking on the street, 2k, high quality',
+  'a panda taking a selfie, 2k, high quality',
+  'a polar bear playing drum kit in NYC Times Square, 4k, high resolution',
+  'jungle river at sunset, ultra quality',
+  'a shark swimming in clear Carribean ocean, 2k, high quality',
+  'a Corgi walking in the park at sunrise, oil painting style'
+]

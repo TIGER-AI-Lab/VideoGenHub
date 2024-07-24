@@ -7,7 +7,9 @@ from io import BytesIO
 import requests
 import tqdm
 
-from .utils import IMG_EXTENSIONS, PROMPTS, VID_EXTENSIONS, VideoTextDataset
+from videogen_hub.pipelines.opensora.opensora.datasets.utils import VID_EXTENSIONS
+from videogen_hub.pipelines.opensora.tools.caption.utils import PROMPTS, VideoTextDataset
+from videogen_hub.pipelines.opensora.tools.datasets.utils import IMG_EXTENSIONS
 
 
 def to_base64(image):
@@ -57,11 +59,11 @@ def main(args):
     prompt_type = PROMPTS[args.prompt]["type"]
     if prompt_type == "image":
         assert (
-            data_extension.lower() in IMG_EXTENSIONS
+                data_extension.lower() in IMG_EXTENSIONS
         ), "The prompt is suitable for an image dataset but the data is not image."
     elif prompt_type == "video":
         assert (
-            data_extension.lower() in VID_EXTENSIONS
+                data_extension.lower() in VID_EXTENSIONS
         ), "The prompt is suitable for a video dataset but the data is not video."
     else:
         raise ValueError(f"Found invalid prompt type {prompt_type}")

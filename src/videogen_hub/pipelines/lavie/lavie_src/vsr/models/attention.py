@@ -1,30 +1,22 @@
 # Adapted from https://github.com/huggingface/diffusers/blob/main/src/diffusers/models/attention.py
-import os
-import sys
-sys.path.append(os.path.split(sys.path[0])[0])
 
+import math
 from dataclasses import dataclass
 from typing import Optional
 
-import math
 import torch
 import torch.nn.functional as F
-from torch import nn
-
 from diffusers.configuration_utils import ConfigMixin, register_to_config
+from diffusers.models.attention import FeedForward, AdaLayerNorm
 from diffusers.models.modeling_utils import ModelMixin
 from diffusers.utils import BaseOutput
 from diffusers.utils.import_utils import is_xformers_available
-from diffusers.models.attention import FeedForward, AdaLayerNorm
-
-try:
-    from .resnet import ResnetBlock3DCNN
-except:
-    from resnet import ResnetBlock3DCNN
-
-from rotary_embedding_torch import RotaryEmbedding
-from typing import Callable, Optional
 from einops import rearrange, repeat
+from rotary_embedding_torch import RotaryEmbedding
+from torch import nn
+
+from videogen_hub.pipelines.lavie.lavie_src.vsr.models.resnet import ResnetBlock3DCNN
+
 
 @dataclass
 class Transformer3DModelOutput(BaseOutput):
@@ -36,6 +28,7 @@ if is_xformers_available():
     import xformers.ops
 else:
     xformers = None
+
 
 def exists(x):
     return x is not None
@@ -57,18 +50,18 @@ class CrossAttention(nn.Module):
     """
 
     def __init__(
-        self,
-        query_dim: int,
-        cross_attention_dim: Optional[int] = None,
-        heads: int = 8,
-        dim_head: int = 64,
-        dropout: float = 0.0,
-        bias=False,
-        upcast_attention: bool = False,
-        upcast_softmax: bool = False,
-        added_kv_proj_dim: Optional[int] = None,
-        norm_num_groups: Optional[int] = None,
-        use_relative_position: bool = False,
+            self,
+            query_dim: int,
+            cross_attention_dim: Optional[int] = None,
+            heads: int = 8,
+            dim_head: int = 64,
+            dropout: float = 0.0,
+            bias=False,
+            upcast_attention: bool = False,
+            upcast_softmax: bool = False,
+            added_kv_proj_dim: Optional[int] = None,
+            norm_num_groups: Optional[int] = None,
+            use_relative_position: bool = False,
     ):
         super().__init__()
         # print('num head', heads)
@@ -77,7 +70,7 @@ class CrossAttention(nn.Module):
         self.upcast_attention = upcast_attention
         self.upcast_softmax = upcast_softmax
 
-        self.scale = dim_head**-0.5
+        self.scale = dim_head ** -0.5
 
         self.heads = heads
         self.dim_head = dim_head
@@ -118,7 +111,6 @@ class CrossAttention(nn.Module):
 
         #     self.dropout = nn.Dropout(dropout)
 
-
     def reshape_heads_to_batch_dim(self, tensor):
         batch_size, seq_len, dim = tensor.shape
         head_size = self.heads
@@ -132,7 +124,7 @@ class CrossAttention(nn.Module):
         tensor = tensor.reshape(batch_size // head_size, head_size, seq_len, dim)
         tensor = tensor.permute(0, 2, 1, 3).reshape(batch_size // head_size, seq_len, dim * head_size)
         return tensor
-    
+
     def reshape_for_scores(self, tensor):
         # split heads and dims
         # tensor should be [b (h w)] f (d nd)
@@ -141,9 +133,9 @@ class CrossAttention(nn.Module):
         tensor = tensor.reshape(batch_size, seq_len, head_size, dim // head_size)
         tensor = tensor.permute(0, 2, 1, 3).contiguous()
         return tensor
-    
+
     def same_batch_dim_to_heads(self, tensor):
-        batch_size, head_size, seq_len, dim = tensor.shape # [b (h w)] nd f d
+        batch_size, head_size, seq_len, dim = tensor.shape  # [b (h w)] nd f d
         tensor = tensor.reshape(batch_size, seq_len, dim * head_size)
         return tensor
 
@@ -161,12 +153,12 @@ class CrossAttention(nn.Module):
         if self.group_norm is not None:
             hidden_states = self.group_norm(hidden_states.transpose(1, 2)).transpose(1, 2)
 
-        query = self.to_q(hidden_states) # [b (h w)] f (nd * d)
+        query = self.to_q(hidden_states)  # [b (h w)] f (nd * d)
 
         # print('before reshpape query shape', query.shape)
         dim = query.shape[-1]
         if not self.use_relative_position:
-            query = self.reshape_heads_to_batch_dim(query) # [b (h w) nd] f d
+            query = self.reshape_heads_to_batch_dim(query)  # [b (h w) nd] f d
         # print('after reshape query shape', query.shape)
 
         if self.added_kv_proj_dim is not None:
@@ -186,7 +178,7 @@ class CrossAttention(nn.Module):
             encoder_hidden_states = encoder_hidden_states if encoder_hidden_states is not None else hidden_states
             key = self.to_k(encoder_hidden_states)
             value = self.to_v(encoder_hidden_states)
-            
+
             if not self.use_relative_position:
                 key = self.reshape_heads_to_batch_dim(key)
                 value = self.reshape_heads_to_batch_dim(value)
@@ -214,7 +206,6 @@ class CrossAttention(nn.Module):
         # dropout
         hidden_states = self.to_out[1](hidden_states)
         return hidden_states
-
 
     def _attention(self, query, key, value, attention_mask=None):
         if self.upcast_attention:
@@ -314,23 +305,23 @@ class CrossAttention(nn.Module):
 class Transformer3DModel(ModelMixin, ConfigMixin):
     @register_to_config
     def __init__(
-        self,
-        num_attention_heads: int = 16,
-        attention_head_dim: int = 88,
-        in_channels: Optional[int] = None,
-        num_layers: int = 1,
-        dropout: float = 0.0,
-        norm_num_groups: int = 32,
-        cross_attention_dim: Optional[int] = None,
-        attention_bias: bool = False,
-        activation_fn: str = "geglu",
-        num_embeds_ada_norm: Optional[int] = None,
-        use_linear_projection: bool = False,
-        only_cross_attention: bool = False,
-        upcast_attention: bool = False,
-        use_first_frame: bool = False,
-        use_relative_position: bool = False,
-        rotary_emb: bool = None,
+            self,
+            num_attention_heads: int = 16,
+            attention_head_dim: int = 88,
+            in_channels: Optional[int] = None,
+            num_layers: int = 1,
+            dropout: float = 0.0,
+            norm_num_groups: int = 32,
+            cross_attention_dim: Optional[int] = None,
+            attention_bias: bool = False,
+            activation_fn: str = "geglu",
+            num_embeds_ada_norm: Optional[int] = None,
+            use_linear_projection: bool = False,
+            only_cross_attention: bool = False,
+            upcast_attention: bool = False,
+            use_first_frame: bool = False,
+            use_relative_position: bool = False,
+            rotary_emb: bool = None,
     ):
         super().__init__()
         self.use_linear_projection = use_linear_projection
@@ -346,8 +337,8 @@ class Transformer3DModel(ModelMixin, ConfigMixin):
         #     self.resblock_temporal = ResnetBlock3DCNN(in_channels=in_channels, kernel=(3,3,3), temb_channels=None)
         # else:
         #     self.resblock_temporal = ResnetBlock3DCNN(in_channels=in_channels, kernel=(5,1,1), temb_channels=None)
-        
-        self.resblock_temporal = ResnetBlock3DCNN(in_channels=in_channels, kernel=(3,1,1), temb_channels=None)
+
+        self.resblock_temporal = ResnetBlock3DCNN(in_channels=in_channels, kernel=(3, 1, 1), temb_channels=None)
 
         self.norm = torch.nn.GroupNorm(num_groups=norm_num_groups, num_channels=in_channels, eps=1e-6, affine=True)
         if use_linear_projection:
@@ -440,26 +431,26 @@ class Transformer3DModel(ModelMixin, ConfigMixin):
 
 class BasicTransformerBlock(nn.Module):
     def __init__(
-        self,
-        dim: int,
-        num_attention_heads: int,
-        attention_head_dim: int,
-        dropout=0.0,
-        cross_attention_dim: Optional[int] = None,
-        activation_fn: str = "geglu",
-        num_embeds_ada_norm: Optional[int] = None,
-        attention_bias: bool = False,
-        only_cross_attention: bool = False,
-        upcast_attention: bool = False,
-        use_first_frame: bool = False,
-        use_relative_position: bool = False,
-        rotary_emb: bool = None,
+            self,
+            dim: int,
+            num_attention_heads: int,
+            attention_head_dim: int,
+            dropout=0.0,
+            cross_attention_dim: Optional[int] = None,
+            activation_fn: str = "geglu",
+            num_embeds_ada_norm: Optional[int] = None,
+            attention_bias: bool = False,
+            only_cross_attention: bool = False,
+            upcast_attention: bool = False,
+            use_first_frame: bool = False,
+            use_relative_position: bool = False,
+            rotary_emb: bool = None,
     ):
         super().__init__()
         self.only_cross_attention = only_cross_attention
         # print(only_cross_attention)
         self.use_ada_layer_norm = num_embeds_ada_norm is not None
-        self.use_first_frame = use_first_frame # False for VSR
+        self.use_first_frame = use_first_frame  # False for VSR
 
         # SC-Attn
         if use_first_frame and only_cross_attention == False:
@@ -504,25 +495,25 @@ class BasicTransformerBlock(nn.Module):
         else:
             self.norm2 = None
 
-
         # Temp-Attn for VSR
         self.attn_temporal = TemporalAttention(
-                query_dim=dim,
-                heads=num_attention_heads,
-                dim_head=attention_head_dim,
-                dropout=dropout,
-                bias=attention_bias,
-                cross_attention_dim=None,
-                upcast_attention=upcast_attention,
-                rotary_emb=rotary_emb,
-            )
+            query_dim=dim,
+            heads=num_attention_heads,
+            dim_head=attention_head_dim,
+            dropout=dropout,
+            bias=attention_bias,
+            cross_attention_dim=None,
+            upcast_attention=upcast_attention,
+            rotary_emb=rotary_emb,
+        )
         nn.init.zeros_(self.attn_temporal.to_out[0].weight.data)
         self.norm_temporal = AdaLayerNorm(dim, num_embeds_ada_norm) if self.use_ada_layer_norm else nn.LayerNorm(dim)
         # Feed-forward
         self.ff = FeedForward(dim, dropout=dropout, activation_fn=activation_fn)
         self.norm3 = nn.LayerNorm(dim)
 
-    def set_use_memory_efficient_attention_xformers(self, use_memory_efficient_attention_xformers: bool, attention_op: None):
+    def set_use_memory_efficient_attention_xformers(self, use_memory_efficient_attention_xformers: bool,
+                                                    attention_op: None):
         if not is_xformers_available():
             print("Here is how to install it")
             raise ModuleNotFoundError(
@@ -548,23 +539,23 @@ class BasicTransformerBlock(nn.Module):
             self.attn1._use_memory_efficient_attention_xformers = use_memory_efficient_attention_xformers
             if self.attn2 is not None:
                 self.attn2._use_memory_efficient_attention_xformers = use_memory_efficient_attention_xformers
-            
+
     def forward(self, hidden_states, encoder_hidden_states=None, timestep=None, attention_mask=None, video_length=None):
         # SparseCausal-Attention
         norm_hidden_states = (
             self.norm1(hidden_states, timestep) if self.use_ada_layer_norm else self.norm1(hidden_states)
         )
 
-        if self.only_cross_attention: # Cross-Attention
+        if self.only_cross_attention:  # Cross-Attention
             hidden_states = (
-                self.attn1(norm_hidden_states, encoder_hidden_states, attention_mask=attention_mask) + hidden_states
+                    self.attn1(norm_hidden_states, encoder_hidden_states, attention_mask=attention_mask) + hidden_states
             )
         else:  # Self-Attention
             if self.use_first_frame:
-                hidden_states = self.attn1(norm_hidden_states, attention_mask=attention_mask, video_length=video_length) + hidden_states
+                hidden_states = self.attn1(norm_hidden_states, attention_mask=attention_mask,
+                                           video_length=video_length) + hidden_states
             else:
                 hidden_states = self.attn1(norm_hidden_states, attention_mask=attention_mask) + hidden_states
-
 
         if self.attn2 is not None:
             # Cross-Attention
@@ -572,18 +563,18 @@ class BasicTransformerBlock(nn.Module):
                 self.norm2(hidden_states, timestep) if self.use_ada_layer_norm else self.norm2(hidden_states)
             )
             hidden_states = (
-                self.attn2(
-                    norm_hidden_states, encoder_hidden_states=encoder_hidden_states, attention_mask=attention_mask
-                )
-                + hidden_states
+                    self.attn2(
+                        norm_hidden_states, encoder_hidden_states=encoder_hidden_states, attention_mask=attention_mask
+                    )
+                    + hidden_states
             )
-
 
         # Temporal-Attention for VSR
         d = hidden_states.shape[1]
         hidden_states = rearrange(hidden_states, "(b f) d c -> (b d) f c", f=video_length).contiguous()
         norm_hidden_states = (
-            self.norm_temporal(hidden_states, timestep) if self.use_ada_layer_norm else self.norm_temporal(hidden_states)
+            self.norm_temporal(hidden_states, timestep) if self.use_ada_layer_norm else self.norm_temporal(
+                hidden_states)
         )
         hidden_states = self.attn_temporal(norm_hidden_states) + hidden_states
         hidden_states = rearrange(hidden_states, "(b d) f c -> (b f) d c", d=d).contiguous()
@@ -653,21 +644,23 @@ class SparseCausalAttention(CrossAttention):
 
 
 class TemporalAttention(CrossAttention):
-    def __init__(self, 
-                query_dim: int,
-                cross_attention_dim: Optional[int] = None,
-                heads: int = 8,
-                dim_head: int = 64,
-                dropout: float = 0.0,
-                bias=False,
-                upcast_attention: bool = False,
-                upcast_softmax: bool = False,
-                added_kv_proj_dim: Optional[int] = None,
-                norm_num_groups: Optional[int] = None,
-                rotary_emb=None):
-        super().__init__(query_dim, cross_attention_dim, heads, dim_head, dropout, bias, upcast_attention, upcast_softmax, added_kv_proj_dim, norm_num_groups)
+    def __init__(self,
+                 query_dim: int,
+                 cross_attention_dim: Optional[int] = None,
+                 heads: int = 8,
+                 dim_head: int = 64,
+                 dropout: float = 0.0,
+                 bias=False,
+                 upcast_attention: bool = False,
+                 upcast_softmax: bool = False,
+                 added_kv_proj_dim: Optional[int] = None,
+                 norm_num_groups: Optional[int] = None,
+                 rotary_emb=None):
+        super().__init__(query_dim, cross_attention_dim, heads, dim_head, dropout, bias, upcast_attention,
+                         upcast_softmax, added_kv_proj_dim, norm_num_groups)
         # relative time positional embeddings
-        self.time_rel_pos_bias = RelativePositionBias(heads=heads, max_distance=32) # realistically will not be able to generate that many frames of video... yet
+        self.time_rel_pos_bias = RelativePositionBias(heads=heads,
+                                                      max_distance=32)  # realistically will not be able to generate that many frames of video... yet
         self.rotary_emb = rotary_emb
 
     def forward(self, hidden_states, encoder_hidden_states=None, attention_mask=None):
@@ -679,9 +672,9 @@ class TemporalAttention(CrossAttention):
         if self.group_norm is not None:
             hidden_states = self.group_norm(hidden_states.transpose(1, 2)).transpose(1, 2)
 
-        query = self.to_q(hidden_states) # [b (h w)] f (nd * d)
+        query = self.to_q(hidden_states)  # [b (h w)] f (nd * d)
         dim = query.shape[-1]
-        
+
         if self.added_kv_proj_dim is not None:
             key = self.to_k(hidden_states)
             value = self.to_v(hidden_states)
@@ -699,7 +692,7 @@ class TemporalAttention(CrossAttention):
             encoder_hidden_states = encoder_hidden_states if encoder_hidden_states is not None else hidden_states
             key = self.to_k(encoder_hidden_states)
             value = self.to_v(encoder_hidden_states)
-            
+
         if attention_mask is not None:
             if attention_mask.shape[-1] != query.shape[1]:
                 target_length = query.shape[1]
@@ -724,7 +717,6 @@ class TemporalAttention(CrossAttention):
         hidden_states = self.to_out[1](hidden_states)
         return hidden_states
 
-
     def _attention(self, query, key, value, attention_mask=None, time_rel_pos_bias=None):
         if self.upcast_attention:
             query = query.float()
@@ -734,9 +726,9 @@ class TemporalAttention(CrossAttention):
         # print('key shape', key.shape)
         # print('value shape', value.shape)
         # reshape for adding time positional bais
-        query = self.scale * rearrange(query, 'b f (h d) -> b h f d', h=self.heads) # d: dim_head; n: heads
-        key = rearrange(key, 'b f (h d) -> b h f d', h=self.heads) # d: dim_head; n: heads
-        value = rearrange(value, 'b f (h d) -> b h f d', h=self.heads) # d: dim_head; n: heads
+        query = self.scale * rearrange(query, 'b f (h d) -> b h f d', h=self.heads)  # d: dim_head; n: heads
+        key = rearrange(key, 'b f (h d) -> b h f d', h=self.heads)  # d: dim_head; n: heads
+        value = rearrange(value, 'b f (h d) -> b h f d', h=self.heads)  # d: dim_head; n: heads
         # print('query shape', query.shape)
         # print('key shape', key.shape)
         # print('value shape', value.shape)
@@ -767,7 +759,7 @@ class TemporalAttention(CrossAttention):
             attention_scores = attention_scores + attention_mask
 
         # vdm 
-        attention_scores = attention_scores - attention_scores.amax(dim = -1, keepdim = True).detach()
+        attention_scores = attention_scores - attention_scores.amax(dim=-1, keepdim=True).detach()
 
         attention_probs = nn.functional.softmax(attention_scores, dim=-1)
         # print(attention_probs[0][0])
@@ -784,13 +776,14 @@ class TemporalAttention(CrossAttention):
         # print(hidden_states.shape)
         # exit() 
         return hidden_states
-    
+
+
 class RelativePositionBias(nn.Module):
     def __init__(
-        self,
-        heads=8,
-        num_buckets=32,
-        max_distance=128,
+            self,
+            heads=8,
+            num_buckets=32,
+            max_distance=128,
     ):
         super().__init__()
         self.num_buckets = num_buckets
@@ -810,7 +803,7 @@ class RelativePositionBias(nn.Module):
         is_small = n < max_exact
 
         val_if_large = max_exact + (
-            torch.log(n.float() / max_exact) / math.log(max_distance / max_exact) * (num_buckets - max_exact)
+                torch.log(n.float() / max_exact) / math.log(max_distance / max_exact) * (num_buckets - max_exact)
         ).long()
         val_if_large = torch.min(val_if_large, torch.full_like(val_if_large, num_buckets - 1))
 
@@ -818,9 +811,10 @@ class RelativePositionBias(nn.Module):
         return ret
 
     def forward(self, n, device):
-        q_pos = torch.arange(n, dtype = torch.long, device = device)
-        k_pos = torch.arange(n, dtype = torch.long, device = device)
+        q_pos = torch.arange(n, dtype=torch.long, device=device)
+        k_pos = torch.arange(n, dtype=torch.long, device=device)
         rel_pos = rearrange(k_pos, 'j -> 1 j') - rearrange(q_pos, 'i -> i 1')
-        rp_bucket = self._relative_position_bucket(rel_pos, num_buckets = self.num_buckets, max_distance = self.max_distance)
+        rp_bucket = self._relative_position_bucket(rel_pos, num_buckets=self.num_buckets,
+                                                   max_distance=self.max_distance)
         values = self.relative_attention_bias(rp_bucket)
-        return rearrange(values, 'i j h -> h i j') # num_heads, num_frames, num_frames
+        return rearrange(values, 'i j h -> h i j')  # num_heads, num_frames, num_frames

@@ -1,12 +1,14 @@
 import argparse
 import random
-import torch
-import yaml
 from collections import OrderedDict
 from os import path as osp
 
-from basicsr.utils import set_random_seed
-from basicsr.utils.dist_util import get_dist_info, init_dist, master_only
+import torch
+import yaml
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils import set_random_seed
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.dist_util import get_dist_info, \
+    init_dist, master_only
 
 
 def ordered_yaml():
@@ -82,11 +84,11 @@ def _postprocess_yml_value(value):
 def parse_options(root_path, SR, is_train=True):
     parser = argparse.ArgumentParser()
     # parser.add_argument('-opt', type=str, default = 'options/test/test_RGT_S_x2.yml',required=True, help='Path to option YAML file.')
-    if SR == 'x4': 
-        file_path = osp.join(root_path,'options/test/test_RGT_x4.yml')
-    if SR == 'x2': 
-        file_path = osp.join(root_path,'options/test/test_RGT_x2.yml')
-    parser.add_argument('-opt', type=str, default = file_path, help='Path to option YAML file.')
+    if SR == 'x4':
+        file_path = osp.join(root_path, 'options/test/test_RGT_x4.yml')
+    if SR == 'x2':
+        file_path = osp.join(root_path, 'options/test/test_RGT_x2.yml')
+    parser.add_argument('-opt', type=str, default=file_path, help='Path to option YAML file.')
     parser.add_argument('--launcher', choices=['none', 'pytorch', 'slurm'], default='none', help='job launcher')
     parser.add_argument('--auto_resume', action='store_true')
     parser.add_argument('--debug', action='store_true')

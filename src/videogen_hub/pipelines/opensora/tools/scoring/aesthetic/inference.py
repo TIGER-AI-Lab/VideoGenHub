@@ -9,21 +9,21 @@ import torch
 import torch.distributed as dist
 import torch.nn as nn
 import torch.nn.functional as F
-from colossalai.utils import set_seed
-from einops import rearrange
+import torch.utils.data
 from PIL import Image
+from einops import rearrange
 from torchvision.datasets.folder import pil_loader
 from tqdm import tqdm
 
-from tools.datasets.utils import extract_frames, is_video
+from videogen_hub.pipelines.opensora.tools.datasets.utils import extract_frames, is_video
 
 try:
     from torchvision.transforms import InterpolationMode
 
     BICUBIC = InterpolationMode.BICUBIC
 except ImportError:
+    InterpolationMode = None
     BICUBIC = Image.BICUBIC
-
 
 NUM_FRAMES_POINTS = {
     1: (0.5,),
@@ -100,7 +100,13 @@ class AestheticScorer(nn.Module):
 def main(args):
     dist.init_process_group(backend="nccl", timeout=timedelta(hours=24))
     torch.cuda.set_device(dist.get_rank() % torch.cuda.device_count())
-    set_seed(1024)
+    try:
+        # noinspection PyUnresolvedReferences
+        from colossalai.utils import set_seed
+        set_seed(1024)
+    except:
+        print("ColossalAI not found, skipping seed setting.")
+        pass
     rank = dist.get_rank()
     world_size = dist.get_world_size()
 

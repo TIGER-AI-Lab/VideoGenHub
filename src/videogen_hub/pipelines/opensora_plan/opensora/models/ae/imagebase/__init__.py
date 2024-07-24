@@ -1,6 +1,6 @@
-from .vae.vae import HFVAEWrapper
-from .vae.vae import SDVAEWrapper
-from .vqvae.vqvae import SDVQVAEWrapper
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.imagebase.vae.vae import HFVAEWrapper
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.imagebase.vae.vae import SDVAEWrapper
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.imagebase.vqvae.vqvae import SDVQVAEWrapper
 
 vae = ['stabilityai/sd-vae-ft-mse', 'stabilityai/sd-vae-ft-ema']
 vqvae = ['vqgan_imagenet_f16_1024', 'vqgan_imagenet_f16_16384', 'vqgan_gumbel_f8']

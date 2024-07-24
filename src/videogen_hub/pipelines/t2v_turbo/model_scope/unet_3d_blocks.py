@@ -15,11 +15,13 @@
 # Copied from https://github.com/ExponentialML/Text-To-Video-Finetuning/blob/main/models/unet_3d_blocks.py
 import torch
 import torch.utils.checkpoint as checkpoint
-from torch import nn
 from diffusers.models.resnet import Downsample2D, ResnetBlock2D, TemporalConvLayer, Upsample2D
+from torch import nn
 
 try:
+    # noinspection PyUnresolvedReferences
     from diffusers.models.transformer_2d import Transformer2DModel
+    # noinspection PyUnresolvedReferences
     from diffusers.models.transformer_temporal import TransformerTemporalModel
 except:
     from diffusers.models.transformers.transformer_2d import Transformer2DModel

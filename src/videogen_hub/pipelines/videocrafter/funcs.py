@@ -1,14 +1,14 @@
-import os, sys, glob
-import numpy as np
+import glob
+import os
 from collections import OrderedDict
-from decord import VideoReader, cpu
-import cv2
 
+import cv2
+import numpy as np
 import torch
 import torchvision
+from decord import VideoReader, cpu
 
-sys.path.insert(1, os.path.join(sys.path[0], '..', '..'))
-from .lvdm.models.samplers.ddim import DDIMSampler
+from videogen_hub.common.lvdm.models.samplers.ddim import DDIMSampler
 
 
 def batch_ddim_sampling(model, cond, noise_shape, n_samples=1, ddim_steps=50, ddim_eta=1.0,

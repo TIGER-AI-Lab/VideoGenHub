@@ -2,9 +2,8 @@ from collections import OrderedDict
 
 import numpy as np
 
-
-from .aspect import ASPECT_RATIOS, get_closest_ratio
-from ..utils.misc import get_logger
+from videogen_hub.pipelines.opensora.opensora.datasets.aspect import ASPECT_RATIOS, get_closest_ratio
+from videogen_hub.pipelines.opensora.opensora.utils.misc import get_logger
 
 
 def find_approximate_hw(hw, hw_dict, approx=0.8):

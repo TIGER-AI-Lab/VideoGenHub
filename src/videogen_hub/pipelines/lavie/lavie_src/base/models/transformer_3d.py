@@ -1,4 +1,3 @@
-
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -15,20 +14,17 @@ from typing import Any, Dict, Optional
 
 import torch
 import torch.nn.functional as F
-from torch import nn
-
 from diffusers.configuration_utils import ConfigMixin, register_to_config
 from diffusers.models.embeddings import ImagePositionalEmbeddings
-from diffusers.utils import BaseOutput, deprecate
 from diffusers.models.embeddings import PatchEmbed
 from diffusers.models.lora import LoRACompatibleConv, LoRACompatibleLinear
 from diffusers.models.modeling_utils import ModelMixin
+from diffusers.utils import BaseOutput, deprecate
 from einops import rearrange, repeat
+from torch import nn
 
-try:
-    from attention import BasicTransformerBlock
-except:
-    from .attention import BasicTransformerBlock
+from videogen_hub.pipelines.lavie.lavie_src.base.models.attention import BasicTransformerBlock
+
 
 @dataclass
 class Transformer3DModelOutput(BaseOutput):
@@ -74,27 +70,27 @@ class Transformer3DModel(ModelMixin, ConfigMixin):
 
     @register_to_config
     def __init__(
-        self,
-        num_attention_heads: int = 16,
-        attention_head_dim: int = 88,
-        in_channels: Optional[int] = None,
-        out_channels: Optional[int] = None,
-        num_layers: int = 1,
-        dropout: float = 0.0,
-        norm_num_groups: int = 32,
-        cross_attention_dim: Optional[int] = None,
-        attention_bias: bool = False,
-        sample_size: Optional[int] = None,
-        num_vector_embeds: Optional[int] = None,
-        patch_size: Optional[int] = None,
-        activation_fn: str = "geglu",
-        num_embeds_ada_norm: Optional[int] = None,
-        use_linear_projection: bool = False,
-        only_cross_attention: bool = False,
-        upcast_attention: bool = False,
-        norm_type: str = "layer_norm",
-        norm_elementwise_affine: bool = True,
-        rotary_emb=None,
+            self,
+            num_attention_heads: int = 16,
+            attention_head_dim: int = 88,
+            in_channels: Optional[int] = None,
+            out_channels: Optional[int] = None,
+            num_layers: int = 1,
+            dropout: float = 0.0,
+            norm_num_groups: int = 32,
+            cross_attention_dim: Optional[int] = None,
+            attention_bias: bool = False,
+            sample_size: Optional[int] = None,
+            num_vector_embeds: Optional[int] = None,
+            patch_size: Optional[int] = None,
+            activation_fn: str = "geglu",
+            num_embeds_ada_norm: Optional[int] = None,
+            use_linear_projection: bool = False,
+            only_cross_attention: bool = False,
+            upcast_attention: bool = False,
+            norm_type: str = "layer_norm",
+            norm_elementwise_affine: bool = True,
+            rotary_emb=None,
     ):
         super().__init__()
         self.use_linear_projection = use_linear_projection
@@ -210,16 +206,16 @@ class Transformer3DModel(ModelMixin, ConfigMixin):
             self.proj_out_2 = nn.Linear(inner_dim, patch_size * patch_size * self.out_channels)
 
     def forward(
-        self,
-        hidden_states: torch.Tensor,
-        encoder_hidden_states: Optional[torch.Tensor] = None,
-        timestep: Optional[torch.LongTensor] = None,
-        class_labels: Optional[torch.LongTensor] = None,
-        cross_attention_kwargs: Dict[str, Any] = None,
-        attention_mask: Optional[torch.Tensor] = None,
-        encoder_attention_mask: Optional[torch.Tensor] = None,
-        return_dict: bool = True,
-        use_image_num=None,
+            self,
+            hidden_states: torch.Tensor,
+            encoder_hidden_states: Optional[torch.Tensor] = None,
+            timestep: Optional[torch.LongTensor] = None,
+            class_labels: Optional[torch.LongTensor] = None,
+            cross_attention_kwargs: Dict[str, Any] = None,
+            attention_mask: Optional[torch.Tensor] = None,
+            encoder_attention_mask: Optional[torch.Tensor] = None,
+            return_dict: bool = True,
+            use_image_num=None,
     ):
         """
         The [`Transformer2DModel`] forward method.
@@ -275,16 +271,19 @@ class Transformer3DModel(ModelMixin, ConfigMixin):
             encoder_attention_mask = encoder_attention_mask.unsqueeze(1)
 
         # 1. Input
-        if self.is_input_continuous: # True
+        if self.is_input_continuous:  # True
 
             assert hidden_states.dim() == 5, f"Expected hidden_states to have ndim=5, but got ndim={hidden_states.dim()}."
             if self.training:
                 video_length = hidden_states.shape[2] - use_image_num
                 hidden_states = rearrange(hidden_states, "b c f h w -> (b f) c h w").contiguous()
                 encoder_hidden_states_length = encoder_hidden_states.shape[1]
-                encoder_hidden_states_video = encoder_hidden_states[:, :encoder_hidden_states_length - use_image_num, ...]
-                encoder_hidden_states_video = repeat(encoder_hidden_states_video, 'b m n c -> b (m f) n c', f=video_length).contiguous()
-                encoder_hidden_states_image = encoder_hidden_states[:, encoder_hidden_states_length - use_image_num:, ...]
+                encoder_hidden_states_video = encoder_hidden_states[:, :encoder_hidden_states_length - use_image_num,
+                                              ...]
+                encoder_hidden_states_video = repeat(encoder_hidden_states_video, 'b m n c -> b (m f) n c',
+                                                     f=video_length).contiguous()
+                encoder_hidden_states_image = encoder_hidden_states[:, encoder_hidden_states_length - use_image_num:,
+                                              ...]
                 encoder_hidden_states = torch.cat([encoder_hidden_states_video, encoder_hidden_states_image], dim=1)
                 encoder_hidden_states = rearrange(encoder_hidden_states, 'b m n c -> (b m) n c').contiguous()
             else:

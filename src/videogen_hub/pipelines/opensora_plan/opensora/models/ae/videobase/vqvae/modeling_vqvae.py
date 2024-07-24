@@ -1,14 +1,17 @@
-from ..modeling_videobase import VideoBaseAE
-import torch
-from torch import nn, Tensor
-import numpy as np
-import torch.distributed as dist
-import torch.nn.functional as F
+import json
 import math
 import os
-import json
 from typing import Tuple, Dict, Union
-from .configuration_vqvae import VQVAEConfiguration
+
+import numpy as np
+import torch
+import torch.distributed as dist
+import torch.nn.functional as F
+from torch import nn, Tensor
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modeling_videobase import VideoBaseAE
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.vqvae.configuration_vqvae import \
+    VQVAEConfiguration
 
 
 # Copied from https://github.com/wilson1yan/VideoGPT
@@ -158,9 +161,9 @@ class Codebook(nn.Module):
             self._init_embeddings(z)
         flat_inputs = shift_dim(z, 1, -1).flatten(end_dim=-2)
         distances = (
-            (flat_inputs**2).sum(dim=1, keepdim=True)
-            - 2 * flat_inputs @ self.embeddings.t()
-            + (self.embeddings.t() ** 2).sum(dim=0, keepdim=True)
+                (flat_inputs ** 2).sum(dim=1, keepdim=True)
+                - 2 * flat_inputs @ self.embeddings.t()
+                + (self.embeddings.t() ** 2).sum(dim=0, keepdim=True)
         )
 
         encoding_indices = torch.argmin(distances, dim=1)
@@ -246,7 +249,7 @@ class Encoder(nn.Module):
 # Copied from https://github.com/wilson1yan/VideoGPT
 class MultiHeadAttention(nn.Module):
     def __init__(
-        self, shape, dim_q, dim_kv, n_head, n_layer, causal, attn_type, attn_kwargs
+            self, shape, dim_q, dim_kv, n_head, n_layer, causal, attn_type, attn_kwargs
     ):
         super().__init__()
         self.causal = causal
@@ -499,7 +502,7 @@ class StridedSparsityConfig(object):
         for row in range(0, num_blocks):
             end = min(row + self.num_local_blocks, num_blocks)
             for col in range(
-                max(0, row - self.num_local_blocks), (row + 1 if self.causal else end)
+                    max(0, row - self.num_local_blocks), (row + 1 if self.causal else end)
             ):
                 layout[:, row, col] = 1
         return layout
@@ -555,7 +558,7 @@ class StridedSparsityConfig(object):
         block_row = row // self.block
         block_row = block_layout[:, [block_row]]  # n_head x 1 x n_blocks
         block_row = block_row.repeat_interleave(self.block, dim=-1)
-        block_row[:, :, row + 1 :] = 0.0
+        block_row[:, :, row + 1:] = 0.0
         return block_row
 
     ############# Helper functions ##########################
@@ -603,7 +606,7 @@ class SparseAttention(nn.Module):
     block_layout = dict()
 
     def __init__(
-        self, shape, n_head, causal, num_local_blocks=4, block=32, attn_dropout=0.0
+            self, shape, n_head, causal, num_local_blocks=4, block=32, attn_dropout=0.0
     ):  # does not use attn_dropout
         super().__init__()
         self.causal = causal
@@ -628,6 +631,7 @@ class SparseAttention(nn.Module):
 
     def get_ops(self):
         try:
+            # noinspection PyUnresolvedReferences
             from deepspeed.ops.sparse_attention import MatMul, Softmax
         except:
             raise Exception(
@@ -705,7 +709,6 @@ class SparseAttention(nn.Module):
 
 # Modified from https://github.com/wilson1yan/VideoGPT
 class VQVAEModel(VideoBaseAE):
-
     DOWNLOADED_VQVAE = {
         "bair_stride4x2x2": "1iIAYJ2Qqrx5Q94s5eIXQYJgAydzvT_8L",
         "ucf101_stride4x4x4": "1uuB_8WzHP_bbBmfuaIV7PK_Itl3DyHY5",
@@ -765,10 +768,11 @@ class VQVAEModel(VideoBaseAE):
             model = cls(config=VQVAEConfiguration(**config))
             model.load_state_dict(state_dict)
             return model
-            
+
     @classmethod
     def download_and_load_model(cls, model_name, cache_dir=None):
-        from .....utils.downloader import gdown_download
+
+        from videogen_hub.pipelines.opensora_plan.opensora.utils.downloader import gdown_download
         path = gdown_download(
             cls.DOWNLOADED_VQVAE[model_name], model_name, cache_dir=cache_dir
         )

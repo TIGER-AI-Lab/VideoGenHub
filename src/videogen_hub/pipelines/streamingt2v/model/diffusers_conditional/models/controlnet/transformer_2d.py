@@ -16,14 +16,15 @@ from typing import Optional
 
 import torch
 import torch.nn.functional as F
-from torch import nn
-
 from diffusers.configuration_utils import ConfigMixin, register_to_config
 from diffusers.models.embeddings import ImagePositionalEmbeddings
-from diffusers.utils import BaseOutput, deprecate
-from .attention import BasicTransformerBlock
 from diffusers.models.embeddings import PatchEmbed
 from diffusers.models.modeling_utils import ModelMixin
+from diffusers.utils import BaseOutput, deprecate
+from torch import nn
+
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.attention import \
+    BasicTransformerBlock
 
 
 @dataclass
@@ -78,28 +79,28 @@ class Transformer2DModel(ModelMixin, ConfigMixin):
 
     @register_to_config
     def __init__(
-        self,
-        num_attention_heads: int = 16,
-        attention_head_dim: int = 88,
-        in_channels: Optional[int] = None,
-        out_channels: Optional[int] = None,
-        num_layers: int = 1,
-        dropout: float = 0.0,
-        norm_num_groups: int = 32,
-        cross_attention_dim: Optional[int] = None,
-        attention_bias: bool = False,
-        sample_size: Optional[int] = None,
-        num_vector_embeds: Optional[int] = None,
-        patch_size: Optional[int] = None,
-        activation_fn: str = "geglu",
-        num_embeds_ada_norm: Optional[int] = None,
-        use_linear_projection: bool = False,
-        only_cross_attention: bool = False,
-        upcast_attention: bool = False,
-        norm_type: str = "layer_norm",
-        norm_elementwise_affine: bool = True,
-        use_image_embedding: bool = False,
-        unet_params=None,
+            self,
+            num_attention_heads: int = 16,
+            attention_head_dim: int = 88,
+            in_channels: Optional[int] = None,
+            out_channels: Optional[int] = None,
+            num_layers: int = 1,
+            dropout: float = 0.0,
+            norm_num_groups: int = 32,
+            cross_attention_dim: Optional[int] = None,
+            attention_bias: bool = False,
+            sample_size: Optional[int] = None,
+            num_vector_embeds: Optional[int] = None,
+            patch_size: Optional[int] = None,
+            activation_fn: str = "geglu",
+            num_embeds_ada_norm: Optional[int] = None,
+            use_linear_projection: bool = False,
+            only_cross_attention: bool = False,
+            upcast_attention: bool = False,
+            norm_type: str = "layer_norm",
+            norm_elementwise_affine: bool = True,
+            use_image_embedding: bool = False,
+            unet_params=None,
     ):
         super().__init__()
         self.use_linear_projection = use_linear_projection
@@ -140,9 +141,9 @@ class Transformer2DModel(ModelMixin, ConfigMixin):
                 " sure that either `num_vector_embeds` or `num_patches` is None."
             )
         elif (
-            not self.is_input_continuous
-            and not self.is_input_vectorized
-            and not self.is_input_patches
+                not self.is_input_continuous
+                and not self.is_input_vectorized
+                and not self.is_input_patches
         ):
             raise ValueError(
                 f"Has to define `in_channels`: {in_channels}, `num_vector_embeds`: {num_vector_embeds}, or patch_size:"
@@ -167,10 +168,10 @@ class Transformer2DModel(ModelMixin, ConfigMixin):
                 )
         elif self.is_input_vectorized:
             assert (
-                sample_size is not None
+                    sample_size is not None
             ), "Transformer2DModel over discrete input must provide sample_size"
             assert (
-                num_vector_embeds is not None
+                    num_vector_embeds is not None
             ), "Transformer2DModel over discrete input must provide num_embed"
 
             self.height = sample_size
@@ -186,7 +187,7 @@ class Transformer2DModel(ModelMixin, ConfigMixin):
             )
         elif self.is_input_patches:
             assert (
-                sample_size is not None
+                    sample_size is not None
             ), "Transformer2DModel over patched input must provide sample_size"
 
             self.height = sample_size
@@ -246,13 +247,13 @@ class Transformer2DModel(ModelMixin, ConfigMixin):
             )
 
     def forward(
-        self,
-        hidden_states,
-        encoder_hidden_states=None,
-        timestep=None,
-        class_labels=None,
-        cross_attention_kwargs=None,
-        return_dict: bool = True,
+            self,
+            hidden_states,
+            encoder_hidden_states=None,
+            timestep=None,
+            class_labels=None,
+            cross_attention_kwargs=None,
+            return_dict: bool = True,
     ):
         """
         Args:
@@ -341,7 +342,7 @@ class Transformer2DModel(ModelMixin, ConfigMixin):
             )
             shift, scale = self.proj_out_1(F.silu(conditioning)).chunk(2, dim=1)
             hidden_states = (
-                self.norm_out(hidden_states) * (1 + scale[:, None]) + shift[:, None]
+                    self.norm_out(hidden_states) * (1 + scale[:, None]) + shift[:, None]
             )
             hidden_states = self.proj_out_2(hidden_states)
 

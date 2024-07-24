@@ -1,12 +1,14 @@
 import math
+
 import torch
 from torch import autograd as autograd
 from torch import nn as nn
 from torch.nn import functional as F
 
-from basicsr.archs.vgg_arch import VGGFeatureExtractor
-from basicsr.utils.registry import LOSS_REGISTRY
-from .loss_util import weighted_loss
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.archs.vgg_arch import \
+    VGGFeatureExtractor
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.losses.loss_util import weighted_loss
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.registry import LOSS_REGISTRY
 
 _reduction_modes = ['none', 'mean', 'sum']
 
@@ -23,7 +25,7 @@ def mse_loss(pred, target):
 
 @weighted_loss
 def charbonnier_loss(pred, target, eps=1e-12):
-    return torch.sqrt((pred - target)**2 + eps)
+    return torch.sqrt((pred - target) ** 2 + eps)
 
 
 @LOSS_REGISTRY.register()
@@ -449,7 +451,7 @@ def gradient_penalty_loss(discriminator, real_data, fake_data, weight=None):
     if weight is not None:
         gradients = gradients * weight
 
-    gradients_penalty = ((gradients.norm(2, dim=1) - 1)**2).mean()
+    gradients_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean()
     if weight is not None:
         gradients_penalty /= torch.mean(weight)
 

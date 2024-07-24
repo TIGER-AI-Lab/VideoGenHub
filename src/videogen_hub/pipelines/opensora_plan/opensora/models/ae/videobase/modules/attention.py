@@ -1,11 +1,12 @@
-import torch.nn as nn
-from .normalize import Normalize
-from .conv import CausalConv3d
 import torch
-import numpy as np
+import torch.nn as nn
 from einops import rearrange
-from .block import Block
-from .ops import video_to_image
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.block import Block
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.conv import CausalConv3d
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.normalize import Normalize
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.ops import video_to_image
+
 
 class LinearAttention(Block):
     def __init__(self, dim, heads=4, dim_head=32):
@@ -39,6 +40,7 @@ class LinAttnBlock(LinearAttention):
 
 class AttnBlock3D(Block):
     """Compatible with old versions, there are issues, use with caution."""
+
     def __init__(self, in_channels):
         super().__init__()
         self.in_channels = in_channels
@@ -75,10 +77,12 @@ class AttnBlock3D(Block):
 
         return x + h_
 
+
 class AttnBlock3DFix(nn.Module):
     """
     Thanks to https://github.com/PKU-YuanGroup/Open-Sora-Plan/pull/172.
     """
+
     def __init__(self, in_channels):
         super().__init__()
         self.in_channels = in_channels
@@ -122,7 +126,7 @@ class AttnBlock3DFix(nn.Module):
 
         # h_: (b*t c hw) -> (b t c h w) -> (b c t h w)
         h_ = h_.reshape(b, t, c, h, w)
-        h_ = h_.permute(0, 2, 1, 3 ,4)
+        h_ = h_.permute(0, 2, 1, 3, 4)
 
         h_ = self.proj_out(h_)
 
@@ -145,7 +149,7 @@ class AttnBlock(Block):
         self.proj_out = torch.nn.Conv2d(
             in_channels, in_channels, kernel_size=1, stride=1, padding=0
         )
-        
+
     @video_to_image
     def forward(self, x):
         h_ = x
@@ -190,7 +194,7 @@ class TemporalAttnBlock(Block):
         self.proj_out = torch.nn.Conv3d(
             in_channels, in_channels, kernel_size=1, stride=1, padding=0
         )
-        
+
     def forward(self, x):
         h_ = x
         h_ = self.norm(h_)

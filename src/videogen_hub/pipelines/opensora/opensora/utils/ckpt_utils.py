@@ -3,6 +3,8 @@ import operator
 import os
 from typing import Tuple
 
+import safetensors
+import safetensors.torch
 import torch
 import torch.distributed as dist
 from torchvision.datasets.utils import download_url
@@ -25,11 +27,11 @@ pretrained_models = {
     "OpenSora-v1-HQ-16x256x256.pth": hf_endpoint + "/hpcai-tech/Open-Sora/resolve/main/OpenSora-v1-HQ-16x256x256.pth",
     "OpenSora-v1-HQ-16x512x512.pth": hf_endpoint + "/hpcai-tech/Open-Sora/resolve/main/OpenSora-v1-HQ-16x512x512.pth",
     "PixArt-Sigma-XL-2-256x256.pth": hf_endpoint
-    + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-256x256.pth",
+                                     + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-256x256.pth",
     "PixArt-Sigma-XL-2-512-MS.pth": hf_endpoint
-    + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-512-MS.pth",
+                                    + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-512-MS.pth",
     "PixArt-Sigma-XL-2-1024-MS.pth": hf_endpoint
-    + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-1024-MS.pth",
+                                     + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-1024-MS.pth",
     "PixArt-Sigma-XL-2-2K-MS.pth": hf_endpoint + "/PixArt-alpha/PixArt-Sigma/resolve/main/PixArt-Sigma-XL-2-2K-MS.pth",
 }
 
@@ -146,20 +148,20 @@ def load_from_sharded_state_dict(model, ckpt_path, model_name="model", strict=Fa
     # Attempt to import colossalAI first
     colossal_imported = False
     with suppress(ImportError):
+        # noinspection PyUnresolvedReferences
         from colossalai.checkpoint import GeneralCheckpointIO
         colossal_imported = True
 
     if not colossal_imported:
         # Fall back to torch if colossalAI import fails
         import torch
-        from torch import load as torch_load
 
     def load_model_with_fallback(model, ckpt_path):
         if colossal_imported:
             ckpt_io = GeneralCheckpointIO()
-            ckpt_io.load_model(model, ckpt_path)
+            ckpt_io.load_pipeline(model, ckpt_path)
         else:
-            model.load_state_dict(torch_load(os.path.join(ckpt_path, 'model')))
+            safetensors.torch.load_model(model, os.path.join(ckpt_path, 'model.safetensors'))
 
     print(os.getcwd())
     print(f"path={os.path.join(ckpt_path, 'model')}")
@@ -222,5 +224,3 @@ def load_checkpoint(model, ckpt_path, save_as_pt=False, model_name="model", stri
             get_logger().info("Model checkpoint saved to %s", save_path)
     else:
         raise ValueError(f"Invalid checkpoint path: {ckpt_path}")
-
-

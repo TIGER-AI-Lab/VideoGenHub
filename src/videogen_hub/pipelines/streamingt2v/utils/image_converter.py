@@ -21,17 +21,18 @@ class ProportionalMinScale(DualTransform):
         self.height = height
 
     def apply(
-            self, img: np.ndarray, width: int = 256, height: int = 256, interpolation: int = cv2.INTER_LINEAR, **params):
+            self, img: np.ndarray, width: int = 256, height: int = 256, interpolation: int = cv2.INTER_LINEAR,
+            **params):
         h_img, w_img, _ = img.shape
 
         min_side = np.min([h_img, w_img])
 
-        if (height/h_img)*w_img >= width:
+        if (height / h_img) * w_img >= width:
             if h_img == min_side:
                 return F.smallest_max_size(img, max_size=height, interpolation=interpolation)
             else:
                 return F.longest_max_size(img, max_size=height, interpolation=interpolation)
-        if (width/w_img)*h_img >= height:
+        if (width / w_img) * h_img >= height:
             if w_img == min_side:
                 return F.smallest_max_size(img, max_size=width, interpolation=interpolation)
             else:

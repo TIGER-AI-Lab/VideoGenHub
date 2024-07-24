@@ -1,6 +1,10 @@
 import math
 from collections import Counter
+
+# noinspection PyUnresolvedReferences
 from torch.optim.lr_scheduler import _LRScheduler
+
+
 
 
 class MultiStepRestartLR(_LRScheduler):
@@ -16,7 +20,7 @@ class MultiStepRestartLR(_LRScheduler):
         last_epoch (int): Used in _LRScheduler. Default: -1.
     """
 
-    def __init__(self, optimizer, milestones, gamma=0.1, restarts=(0, ), restart_weights=(1, ), last_epoch=-1):
+    def __init__(self, optimizer, milestones, gamma=0.1, restarts=(0,), restart_weights=(1,), last_epoch=-1):
         self.milestones = Counter(milestones)
         self.gamma = gamma
         self.restarts = restarts
@@ -30,7 +34,7 @@ class MultiStepRestartLR(_LRScheduler):
             return [group['initial_lr'] * weight for group in self.optimizer.param_groups]
         if self.last_epoch not in self.milestones:
             return [group['lr'] for group in self.optimizer.param_groups]
-        return [group['lr'] * self.gamma**self.milestones[self.last_epoch] for group in self.optimizer.param_groups]
+        return [group['lr'] * self.gamma ** self.milestones[self.last_epoch] for group in self.optimizer.param_groups]
 
 
 def get_position_from_periods(iteration, cumulative_period):
@@ -74,7 +78,7 @@ class CosineAnnealingRestartLR(_LRScheduler):
         last_epoch (int): Used in _LRScheduler. Default: -1.
     """
 
-    def __init__(self, optimizer, periods, restart_weights=(1, ), eta_min=0, last_epoch=-1):
+    def __init__(self, optimizer, periods, restart_weights=(1,), eta_min=0, last_epoch=-1):
         self.periods = periods
         self.restart_weights = restart_weights
         self.eta_min = eta_min

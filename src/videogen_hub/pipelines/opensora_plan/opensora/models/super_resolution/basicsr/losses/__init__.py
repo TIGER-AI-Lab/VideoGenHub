@@ -1,9 +1,10 @@
 from copy import deepcopy
 
-from basicsr.utils import get_root_logger
-from basicsr.utils.registry import LOSS_REGISTRY
-from .losses import (CharbonnierLoss, GANLoss, L1Loss, MSELoss, WeightedTVLoss, g_path_regularize,
-                     gradient_penalty_loss, r1_penalty)
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.losses.losses import (
+    CharbonnierLoss, GANLoss, L1Loss, MSELoss, WeightedTVLoss, g_path_regularize,
+    gradient_penalty_loss, r1_penalty)
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils import get_root_logger
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.registry import LOSS_REGISTRY
 
 __all__ = [
     'L1Loss', 'MSELoss', 'CharbonnierLoss', 'WeightedTVLoss', 'GANLoss', 'gradient_penalty_loss',

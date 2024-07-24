@@ -15,7 +15,8 @@ def hinge_d_loss(logits_real, logits_fake):
 
 def vanilla_d_loss(logits_real, logits_fake):
     d_loss = 0.5 * (
-        torch.mean(torch.nn.functional.softplus(-logits_real)) + torch.mean(torch.nn.functional.softplus(logits_fake))
+            torch.mean(torch.nn.functional.softplus(-logits_real)) + torch.mean(
+        torch.nn.functional.softplus(logits_fake))
     )
     return d_loss
 
@@ -53,12 +54,12 @@ def gradient_penalty_fn(images, output):
 
 class VAELoss(nn.Module):
     def __init__(
-        self,
-        logvar_init=0.0,
-        perceptual_loss_weight=0.1,
-        kl_loss_weight=0.000001,
-        device="cpu",
-        dtype="bf16",
+            self,
+            logvar_init=0.0,
+            perceptual_loss_weight=0.1,
+            kl_loss_weight=0.000001,
+            device="cpu",
+            dtype="bf16",
     ):
         super().__init__()
 
@@ -78,12 +79,12 @@ class VAELoss(nn.Module):
         self.logvar = nn.Parameter(torch.ones(size=()) * logvar_init)
 
     def forward(
-        self,
-        video,
-        recon_video,
-        posterior,
-        nll_weights=None,
-        no_perceptual=False,
+            self,
+            video,
+            recon_video,
+            posterior,
+            nll_weights=None,
+            no_perceptual=False,
     ):
         video = rearrange(video, "b c t h w -> (b t) c h w").contiguous()
         recon_video = rearrange(recon_video, "b c t h w -> (b t) c h w").contiguous()
@@ -132,11 +133,11 @@ def adopt_weight(weight, global_step, threshold=0, value=0.0):
 
 class AdversarialLoss(nn.Module):
     def __init__(
-        self,
-        discriminator_factor=1.0,
-        discriminator_start=50001,
-        generator_factor=0.5,
-        generator_loss_type="non-saturating",
+            self,
+            discriminator_factor=1.0,
+            discriminator_start=50001,
+            generator_factor=0.5,
+            generator_loss_type="non-saturating",
     ):
         super().__init__()
         self.discriminator_factor = discriminator_factor
@@ -153,12 +154,12 @@ class AdversarialLoss(nn.Module):
         return d_weight
 
     def forward(
-        self,
-        fake_logits,
-        nll_loss,
-        last_layer,
-        global_step,
-        is_training=True,
+            self,
+            fake_logits,
+            nll_loss,
+            last_layer,
+            global_step,
+            is_training=True,
     ):
         # NOTE: following MAGVIT to allow non_saturating
         assert self.generator_loss_type in ["hinge", "vanilla", "non-saturating"]
@@ -203,12 +204,12 @@ class LeCamEMA:
 
 class DiscriminatorLoss(nn.Module):
     def __init__(
-        self,
-        discriminator_factor=1.0,
-        discriminator_start=50001,
-        discriminator_loss_type="non-saturating",
-        lecam_loss_weight=None,
-        gradient_penalty_loss_weight=None,  # SCH: following MAGVIT config.vqgan.grad_penalty_cost
+            self,
+            discriminator_factor=1.0,
+            discriminator_start=50001,
+            discriminator_loss_type="non-saturating",
+            lecam_loss_weight=None,
+            gradient_penalty_loss_weight=None,  # SCH: following MAGVIT config.vqgan.grad_penalty_cost
     ):
         super().__init__()
 
@@ -220,14 +221,14 @@ class DiscriminatorLoss(nn.Module):
         self.discriminator_loss_type = discriminator_loss_type
 
     def forward(
-        self,
-        real_logits,
-        fake_logits,
-        global_step,
-        lecam_ema_real=None,
-        lecam_ema_fake=None,
-        real_video=None,
-        split="train",
+            self,
+            real_logits,
+            fake_logits,
+            global_step,
+            lecam_ema_real=None,
+            lecam_ema_fake=None,
+            real_video=None,
+            split="train",
     ):
         if self.discriminator_factor is not None and self.discriminator_factor > 0.0:
             disc_factor = adopt_weight(self.discriminator_factor, global_step, threshold=self.discriminator_start)

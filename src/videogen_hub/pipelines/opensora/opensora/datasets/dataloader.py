@@ -8,8 +8,10 @@ from torch.distributed import ProcessGroup
 from torch.distributed.distributed_c10d import _get_default_group
 from torch.utils.data import DataLoader
 
-from videogen_hub.pipelines.opensora.opensora.datasets.datasets import BatchFeatureDataset, VariableVideoTextDataset, VideoTextDataset
-from videogen_hub.pipelines.opensora.opensora.datasets.sampler import BatchDistributedSampler, StatefulDistributedSampler, VariableVideoBatchSampler
+from videogen_hub.pipelines.opensora.opensora.datasets.datasets import BatchFeatureDataset, VariableVideoTextDataset, \
+    VideoTextDataset
+from videogen_hub.pipelines.opensora.opensora.datasets.sampler import BatchDistributedSampler, \
+    StatefulDistributedSampler, VariableVideoBatchSampler
 
 
 # Deterministic dataloader
@@ -34,6 +36,7 @@ def prepare_dataloader(
     process_group: Optional[ProcessGroup] = None,
     bucket_config=None,
     num_bucket_build_workers=1,
+    prefetch_factor=None,
     **kwargs,
 ):
     _kwargs = kwargs.copy()
@@ -57,6 +60,7 @@ def prepare_dataloader(
                 pin_memory=pin_memory,
                 num_workers=num_workers,
                 collate_fn=collate_fn_default,
+                prefetch_factor=prefetch_factor,
                 **_kwargs,
             ),
             batch_sampler,
@@ -79,6 +83,7 @@ def prepare_dataloader(
                 pin_memory=pin_memory,
                 num_workers=num_workers,
                 collate_fn=collate_fn_default,
+                prefetch_factor=prefetch_factor,
                 **_kwargs,
             ),
             sampler,
@@ -98,6 +103,7 @@ def prepare_dataloader(
                 pin_memory=pin_memory,
                 num_workers=num_workers,
                 collate_fn=collate_fn_batch,
+                prefetch_factor=prefetch_factor,
                 **_kwargs,
             ),
             sampler,

@@ -1,20 +1,20 @@
-import argparse, os, sys, glob
-import datetime, time
-from omegaconf import OmegaConf
-from tqdm import tqdm
-from einops import rearrange, repeat
+import argparse
+import glob
+import os
 from collections import OrderedDict
 
 import torch
 import torchvision
 import torchvision.transforms as transforms
-from pytorch_lightning import seed_everything
 from PIL import Image
+from einops import rearrange, repeat
+from omegaconf import OmegaConf
+from pytorch_lightning import seed_everything
 
-sys.path.insert(1, os.path.join(sys.path[0], '..', '..'))
-from .lvdm.models.samplers.ddim import DDIMSampler
-from .lvdm.models.samplers.ddim_multiplecond import DDIMSampler as DDIMSampler_multicond
-from .utils import instantiate_from_config
+from videogen_hub.common.lvdm.models.samplers.ddim import DDIMSampler
+from videogen_hub.common.lvdm.models.samplers.ddim_multiplecond import \
+    DDIMSampler as DDIMSampler_multicond
+from videogen_hub.pipelines.dynamicrafter.utils import instantiate_from_config
 
 
 def get_filelist(data_dir, postfixes):
@@ -138,7 +138,7 @@ def save_results(prompt, samples, filename, fakedir, fps=8, loop=False):
             video = video[:-1, ...]
 
         frame_grids = [torchvision.utils.make_grid(framesheet, nrow=int(n), padding=0) for framesheet in
-                       video]  #[3, 1*h, n*w]
+                       video]  # [3, 1*h, n*w]
         grid = torch.stack(frame_grids, dim=0)  # stack in temporal dim [t, 3, h, n*w]
         grid = (grid + 1.0) / 2.0
         grid = (grid * 255).to(torch.uint8).permute(0, 2, 3, 1)
@@ -165,7 +165,7 @@ def save_results_seperate(prompt, samples, filename, fakedir, fps=10, loop=False
         for i in range(n):
             grid = video[i, ...]
             grid = (grid + 1.0) / 2.0
-            grid = (grid * 255).to(torch.uint8).permute(1, 2, 3, 0)  #thwc
+            grid = (grid * 255).to(torch.uint8).permute(1, 2, 3, 0)  # thwc
             path = os.path.join(savedirs[idx].replace('samples', 'samples_separate'),
                                 f'{filename.split(".")[0]}_sample{i}.mp4')
             torchvision.io.write_video(path, grid, fps=fps, video_codec='h264', options={'crf': '10'})
@@ -179,7 +179,7 @@ def get_latent_z(model, videos):
     return z
 
 
-def image_guided_synthesis(model, prompts, videos, noise_shape, n_samples=1, ddim_steps=50, ddim_eta=1., \
+def image_guided_synthesis(model, prompts, videos, noise_shape, n_samples=1, ddim_steps=50, ddim_eta=1.,
                            unconditional_guidance_scale=1.0, cfg_img=None, fs=None, text_input=False,
                            multiple_cond_cfg=False, loop=False, interp=False, timestep_spacing='uniform',
                            guidance_rescale=0.0, **kwargs):
@@ -190,7 +190,7 @@ def image_guided_synthesis(model, prompts, videos, noise_shape, n_samples=1, ddi
     if not text_input:
         prompts = [""] * batch_size
 
-    img = videos[:, :, 0]  #bchw
+    img = videos[:, :, 0]  # bchw
     img_emb = model.embedder(img)  ## blc
     img_emb = model.image_proj_model(img_emb)
 
@@ -305,104 +305,117 @@ def get_parser():
     return parser
 
 
-class DynamiCrafterPipeline():
-    def __init__(self, args):
-        """
-        Initialize the parameters from args
-        Args:
-            args: is a list consisting of arguments needed for parser.
-            e.g. ["--ckpt_path", <the model path>, ......]
-        """
-        parser = get_parser()
-        self.args = parser.parse_args(args)
+def load_model(args):
+    config = OmegaConf.load(args.config)
+    model_config = config.pop("model", OmegaConf.create())
 
-    def run_inference(self, input_image):
+    model_config['params']['unet_config']['params']['use_checkpoint'] = False
+    model = instantiate_from_config(model_config)
+    model = model.cuda()
+    model.perframe_ae = args.perframe_ae
+    assert os.path.exists(args.ckpt_path), "Error: checkpoint Not Found!"
+    model = load_model_checkpoint(model, args.ckpt_path)
+    model.eval()
+    return model
+
+
+class DynamiCrafterPipeline:
+    def __init__(self, ckpt_path, dtype=torch.float32, device='cuda'):
+        """
+        Initialize the DynamiCrafterPipeline with the necessary parameters to load the model.
+
+        Args:
+            ckpt_path: Path to the model checkpoint.
+            dtype: Data type for the model.
+            device: Device to run the model on.
+        """
+        self.ckpt_path = ckpt_path
+        self.dtype = dtype
+        self.device = device
+        self.model = self.load_model()
+
+    def load_model(self):
+        """
+        Load the model from the checkpoint path.
+        """
+        # Assuming load_model is a function that loads the model from the checkpoint
+        model = load_model(self.ckpt_path)
+        model.to(self.device).type(self.dtype)
+        return model
+
+    def to(self, device):
+        """
+        Move the model to the specified device.
+
+        Args:
+            device: The device to move the model to.
+        """
+        self.device = device
+        self.model.to(device)
+
+    def __call__(self, input_image, height, width, bs, video_length, seed, text_input, interp,
+                 n_samples, ddim_steps, ddim_eta, unconditional_guidance_scale, cfg_img,
+                 frame_stride, multiple_cond_cfg, loop, timestep_spacing, guidance_rescale):
         """
         Run inference from the input_image.
-        This input image can either be a tensor or a string as the path of the image file.
+
         Args:
             input_image: tensor or string.
+            height: Height of the input image.
+            width: Width of the input image.
+            bs: Batch size.
+            video_length: Length of the output video.
+            seed: Seed for randomness.
+            text_input: Text input for generation.
+            interp: Interpolation method.
+            n_samples: Number of samples.
+            ddim_steps: Number of DDIM steps.
+            ddim_eta: DDIM eta parameter.
+            unconditional_guidance_scale: Unconditional guidance scale.
+            cfg_img: Configuration for the image.
+            frame_stride: Stride for frames.
+            multiple_cond_cfg: Multiple condition configuration.
+            loop: Loop parameter.
+            timestep_spacing: Timestep spacing.
+            guidance_rescale: Guidance rescale.
 
         Returns: a tensor representing the generated video of shape (num_frames, channels, height, width)
-
         """
-        args = self.args
-        seed_everything(args.seed)
-        ## model config
-        config = OmegaConf.load(self.args.config)
-        model_config = config.pop("model", OmegaConf.create())
+        # Setting the seed for reproducibility
+        seed_everything(seed)
 
-        ## set use_checkpoint as False as when using deepspeed, it encounters an error "deepspeed backend not set"
-        model_config['params']['unet_config']['params']['use_checkpoint'] = False
-        model = instantiate_from_config(model_config)
-        model = model.cuda()
-        model.perframe_ae = args.perframe_ae
-        assert os.path.exists(args.ckpt_path), "Error: checkpoint Not Found!"
-        model = load_model_checkpoint(model, args.ckpt_path)
-        model.eval()
+        # Run over data
+        assert (height % 16 == 0) and (width % 16 == 0), "Error: image size [h,w] should be multiples of 16!"
+        assert bs == 1, "Current implementation only support [batch size = 1]!"
 
-        ## run over data
-        assert (args.height % 16 == 0) and (args.width % 16 == 0), "Error: image size [h,w] should be multiples of 16!"
-        assert args.bs == 1, "Current implementation only support [batch size = 1]!"
-        ## latent noise shape
-        h, w = args.height // 8, args.width // 8
-        channels = model.model.diffusion_model.out_channels
-        n_frames = args.video_length
+        # Latent noise shape
+        h, w = height // 8, width // 8
+        channels = self.model.model.diffusion_model.out_channels
+        n_frames = video_length
         print(f'Inference with {n_frames} frames')
-        noise_shape = [args.bs, channels, n_frames, h, w]
+        noise_shape = [bs, channels, n_frames, h, w]
 
-        # fakedir = os.path.join(args.savedir, "samples")
-        # fakedir_separate = os.path.join(args.savedir, "samples_separate")
-
-        # os.makedirs(fakedir, exist_ok=True)
-        # os.makedirs(fakedir_separate, exist_ok=True)
-
-        ## prompt file setting
-
-        if type(input_image) == str:
-            args.prompt_dir = input_image
-            assert os.path.exists(args.prompt_dir), "Error: prompt file Not Found!"
-            filename_list, data_list, prompt_list = load_data_prompts(args.prompt_dir,
-                                                                      video_size=(args.height, args.width),
-                                                                      video_frames=n_frames, interp=args.interp)
+        if isinstance(input_image, str):
+            assert os.path.exists(input_image), "Error: prompt file Not Found!"
+            filename_list, data_list, prompt_list = load_data_prompts(input_image, video_size=(height, width),
+                                                                      video_frames=n_frames, interp=interp)
         else:
             input_pil = (transforms.ToPILImage())(input_image)
-            frame_tensor = processing_image(input_pil, (args.height, args.width), n_frames, args.interp)
-            data_list, prompt_list = [frame_tensor], [args.text_input]
+            frame_tensor = processing_image(input_pil, (height, width), n_frames, interp)
+            data_list, prompt_list = [frame_tensor], [text_input]
 
-        num_samples = len(prompt_list)
-        # print('Prompts testing [rank:%d] %d/%d samples loaded.'%(gpu_no, samples_split, num_samples))
-        # indices = random.choices(list(range(0, num_samples)), k=samples_per_device)
-        # indices = list(range(0, num_samples))
-        # prompt_list_rank = [prompt_list[i] for i in indices]
-        # data_list_rank = [data_list[i] for i in indices]
-        # filename_list_rank = [filename_list[i] for i in indices]
-
-        # start = time.time()
         with torch.no_grad(), torch.cuda.amp.autocast():
-            # for idx, indice in tqdm(enumerate(range(0, len(prompt_list), args.bs)), desc='Sample Batch'):
             prompts = prompt_list[0]
             videos = data_list[0]
-            # filenames = filename_list[0]
             if isinstance(videos, list):
-                videos = torch.stack(videos, dim=0).to("cuda")
+                videos = torch.stack(videos, dim=0).to(self.device)
             else:
-                videos = videos.unsqueeze(0).to("cuda")
+                videos = videos.unsqueeze(0).to(self.device)
 
-            batch_samples = image_guided_synthesis(model, prompts, videos, noise_shape, args.n_samples, args.ddim_steps,
-                                                   args.ddim_eta, \
-                                                   args.unconditional_guidance_scale, args.cfg_img, args.frame_stride,
-                                                   args.text_input, args.multiple_cond_cfg, args.loop, args.interp,
-                                                   args.timestep_spacing, args.guidance_rescale)
+            batch_samples = image_guided_synthesis(self.model, prompts, videos, noise_shape, n_samples, ddim_steps,
+                                                   ddim_eta, unconditional_guidance_scale, cfg_img, frame_stride,
+                                                   text_input, multiple_cond_cfg, loop, interp,
+                                                   timestep_spacing, guidance_rescale)
 
             output = batch_samples.squeeze().permute(1, 0, 2, 3)
             return output
-            # save each example individually
-            # for nn, samples in enumerate(batch_samples):
-            #     ## samples : [n_samples,c,t,h,w]
-            #     prompt = prompts[nn]
-            #     filename = filenames[nn]
-            #     # save_results(prompt, samples, filename, fakedir, fps=8, loop=args.loop)
-            #     save_results_seperate(prompt, samples, filename, fakedir, fps=8, loop=args.loop)
-
-        # print(f"Saved in {args.savedir}. Time used: {(time.time() - start):.2f} seconds")

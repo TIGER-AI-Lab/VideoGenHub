@@ -52,6 +52,7 @@ def get_1d_sincos_pos_embed(
     pos_embed = get_1d_sincos_pos_embed_from_grid(embed_dim, pos)
     return pos_embed
 
+
 def get_1d_sincos_pos_embed_from_grid(embed_dim, pos):
     """
     embed_dim: output dimension for each position pos: a list of positions to be encoded: size (M,) out: (M, D)
@@ -78,7 +79,7 @@ def get_1d_sincos_pos_embed_from_grid(embed_dim, pos):
 # ----------------------------------------------------------
 
 try:
-    from .curope import cuRoPE2D
+    from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.utils.curope import cuRoPE2D
 
     RoPE2D = cuRoPE2D
 except ImportError:
@@ -112,7 +113,7 @@ except ImportError:
 
         def apply_rope1d(self, tokens, pos1d, cos, sin):
             assert pos1d.ndim == 2
-            
+
             cos = torch.nn.functional.embedding(pos1d, cos)[:, None, :, :]
             sin = torch.nn.functional.embedding(pos1d, sin)[:, None, :, :]
             return (tokens * cos) + (self.rotate_half(tokens) * sin)
@@ -136,6 +137,7 @@ except ImportError:
             tokens = torch.cat((y, x), dim=-1)
             return tokens
 
+
 class LinearScalingRoPE2D(RoPE2D):
     """Code from https://github.com/huggingface/transformers/blob/main/src/transformers/models/llama/modeling_llama.py#L148"""
 
@@ -149,7 +151,7 @@ class LinearScalingRoPE2D(RoPE2D):
 
 
 try:
-    from .curope import cuRoPE1D
+    from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.utils.curope import cuRoPE1D
 
     RoPE1D = cuRoPE1D
 except ImportError:
@@ -201,9 +203,10 @@ except ImportError:
             tokens = self.apply_rope1d(tokens, positions, cos, sin)
             return tokens
 
+
 class LinearScalingRoPE1D(RoPE1D):
     """Code from https://github.com/huggingface/transformers/blob/main/src/transformers/models/llama/modeling_llama.py#L148"""
-    
+
     def forward(self, tokens, positions):
         # difference to the original RoPE: a scaling factor is aplied to the position ids
         dtype = positions.dtype
@@ -218,15 +221,14 @@ class PositionGetter2D(object):
 
     def __init__(self):
         self.cache_positions = {}
-        
+
     def __call__(self, b, h, w, device):
-        if not (h,w) in self.cache_positions:
+        if not (h, w) in self.cache_positions:
             x = torch.arange(w, device=device)
             y = torch.arange(h, device=device)
-            self.cache_positions[h,w] = torch.cartesian_prod(y, x) # (h, w, 2)
-        pos = self.cache_positions[h,w].view(1, h*w, 2).expand(b, -1, 2).clone()
+            self.cache_positions[h, w] = torch.cartesian_prod(y, x)  # (h, w, 2)
+        pos = self.cache_positions[h, w].view(1, h * w, 2).expand(b, -1, 2).clone()
         return pos
-
 
 
 class PositionGetter1D(object):
@@ -234,10 +236,10 @@ class PositionGetter1D(object):
 
     def __init__(self):
         self.cache_positions = {}
-        
+
     def __call__(self, b, l, device):
         if not (l) in self.cache_positions:
             x = torch.arange(l, device=device)
-            self.cache_positions[l] = x # (l, )
+            self.cache_positions[l] = x  # (l, )
         pos = self.cache_positions[l].view(1, l).expand(b, -1).clone()
         return pos

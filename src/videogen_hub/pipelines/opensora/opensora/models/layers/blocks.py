@@ -23,8 +23,8 @@ import xformers.ops
 from einops import rearrange
 from timm.models.vision_transformer import Mlp
 
-from videogen_hub.pipelines.opensora.opensora.acceleration.communications import split_forward_gather_backward
 from videogen_hub.pipelines.opensora.opensora.acceleration.communications import all_to_all
+from videogen_hub.pipelines.opensora.opensora.acceleration.communications import split_forward_gather_backward
 from videogen_hub.pipelines.opensora.opensora.acceleration.parallel_states import get_sequence_parallel_group
 
 approx_gelu = lambda: nn.GELU(approximate="tanh")
@@ -88,12 +88,12 @@ class PatchEmbed3D(nn.Module):
     """
 
     def __init__(
-        self,
-        patch_size=(2, 4, 4),
-        in_chans=3,
-        embed_dim=96,
-        norm_layer=None,
-        flatten=True,
+            self,
+            patch_size=(2, 4, 4),
+            in_chans=3,
+            embed_dim=96,
+            norm_layer=None,
+            flatten=True,
     ):
         super().__init__()
         self.patch_size = patch_size
@@ -132,24 +132,24 @@ class PatchEmbed3D(nn.Module):
 
 class Attention(nn.Module):
     def __init__(
-        self,
-        dim: int,
-        num_heads: int = 8,
-        qkv_bias: bool = False,
-        qk_norm: bool = False,
-        attn_drop: float = 0.0,
-        proj_drop: float = 0.0,
-        norm_layer: nn.Module = LlamaRMSNorm,
-        enable_flash_attn: bool = False,
-        rope=None,
-        qk_norm_legacy: bool = False,
+            self,
+            dim: int,
+            num_heads: int = 8,
+            qkv_bias: bool = False,
+            qk_norm: bool = False,
+            attn_drop: float = 0.0,
+            proj_drop: float = 0.0,
+            norm_layer: nn.Module = LlamaRMSNorm,
+            enable_flash_attn: bool = False,
+            rope=None,
+            qk_norm_legacy: bool = False,
     ) -> None:
         super().__init__()
         assert dim % num_heads == 0, "dim should be divisible by num_heads"
         self.dim = dim
         self.num_heads = num_heads
         self.head_dim = dim // num_heads
-        self.scale = self.head_dim**-0.5
+        self.scale = self.head_dim ** -0.5
         self.enable_flash_attn = enable_flash_attn
 
         self.qkv = nn.Linear(dim, dim * 3, bias=qkv_bias)
@@ -187,6 +187,7 @@ class Attention(nn.Module):
                 k = self.rotary_emb(k)
 
         if enable_flash_attn:
+            # noinspection PyUnresolvedReferences
             from flash_attn import flash_attn_func
 
             # (B, #heads, N, #dim) -> (B, N, #heads, #dim)
@@ -221,26 +222,26 @@ class Attention(nn.Module):
 
 class KVCompressAttention(nn.Module):
     def __init__(
-        self,
-        dim: int,
-        num_heads: int = 8,
-        qkv_bias: bool = False,
-        qk_norm: bool = False,
-        attn_drop: float = 0.0,
-        proj_drop: float = 0.0,
-        norm_layer: nn.Module = LlamaRMSNorm,
-        enable_flash_attn: bool = False,
-        sampling="conv",
-        sr_ratio=1,
-        mem_eff_attention=False,
-        attn_half=False,
+            self,
+            dim: int,
+            num_heads: int = 8,
+            qkv_bias: bool = False,
+            qk_norm: bool = False,
+            attn_drop: float = 0.0,
+            proj_drop: float = 0.0,
+            norm_layer: nn.Module = LlamaRMSNorm,
+            enable_flash_attn: bool = False,
+            sampling="conv",
+            sr_ratio=1,
+            mem_eff_attention=False,
+            attn_half=False,
     ) -> None:
         super().__init__()
         assert dim % num_heads == 0, "dim should be divisible by num_heads"
         self.dim = dim
         self.num_heads = num_heads
         self.head_dim = dim // num_heads
-        self.scale = self.head_dim**-0.5
+        self.scale = self.head_dim ** -0.5
         self.enable_flash_attn = enable_flash_attn
 
         self.qkv = nn.Linear(dim, dim * 3, bias=qkv_bias)
@@ -250,7 +251,7 @@ class KVCompressAttention(nn.Module):
         if sr_ratio > 1 and sampling == "conv":
             # Avg Conv Init.
             self.sr = nn.Conv2d(dim, dim, groups=dim, kernel_size=sr_ratio, stride=sr_ratio)
-            self.sr.weight.data.fill_(1 / sr_ratio**2)
+            self.sr.weight.data.fill_(1 / sr_ratio ** 2)
             self.sr.bias.data.zero_()
             self.norm = nn.LayerNorm(dim)
 
@@ -309,6 +310,7 @@ class KVCompressAttention(nn.Module):
         q, k = self.q_norm(q), self.k_norm(k)
 
         if enable_flash_attn:
+            # noinspection PyUnresolvedReferences
             from flash_attn import flash_attn_func
 
             x = flash_attn_func(
@@ -351,16 +353,16 @@ class KVCompressAttention(nn.Module):
 
 class SeqParallelAttention(Attention):
     def __init__(
-        self,
-        dim: int,
-        num_heads: int = 8,
-        qkv_bias: bool = False,
-        qk_norm: bool = False,
-        attn_drop: float = 0.0,
-        proj_drop: float = 0.0,
-        norm_layer: nn.Module = LlamaRMSNorm,
-        enable_flash_attn: bool = False,
-        rope=None,
+            self,
+            dim: int,
+            num_heads: int = 8,
+            qkv_bias: bool = False,
+            qk_norm: bool = False,
+            attn_drop: float = 0.0,
+            proj_drop: float = 0.0,
+            norm_layer: nn.Module = LlamaRMSNorm,
+            enable_flash_attn: bool = False,
+            rope=None,
     ) -> None:
         assert rope is None, "Rope is not supported in SeqParallelAttention"
         super().__init__(
@@ -408,6 +410,7 @@ class SeqParallelAttention(Attention):
         q, k, v = qkv.unbind(0)
         q, k = self.q_norm(q), self.k_norm(k)
         if self.enable_flash_attn:
+            # noinspection PyUnresolvedReferences
             from flash_attn import flash_attn_func
 
             x = flash_attn_func(
@@ -478,11 +481,11 @@ class MultiHeadCrossAttention(nn.Module):
 
 class SeqParallelMultiHeadCrossAttention(MultiHeadCrossAttention):
     def __init__(
-        self,
-        d_model,
-        num_heads,
-        attn_drop=0.0,
-        proj_drop=0.0,
+            self,
+            d_model,
+            num_heads,
+            attn_drop=0.0,
+            proj_drop=0.0,
     ):
         super().__init__(
             d_model=d_model,
@@ -500,7 +503,7 @@ class SeqParallelMultiHeadCrossAttention(MultiHeadCrossAttention):
 
         # shape:
         # q, k, v: [B, SUB_N, NUM_HEADS, HEAD_DIM]
-        q = self.q_linear(x).view(1, -1, self.num_heads, self.head_dim)
+        q = self.q_linear(x).view(B, -1, self.num_heads, self.head_dim)
         kv = self.kv_linear(cond).view(1, -1, 2, self.num_heads, self.head_dim)
         kv = split_forward_gather_backward(kv, get_sequence_parallel_group(), dim=3, grad_scale="down")
         k, v = kv.unbind(2)
@@ -556,7 +559,7 @@ class T2IFinalLayer(nn.Module):
         super().__init__()
         self.norm_final = nn.LayerNorm(hidden_size, elementwise_affine=False, eps=1e-6)
         self.linear = nn.Linear(hidden_size, num_patch * out_channels, bias=True)
-        self.scale_shift_table = nn.Parameter(torch.randn(2, hidden_size) / hidden_size**0.5)
+        self.scale_shift_table = nn.Parameter(torch.randn(2, hidden_size) / hidden_size ** 0.5)
         self.out_channels = out_channels
         self.d_t = d_t
         self.d_s = d_s
@@ -703,12 +706,12 @@ class CaptionEmbedder(nn.Module):
     """
 
     def __init__(
-        self,
-        in_channels,
-        hidden_size,
-        uncond_prob,
-        act_layer=nn.GELU(approximate="tanh"),
-        token_num=120,
+            self,
+            in_channels,
+            hidden_size,
+            uncond_prob,
+            act_layer=nn.GELU(approximate="tanh"),
+            token_num=120,
     ):
         super().__init__()
         self.y_proj = Mlp(
@@ -720,7 +723,7 @@ class CaptionEmbedder(nn.Module):
         )
         self.register_buffer(
             "y_embedding",
-            torch.randn(token_num, in_channels) / in_channels**0.5,
+            torch.randn(token_num, in_channels) / in_channels ** 0.5,
         )
         self.uncond_prob = uncond_prob
 
@@ -762,13 +765,13 @@ class PositionEmbedding2D(nn.Module):
 
     @functools.lru_cache(maxsize=512)
     def _get_cached_emb(
-        self,
-        device: torch.device,
-        dtype: torch.dtype,
-        h: int,
-        w: int,
-        scale: float = 1.0,
-        base_size: Optional[int] = None,
+            self,
+            device: torch.device,
+            dtype: torch.dtype,
+            h: int,
+            w: int,
+            scale: float = 1.0,
+            base_size: Optional[int] = None,
     ):
         grid_h = torch.arange(h, device=device) / scale
         grid_w = torch.arange(w, device=device) / scale
@@ -787,12 +790,12 @@ class PositionEmbedding2D(nn.Module):
         return torch.concat([emb_h, emb_w], dim=-1).unsqueeze(0).to(dtype)
 
     def forward(
-        self,
-        x: torch.Tensor,
-        h: int,
-        w: int,
-        scale: Optional[float] = 1.0,
-        base_size: Optional[int] = None,
+            self,
+            x: torch.Tensor,
+            h: int,
+            w: int,
+            scale: Optional[float] = 1.0,
+            base_size: Optional[int] = None,
     ) -> torch.Tensor:
         return self._get_cached_emb(x.device, x.dtype, h, w, scale, base_size)
 
@@ -852,7 +855,7 @@ def get_1d_sincos_pos_embed_from_grid(embed_dim, pos):
     assert embed_dim % 2 == 0
     omega = np.arange(embed_dim // 2, dtype=np.float64)
     omega /= embed_dim / 2.0
-    omega = 1.0 / 10000**omega  # (D/2,)
+    omega = 1.0 / 10000 ** omega  # (D/2,)
 
     pos = pos.reshape(-1)  # (M,)
     out = np.einsum("m,d->md", pos, omega)  # (M, D/2), outer product

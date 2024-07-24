@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from modelscope.models.cv.human_reconstruction.models.Res_backbone import get_pad_layer
 
 from videogen_hub.pipelines.opensora.opensora.registry import MODELS
 from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import find_model, load_checkpoint
@@ -35,14 +36,14 @@ def n_layer_disc_weights_init(m):
 # SCH: own implementation modified on top of: discriminator with anti-aliased downsampling (blurpool Zhang et al.)
 class BlurPool3D(nn.Module):
     def __init__(
-        self,
-        channels,
-        pad_type="reflect",
-        filt_size=3,
-        stride=2,
-        pad_off=0,
-        device="cpu",
-        dtype=torch.bfloat16,
+            self,
+            channels,
+            pad_type="reflect",
+            filt_size=3,
+            stride=2,
+            pad_off=0,
+            device="cpu",
+            dtype=torch.bfloat16,
     ):
         super(BlurPool3D, self).__init__()
         self.filt_size = filt_size
@@ -101,13 +102,13 @@ class ResBlockDown(nn.Module):
     """3D StyleGAN ResBlock for D."""
 
     def __init__(
-        self,
-        in_channels,
-        filters,
-        activation_fn,
-        num_groups=32,
-        device="cpu",
-        dtype=torch.bfloat16,
+            self,
+            in_channels,
+            filters,
+            activation_fn,
+            num_groups=32,
+            device="cpu",
+            dtype=torch.bfloat16,
     ):
         super().__init__()
 
@@ -179,7 +180,7 @@ class NLayerDiscriminator(nn.Module):
         nf_mult_prev = 1
         for n in range(1, n_layers):  # gradually increase the number of filters
             nf_mult_prev = nf_mult
-            nf_mult = min(2**n, 8)
+            nf_mult = min(2 ** n, 8)
             sequence += [
                 nn.Conv2d(ndf * nf_mult_prev, ndf * nf_mult, kernel_size=kw, stride=2, padding=padw, bias=use_bias),
                 norm_layer(ndf * nf_mult),
@@ -187,7 +188,7 @@ class NLayerDiscriminator(nn.Module):
             ]
 
         nf_mult_prev = nf_mult
-        nf_mult = min(2**n_layers, 8)
+        nf_mult = min(2 ** n_layers, 8)
         sequence += [
             nn.Conv2d(ndf * nf_mult_prev, ndf * nf_mult, kernel_size=kw, stride=1, padding=padw, bias=use_bias),
             norm_layer(ndf * nf_mult),
@@ -237,7 +238,7 @@ class NLayerDiscriminator3D(nn.Module):
         nf_mult_prev = 1
         for n in range(1, n_layers):  # gradually increase the number of filters
             nf_mult_prev = nf_mult
-            nf_mult = min(2**n, 8)
+            nf_mult = min(2 ** n, 8)
             sequence += [
                 nn.Conv3d(
                     ndf * nf_mult_prev,
@@ -252,7 +253,7 @@ class NLayerDiscriminator3D(nn.Module):
             ]
 
         nf_mult_prev = nf_mult
-        nf_mult = min(2**n_layers, 8)
+        nf_mult = min(2 ** n_layers, 8)
         sequence += [
             nn.Conv3d(
                 ndf * nf_mult_prev, ndf * nf_mult, kernel_size=(kw, kw, kw), stride=1, padding=padw, bias=use_bias
@@ -280,15 +281,15 @@ class StyleGANDiscriminatorBlur(nn.Module):
     """
 
     def __init__(
-        self,
-        image_size=(128, 128),
-        num_frames=17,
-        in_channels=3,
-        filters=128,
-        channel_multipliers=(2, 4, 4, 4, 4),
-        num_groups=32,
-        dtype=torch.bfloat16,
-        device="cpu",
+            self,
+            image_size=(128, 128),
+            num_frames=17,
+            in_channels=3,
+            filters=128,
+            channel_multipliers=(2, 4, 4, 4, 4),
+            num_groups=32,
+            dtype=torch.bfloat16,
+            device="cpu",
     ):
         super().__init__()
 
@@ -321,17 +322,17 @@ class StyleGANDiscriminatorBlur(nn.Module):
 
         self.norm1 = nn.GroupNorm(num_groups, prev_filters, dtype=dtype, device=device)
 
-        scale_factor = 2**self.num_blocks
+        scale_factor = 2 ** self.num_blocks
         if num_frames % scale_factor != 0:  # SCH: NOTE: has first frame which would be padded before usage
             time_scaled = num_frames // scale_factor + 1
         else:
             time_scaled = num_frames / scale_factor
 
         assert (
-            self.input_size[0] % scale_factor == 0
+                self.input_size[0] % scale_factor == 0
         ), f"image width {self.input_size[0]} is not divisible by scale factor {scale_factor}"
         assert (
-            self.input_size[1] % scale_factor == 0
+                self.input_size[1] % scale_factor == 0
         ), f"image height {self.input_size[1]} is not divisible by scale factor {scale_factor}"
         w_scaled, h_scaled = self.input_size[0] / scale_factor, self.input_size[1] / scale_factor
         in_features = int(prev_filters * time_scaled * w_scaled * h_scaled)  # (C*T*W*H)

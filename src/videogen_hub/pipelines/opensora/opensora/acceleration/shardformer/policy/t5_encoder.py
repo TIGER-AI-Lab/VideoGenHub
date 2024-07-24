@@ -26,6 +26,7 @@ class T5EncoderPolicy(Policy):
 
         # check whether apex is installed
         try:
+            # noinspection PyUnresolvedReferences
             from colossalai.acceleration.shardformer.modeling.t5 import T5LayerNorm
 
             # recover hf from fused rms norm to T5 norm which is faster

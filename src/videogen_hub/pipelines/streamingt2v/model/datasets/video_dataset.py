@@ -1,23 +1,12 @@
-from tqdm import tqdm
-from einops import repeat
-from diffusers import DiffusionPipeline
-from decord import VideoReader, cpu
-import torchvision
-import torch
-import numpy as np
+from typing import Dict
+
 import decord
-import albumentations as album
-import math
-import random
-from abc import abstractmethod
-from copy import deepcopy
-from pathlib import Path
-from typing import Any, Dict, List, Union
 from PIL import Image
-import json
+
 Image.MAX_IMAGE_PIXELS = None
 
 decord.bridge.set_bridge("torch")
+
 
 class Annotations():
 
@@ -34,8 +23,8 @@ class Annotations():
             i = 0
             while i < len(string):
                 if string[i] == special_char:
-                    if i > 0 and i < len(string) - 1 and string[i-1].isalpha() and string[i+1].isalpha():
-                        result += special_char+" "
+                    if i > 0 and i < len(string) - 1 and string[i - 1].isalpha() and string[i + 1].isalpha():
+                        result += special_char + " "
                     else:
                         result += special_char
                 else:
@@ -54,4 +43,3 @@ class Annotations():
         prompt = Annotations.process_string(prompt)
         return prompt
         # return " ".join(prompt.split())
-

@@ -1,5 +1,7 @@
-import openai
 import ast
+
+import openai
+
 
 def caption_qa(caption_list, api_key, api_base):
     openai.api_key = api_key
@@ -86,8 +88,9 @@ def caption_summary(long_caption, api_key, api_base):
 
     except Exception as e:
         print(f"Error processing file : {e}")
-    
+
     return response_dict
+
 
 if __name__ == "__main__":
     caption_summary()

@@ -1,15 +1,10 @@
 import json
-import math
-from itertools import groupby
 import os
-from typing import Callable, Dict, List, Optional, Set, Tuple, Type, Union
+from itertools import groupby
+from typing import Dict, List, Optional, Set, Tuple, Type, Union
 
-import numpy as np
-import PIL
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-
 from safetensors.torch import safe_open
 from safetensors.torch import save_file as safe_save
 
@@ -18,7 +13,7 @@ safetensors_available = True
 
 class LoraInjectedLinear(nn.Module):
     def __init__(
-        self, in_features, out_features, bias=False, r=4, dropout_p=0.1, scale=1.0
+            self, in_features, out_features, bias=False, r=4, dropout_p=0.1, scale=1.0
     ):
         super().__init__()
 
@@ -44,9 +39,9 @@ class LoraInjectedLinear(nn.Module):
 
     def forward(self, input):
         return (
-            self.linear(input)
-            + self.dropout(self.lora_up(self.selector(self.lora_down(input))))
-            * self.scale
+                self.linear(input)
+                + self.dropout(self.lora_up(self.selector(self.lora_down(input))))
+                * self.scale
         )
 
     def realize_as_lora(self):
@@ -64,18 +59,18 @@ class LoraInjectedLinear(nn.Module):
 
 class LoraInjectedConv2d(nn.Module):
     def __init__(
-        self,
-        in_channels: int,
-        out_channels: int,
-        kernel_size,
-        stride=1,
-        padding=0,
-        dilation=1,
-        groups: int = 1,
-        bias: bool = True,
-        r: int = 4,
-        dropout_p: float = 0.1,
-        scale: float = 1.0,
+            self,
+            in_channels: int,
+            out_channels: int,
+            kernel_size,
+            stride=1,
+            padding=0,
+            dilation=1,
+            groups: int = 1,
+            bias: bool = True,
+            r: int = 4,
+            dropout_p: float = 0.1,
+            scale: float = 1.0,
     ):
         super().__init__()
         if r > min(in_channels, out_channels):
@@ -123,9 +118,9 @@ class LoraInjectedConv2d(nn.Module):
 
     def forward(self, input):
         return (
-            self.conv(input)
-            + self.dropout(self.lora_up(self.selector(self.lora_down(input))))
-            * self.scale
+                self.conv(input)
+                + self.dropout(self.lora_up(self.selector(self.lora_down(input))))
+                * self.scale
         )
 
     def realize_as_lora(self):
@@ -152,15 +147,15 @@ class LoraInjectedConv2d(nn.Module):
 
 class LoraInjectedConv3d(nn.Module):
     def __init__(
-        self,
-        in_channels: int,
-        out_channels: int,
-        kernel_size: Tuple[int, int, int],  # (3, 1, 1)
-        padding: Tuple[int, int, int],  # (1, 0, 0)
-        bias: bool = False,
-        r: int = 4,
-        dropout_p: float = 0,
-        scale: float = 1.0,
+            self,
+            in_channels: int,
+            out_channels: int,
+            kernel_size: Tuple[int, int, int],  # (3, 1, 1)
+            padding: Tuple[int, int, int],  # (1, 0, 0)
+            bias: bool = False,
+            r: int = 4,
+            dropout_p: float = 0,
+            scale: float = 1.0,
     ):
         super().__init__()
         if r > min(in_channels, out_channels):
@@ -203,9 +198,9 @@ class LoraInjectedConv3d(nn.Module):
 
     def forward(self, input):
         return (
-            self.conv(input)
-            + self.dropout(self.lora_up(self.selector(self.lora_down(input))))
-            * self.scale
+                self.conv(input)
+                + self.dropout(self.lora_up(self.selector(self.lora_down(input))))
+                * self.scale
         )
 
     def realize_as_lora(self):
@@ -244,8 +239,8 @@ EMBED_FLAG = "<embed>"
 
 
 def _find_children(
-    model,
-    search_class: List[Type[nn.Module]] = [nn.Linear],
+        model,
+        search_class: List[Type[nn.Module]] = [nn.Linear],
 ):
     """
     Find all modules of a certain class (or union of classes).
@@ -261,14 +256,14 @@ def _find_children(
 
 
 def _find_modules_v2(
-    model,
-    ancestor_class: Optional[Set[str]] = None,
-    search_class: List[Type[nn.Module]] = [nn.Linear],
-    exclude_children_of: Optional[List[Type[nn.Module]]] = [
-        LoraInjectedLinear,
-        LoraInjectedConv2d,
-        LoraInjectedConv3d,
-    ],
+        model,
+        ancestor_class: Optional[Set[str]] = None,
+        search_class: List[Type[nn.Module]] = [nn.Linear],
+        exclude_children_of: Optional[List[Type[nn.Module]]] = [
+            LoraInjectedLinear,
+            LoraInjectedConv2d,
+            LoraInjectedConv3d,
+        ],
 ):
     """
     Find all modules of a certain class (or union of classes) that are direct or
@@ -300,7 +295,7 @@ def _find_modules_v2(
                     parent = parent.get_submodule(path.pop(0))
                 # Skip this linear if it's a child of a LoraInjectedLinear
                 if exclude_children_of and any(
-                    [isinstance(parent, _class) for _class in exclude_children_of]
+                        [isinstance(parent, _class) for _class in exclude_children_of]
                 ):
                     continue
                 # Otherwise, yield it
@@ -308,10 +303,10 @@ def _find_modules_v2(
 
 
 def _find_modules_old(
-    model,
-    ancestor_class: Set[str] = DEFAULT_TARGET_REPLACE,
-    search_class: List[Type[nn.Module]] = [nn.Linear],
-    exclude_children_of: Optional[List[Type[nn.Module]]] = [LoraInjectedLinear],
+        model,
+        ancestor_class: Set[str] = DEFAULT_TARGET_REPLACE,
+        search_class: List[Type[nn.Module]] = [nn.Linear],
+        exclude_children_of: Optional[List[Type[nn.Module]]] = [LoraInjectedLinear],
 ):
     ret = []
     for _module in model.modules():
@@ -328,13 +323,13 @@ _find_modules = _find_modules_v2
 
 
 def inject_trainable_lora(
-    model: nn.Module,
-    target_replace_module: Set[str] = DEFAULT_TARGET_REPLACE,
-    r: int = 4,
-    loras=None,  # path to lora .pt
-    verbose: bool = False,
-    dropout_p: float = 0.0,
-    scale: float = 1.0,
+        model: nn.Module,
+        target_replace_module: Set[str] = DEFAULT_TARGET_REPLACE,
+        r: int = 4,
+        loras=None,  # path to lora .pt
+        verbose: bool = False,
+        dropout_p: float = 0.0,
+        scale: float = 1.0,
 ):
     """
     inject lora into model, and returns lora parameter groups.
@@ -347,7 +342,7 @@ def inject_trainable_lora(
         loras = torch.load(loras)
 
     for _module, name, _child_module in _find_modules(
-        model, target_replace_module, search_class=[nn.Linear]
+            model, target_replace_module, search_class=[nn.Linear]
     ):
         weight = _child_module.weight
         bias = _child_module.bias
@@ -385,10 +380,10 @@ def inject_trainable_lora(
 
 
 def inject_trainable_lora_extended(
-    model: nn.Module,
-    target_replace_module: Set[str] = UNET_EXTENDED_TARGET_REPLACE,
-    r: int = 4,
-    loras=None,  # path to lora .pt
+        model: nn.Module,
+        target_replace_module: Set[str] = UNET_EXTENDED_TARGET_REPLACE,
+        r: int = 4,
+        loras=None,  # path to lora .pt
 ):
     """
     inject lora into model, and returns lora parameter groups.
@@ -401,7 +396,7 @@ def inject_trainable_lora_extended(
         loras = torch.load(loras)
 
     for _module, name, _child_module in _find_modules(
-        model, target_replace_module, search_class=[nn.Linear, nn.Conv2d, nn.Conv3d]
+            model, target_replace_module, search_class=[nn.Linear, nn.Conv2d, nn.Conv3d]
     ):
         if _child_module.__class__ == nn.Linear:
             weight = _child_module.weight
@@ -487,15 +482,14 @@ def inject_trainable_lora_extended(
 
 
 def inject_inferable_lora(
-    model,
-    lora_path="",
-    unet_replace_modules=["UNet3DConditionModel"],
-    text_encoder_replace_modules=["CLIPEncoderLayer"],
-    is_extended=False,
-    r=16,
+        model,
+        lora_path="",
+        unet_replace_modules=["UNet3DConditionModel"],
+        text_encoder_replace_modules=["CLIPEncoderLayer"],
+        is_extended=False,
+        r=16,
 ):
     from transformers.models.clip import CLIPTextModel
-    from diffusers import UNet3DConditionModel
 
     def is_text_model(f):
         return "text_encoder" in f and isinstance(model.text_encoder, CLIPTextModel)
@@ -539,13 +533,12 @@ def inject_inferable_lora(
 
 
 def extract_lora_ups_down(model, target_replace_module=DEFAULT_TARGET_REPLACE):
-
     loras = []
 
     for _m, _n, _child_module in _find_modules(
-        model,
-        target_replace_module,
-        search_class=[LoraInjectedLinear, LoraInjectedConv2d, LoraInjectedConv3d],
+            model,
+            target_replace_module,
+            search_class=[LoraInjectedLinear, LoraInjectedConv2d, LoraInjectedConv3d],
     ):
         loras.append((_child_module.lora_up, _child_module.lora_down))
 
@@ -556,15 +549,14 @@ def extract_lora_ups_down(model, target_replace_module=DEFAULT_TARGET_REPLACE):
 
 
 def extract_lora_as_tensor(
-    model, target_replace_module=DEFAULT_TARGET_REPLACE, as_fp16=True
+        model, target_replace_module=DEFAULT_TARGET_REPLACE, as_fp16=True
 ):
-
     loras = []
 
     for _m, _n, _child_module in _find_modules(
-        model,
-        target_replace_module,
-        search_class=[LoraInjectedLinear, LoraInjectedConv2d, LoraInjectedConv3d],
+            model,
+            target_replace_module,
+            search_class=[LoraInjectedLinear, LoraInjectedConv2d, LoraInjectedConv3d],
     ):
         up, down = _child_module.realize_as_lora()
         if as_fp16:
@@ -580,13 +572,13 @@ def extract_lora_as_tensor(
 
 
 def save_lora_weight(
-    model,
-    path="./lora.pt",
-    target_replace_module=DEFAULT_TARGET_REPLACE,
+        model,
+        path="./lora.pt",
+        target_replace_module=DEFAULT_TARGET_REPLACE,
 ):
     weights = []
     for _up, _down in extract_lora_ups_down(
-        model, target_replace_module=target_replace_module
+            model, target_replace_module=target_replace_module
     ):
         weights.append(_up.weight.to("cpu").to(torch.float32))
         weights.append(_down.weight.to("cpu").to(torch.float32))
@@ -607,9 +599,9 @@ def save_lora_as_json(model, path="./lora.json"):
 
 
 def save_safeloras_with_embeds(
-    modelmap: Dict[str, Tuple[nn.Module, Set[str]]] = {},
-    embeds: Dict[str, torch.Tensor] = {},
-    outpath="./lora.safetensors",
+        modelmap: Dict[str, Tuple[nn.Module, Set[str]]] = {},
+        embeds: Dict[str, torch.Tensor] = {},
+        outpath="./lora.safetensors",
 ):
     """
     Saves the Lora from multiple modules in a single safetensor file.
@@ -625,7 +617,7 @@ def save_safeloras_with_embeds(
         metadata[name] = json.dumps(list(target_replace_module))
 
         for i, (_up, _down) in enumerate(
-            extract_lora_as_tensor(model, target_replace_module)
+                extract_lora_as_tensor(model, target_replace_module)
         ):
             rank = _down.shape[0]
 
@@ -642,16 +634,16 @@ def save_safeloras_with_embeds(
 
 
 def save_safeloras(
-    modelmap: Dict[str, Tuple[nn.Module, Set[str]]] = {},
-    outpath="./lora.safetensors",
+        modelmap: Dict[str, Tuple[nn.Module, Set[str]]] = {},
+        outpath="./lora.safetensors",
 ):
     return save_safeloras_with_embeds(modelmap=modelmap, outpath=outpath)
 
 
 def convert_loras_to_safeloras_with_embeds(
-    modelmap: Dict[str, Tuple[str, Set[str], int]] = {},
-    embeds: Dict[str, torch.Tensor] = {},
-    outpath="./lora.safetensors",
+        modelmap: Dict[str, Tuple[str, Set[str], int]] = {},
+        embeds: Dict[str, torch.Tensor] = {},
+        outpath="./lora.safetensors",
 ):
     """
     Converts the Lora from multiple pytorch .pt files into a single safetensor file.
@@ -687,14 +679,14 @@ def convert_loras_to_safeloras_with_embeds(
 
 
 def convert_loras_to_safeloras(
-    modelmap: Dict[str, Tuple[str, Set[str], int]] = {},
-    outpath="./lora.safetensors",
+        modelmap: Dict[str, Tuple[str, Set[str], int]] = {},
+        outpath="./lora.safetensors",
 ):
     convert_loras_to_safeloras_with_embeds(modelmap=modelmap, outpath=outpath)
 
 
 def parse_safeloras(
-    safeloras,
+        safeloras,
 ) -> Dict[str, Tuple[List[nn.parameter.Parameter], List[int], List[str]]]:
     """
     Converts a loaded safetensor file that contains a set of module Loras
@@ -755,7 +747,7 @@ def parse_safeloras(
 
 
 def parse_safeloras_embeds(
-    safeloras,
+        safeloras,
 ) -> Dict[str, torch.Tensor]:
     """
     Converts a loaded safetensor file that contains Textual Inversion embeds into
@@ -791,14 +783,13 @@ def load_safeloras_both(path, device="cpu"):
 
 
 def collapse_lora(
-    model,
-    replace_modules=UNET_EXTENDED_TARGET_REPLACE | TEXT_ENCODER_EXTENDED_TARGET_REPLACE,
-    alpha=1.0,
+        model,
+        replace_modules=UNET_EXTENDED_TARGET_REPLACE | TEXT_ENCODER_EXTENDED_TARGET_REPLACE,
+        alpha=1.0,
 ):
-
     search_class = [LoraInjectedLinear, LoraInjectedConv2d, LoraInjectedConv3d]
     for _module, name, _child_module in _find_modules(
-        model, replace_modules, search_class=search_class
+            model, replace_modules, search_class=search_class
     ):
 
         if isinstance(_child_module, LoraInjectedLinear):
@@ -808,8 +799,8 @@ def collapse_lora(
                 _child_module.linear.weight.data
                 + alpha
                 * (
-                    _child_module.lora_up.weight.data
-                    @ _child_module.lora_down.weight.data
+                        _child_module.lora_up.weight.data
+                        @ _child_module.lora_down.weight.data
                 )
                 .type(_child_module.linear.weight.dtype)
                 .to(_child_module.linear.weight.device)
@@ -821,8 +812,8 @@ def collapse_lora(
                 _child_module.conv.weight.data
                 + alpha
                 * (
-                    _child_module.lora_up.weight.data.flatten(start_dim=1)
-                    @ _child_module.lora_down.weight.data.flatten(start_dim=1)
+                        _child_module.lora_up.weight.data.flatten(start_dim=1)
+                        @ _child_module.lora_down.weight.data.flatten(start_dim=1)
                 )
                 .reshape(_child_module.conv.weight.data.shape)
                 .type(_child_module.conv.weight.dtype)
@@ -831,13 +822,13 @@ def collapse_lora(
 
 
 def monkeypatch_or_replace_lora(
-    model,
-    loras,
-    target_replace_module=DEFAULT_TARGET_REPLACE,
-    r: Union[int, List[int]] = 4,
+        model,
+        loras,
+        target_replace_module=DEFAULT_TARGET_REPLACE,
+        r: Union[int, List[int]] = 4,
 ):
     for _module, name, _child_module in _find_modules(
-        model, target_replace_module, search_class=[nn.Linear, LoraInjectedLinear]
+            model, target_replace_module, search_class=[nn.Linear, LoraInjectedLinear]
     ):
         _source = (
             _child_module.linear
@@ -875,26 +866,26 @@ def monkeypatch_or_replace_lora(
 
 
 def monkeypatch_or_replace_lora_extended(
-    model,
-    loras,
-    target_replace_module=DEFAULT_TARGET_REPLACE,
-    r: Union[int, List[int]] = 4,
+        model,
+        loras,
+        target_replace_module=DEFAULT_TARGET_REPLACE,
+        r: Union[int, List[int]] = 4,
 ):
     for _module, name, _child_module in _find_modules(
-        model,
-        target_replace_module,
-        search_class=[
-            nn.Linear,
-            nn.Conv2d,
-            nn.Conv3d,
-            LoraInjectedLinear,
-            LoraInjectedConv2d,
-            LoraInjectedConv3d,
-        ],
+            model,
+            target_replace_module,
+            search_class=[
+                nn.Linear,
+                nn.Conv2d,
+                nn.Conv3d,
+                LoraInjectedLinear,
+                LoraInjectedConv2d,
+                LoraInjectedConv3d,
+            ],
     ):
 
         if (_child_module.__class__ == nn.Linear) or (
-            _child_module.__class__ == LoraInjectedLinear
+                _child_module.__class__ == LoraInjectedLinear
         ):
             if len(loras[0].shape) != 2:
                 continue
@@ -919,7 +910,7 @@ def monkeypatch_or_replace_lora_extended(
                 _tmp.linear.bias = bias
 
         elif (_child_module.__class__ == nn.Conv2d) or (
-            _child_module.__class__ == LoraInjectedConv2d
+                _child_module.__class__ == LoraInjectedConv2d
         ):
             if len(loras[0].shape) != 4:
                 continue
@@ -949,7 +940,7 @@ def monkeypatch_or_replace_lora_extended(
                 _tmp.conv.bias = bias
 
         elif _child_module.__class__ == nn.Conv3d or (
-            _child_module.__class__ == LoraInjectedConv3d
+                _child_module.__class__ == LoraInjectedConv3d
         ):
 
             if len(loras[0].shape) != 5:
@@ -1012,7 +1003,7 @@ def monkeypatch_or_replace_safeloras(models, safeloras):
 
 def monkeypatch_remove_lora(model):
     for _module, name, _child_module in _find_modules(
-        model, search_class=[LoraInjectedLinear, LoraInjectedConv2d, LoraInjectedConv3d]
+            model, search_class=[LoraInjectedLinear, LoraInjectedConv2d, LoraInjectedConv3d]
     ):
         if isinstance(_child_module, LoraInjectedLinear):
             _source = _child_module.linear
@@ -1063,14 +1054,14 @@ def monkeypatch_remove_lora(model):
 
 
 def monkeypatch_add_lora(
-    model,
-    loras,
-    target_replace_module=DEFAULT_TARGET_REPLACE,
-    alpha: float = 1.0,
-    beta: float = 1.0,
+        model,
+        loras,
+        target_replace_module=DEFAULT_TARGET_REPLACE,
+        alpha: float = 1.0,
+        beta: float = 1.0,
 ):
     for _module, name, _child_module in _find_modules(
-        model, target_replace_module, search_class=[LoraInjectedLinear]
+            model, target_replace_module, search_class=[LoraInjectedLinear]
     ):
         weight = _child_module.linear.weight
 
@@ -1120,11 +1111,11 @@ def _ti_lora_path(path: str) -> str:
 
 
 def apply_learned_embed_in_clip(
-    learned_embeds,
-    text_encoder,
-    tokenizer,
-    token: Optional[Union[str, List[str]]] = None,
-    idempotent=False,
+        learned_embeds,
+        text_encoder,
+        tokenizer,
+        token: Optional[Union[str, List[str]]] = None,
+        idempotent=False,
 ):
     if isinstance(token, str):
         trained_tokens = [token]
@@ -1166,11 +1157,11 @@ def apply_learned_embed_in_clip(
 
 
 def load_learned_embed_in_clip(
-    learned_embeds_path,
-    text_encoder,
-    tokenizer,
-    token: Optional[Union[str, List[str]]] = None,
-    idempotent=False,
+        learned_embeds_path,
+        text_encoder,
+        tokenizer,
+        token: Optional[Union[str, List[str]]] = None,
+        idempotent=False,
 ):
     learned_embeds = torch.load(learned_embeds_path)
     apply_learned_embed_in_clip(
@@ -1179,16 +1170,16 @@ def load_learned_embed_in_clip(
 
 
 def patch_pipe(
-    pipe,
-    maybe_unet_path,
-    token: Optional[str] = None,
-    r: int = 4,
-    patch_unet=True,
-    patch_text=True,
-    patch_ti=True,
-    idempotent_token=True,
-    unet_target_replace_module=DEFAULT_TARGET_REPLACE,
-    text_target_replace_module=TEXT_ENCODER_DEFAULT_TARGET_REPLACE,
+        pipe,
+        maybe_unet_path,
+        token: Optional[str] = None,
+        r: int = 4,
+        patch_unet=True,
+        patch_text=True,
+        patch_ti=True,
+        idempotent_token=True,
+        unet_target_replace_module=DEFAULT_TARGET_REPLACE,
+        text_target_replace_module=TEXT_ENCODER_DEFAULT_TARGET_REPLACE,
 ):
     if maybe_unet_path.endswith(".pt"):
         # torch format
@@ -1283,16 +1274,16 @@ def inspect_lora(model):
 
 
 def save_all(
-    unet,
-    text_encoder,
-    save_path,
-    placeholder_token_ids=None,
-    placeholder_tokens=None,
-    save_lora=True,
-    save_ti=True,
-    target_replace_module_text=TEXT_ENCODER_DEFAULT_TARGET_REPLACE,
-    target_replace_module_unet=DEFAULT_TARGET_REPLACE,
-    safe_form=True,
+        unet,
+        text_encoder,
+        save_path,
+        placeholder_token_ids=None,
+        placeholder_tokens=None,
+        save_lora=True,
+        save_ti=True,
+        target_replace_module_text=TEXT_ENCODER_DEFAULT_TARGET_REPLACE,
+        target_replace_module_unet=DEFAULT_TARGET_REPLACE,
+        safe_form=True,
 ):
     if not safe_form:
         # save ti
@@ -1333,7 +1324,6 @@ def save_all(
         embeds = {}
 
         if save_lora:
-
             loras["unet"] = (unet, target_replace_module_unet)
             loras["text_encoder"] = (text_encoder, target_replace_module_text)
 

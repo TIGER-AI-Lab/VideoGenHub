@@ -1,4 +1,0 @@
-SwissArmyTransformer==0.2.9
-icetk
-gifmaker
-torchvision

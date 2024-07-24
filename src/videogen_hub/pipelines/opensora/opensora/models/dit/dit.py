@@ -16,6 +16,7 @@ import torch.utils.checkpoint
 from einops import rearrange
 from timm.models.vision_transformer import Mlp
 
+from videogen_hub.pipelines.opensora.opensora.acceleration.checkpoint import auto_grad_checkpoint
 from videogen_hub.pipelines.opensora.opensora.models.layers.blocks import (
     Attention,
     CaptionEmbedder,
@@ -29,7 +30,6 @@ from videogen_hub.pipelines.opensora.opensora.models.layers.blocks import (
     get_layernorm,
     modulate,
 )
-from videogen_hub.pipelines.opensora.opensora.acceleration.checkpoint import auto_grad_checkpoint
 from videogen_hub.pipelines.opensora.opensora.registry import MODELS
 from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import load_checkpoint
 
@@ -40,12 +40,12 @@ class DiTBlock(nn.Module):
     """
 
     def __init__(
-        self,
-        hidden_size,
-        num_heads,
-        mlp_ratio=4.0,
-        enable_flash_attn=False,
-        enable_layernorm_kernel=False,
+            self,
+            hidden_size,
+            num_heads,
+            mlp_ratio=4.0,
+            enable_flash_attn=False,
+            enable_layernorm_kernel=False,
     ):
         super().__init__()
         self.hidden_size = hidden_size
@@ -78,24 +78,24 @@ class DiT(nn.Module):
     """
 
     def __init__(
-        self,
-        input_size=(16, 32, 32),
-        in_channels=4,
-        patch_size=(1, 2, 2),
-        hidden_size=1152,
-        depth=28,
-        num_heads=16,
-        mlp_ratio=4.0,
-        class_dropout_prob=0.1,
-        learn_sigma=True,
-        condition="text",
-        no_temporal_pos_emb=False,
-        caption_channels=512,
-        model_max_length=77,
-        dtype=torch.float32,
-        enable_flash_attn=False,
-        enable_layernorm_kernel=False,
-        enable_sequence_parallelism=False,
+            self,
+            input_size=(16, 32, 32),
+            in_channels=4,
+            patch_size=(1, 2, 2),
+            hidden_size=1152,
+            depth=28,
+            num_heads=16,
+            mlp_ratio=4.0,
+            class_dropout_prob=0.1,
+            learn_sigma=True,
+            condition="text",
+            no_temporal_pos_emb=False,
+            caption_channels=512,
+            model_max_length=77,
+            dtype=torch.float32,
+            enable_flash_attn=False,
+            enable_layernorm_kernel=False,
+            enable_sequence_parallelism=False,
     ):
         super().__init__()
         self.learn_sigma = learn_sigma

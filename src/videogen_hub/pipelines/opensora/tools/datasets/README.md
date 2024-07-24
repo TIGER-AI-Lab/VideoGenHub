@@ -1,25 +1,27 @@
 # Dataset Management
 
 - [Dataset Management](#dataset-management)
-  - [Dataset Format](#dataset-format)
-  - [Dataset to CSV](#dataset-to-csv)
-  - [Manage datasets](#manage-datasets)
-    - [Requirement](#requirement)
-    - [Basic Usage](#basic-usage)
-    - [Score filtering](#score-filtering)
-    - [Documentation](#documentation)
-  - [Transform datasets](#transform-datasets)
-    - [Resize](#resize)
-    - [Frame extraction](#frame-extraction)
-    - [Crop Midjourney 4 grid](#crop-midjourney-4-grid)
-  - [Analyze datasets](#analyze-datasets)
-  - [Data Process Pipeline](#data-process-pipeline)
+    - [Dataset Format](#dataset-format)
+    - [Dataset to CSV](#dataset-to-csv)
+    - [Manage datasets](#manage-datasets)
+        - [Requirement](#requirement)
+        - [Basic Usage](#basic-usage)
+        - [Score filtering](#score-filtering)
+        - [Documentation](#documentation)
+    - [Transform datasets](#transform-datasets)
+        - [Resize](#resize)
+        - [Frame extraction](#frame-extraction)
+        - [Crop Midjourney 4 grid](#crop-midjourney-4-grid)
+    - [Analyze datasets](#analyze-datasets)
+    - [Data Process Pipeline](#data-process-pipeline)
 
-After preparing the raw dataset according to the [instructions](/docs/datasets.md), you can use the following commands to manage the dataset.
+After preparing the raw dataset according to the [instructions](/docs/datasets.md), you can use the following commands
+to manage the dataset.
 
 ## Dataset Format
 
-All dataset should be provided in a `.csv` file (or `parquet.gzip` to save space), which is used for both training and data preprocessing. The columns should follow the words below:
+All dataset should be provided in a `.csv` file (or `parquet.gzip` to save space), which is used for both training and
+data preprocessing. The columns should follow the words below:
 
 - `path`: the relative/absolute path or url to the image or video file. Required.
 - `text`: the caption or description of the image or video. Required for training.
@@ -56,7 +58,8 @@ df = df.to_parquet(output_path, index=False)
 
 ## Dataset to CSV
 
-As a start point, `convert.py` is used to convert the dataset to a CSV file. You can use the following commands to convert the dataset to a CSV file:
+As a start point, `convert.py` is used to convert the dataset to a CSV file. You can use the following commands to
+convert the dataset to a CSV file:
 
 ```bash
 python -m tools.datasets.convert DATASET-TYPE DATA_FOLDER
@@ -109,7 +112,8 @@ pip install lingua-language-detector
 
 ### Basic Usage
 
-You can use the following commands to process the `csv` or `parquet` files. The output file will be saved in the same directory as the input, with different suffixes indicating the processed method.
+You can use the following commands to process the `csv` or `parquet` files. The output file will be saved in the same
+directory as the input, with different suffixes indicating the processed method.
 
 ```bash
 # datautil takes multiple CSV files as input and merge them into one CSV file
@@ -165,7 +169,7 @@ python -m tools.datasets.datautil DATA.csv --matchmin 0.5
 You can also use `python -m tools.datasets.datautil --help` to see usage.
 
 | Args                        | File suffix    | Description                                                   |
-| --------------------------- | -------------- | ------------------------------------------------------------- |
+|-----------------------------|----------------|---------------------------------------------------------------|
 | `--output OUTPUT`           |                | Output path                                                   |
 | `--format FORMAT`           |                | Output format (csv, parquet, parquet.gzip)                    |
 | `--disable-parallel`        |                | Disable `pandarallel`                                         |
@@ -207,7 +211,8 @@ python -m tools.datasets.transform TRANSFORM_TYPE META.csv ORIGINAL_DATA_FOLDER 
 
 ### Resize
 
-Sometimes you may need to resize the images or videos to a specific resolution. You can use the following commands to resize the dataset:
+Sometimes you may need to resize the images or videos to a specific resolution. You can use the following commands to
+resize the dataset:
 
 ```bash
 python -m tools.datasets.transform meta.csv /path/to/raw/data /path/to/new/data --length 2160
@@ -240,7 +245,8 @@ head -n 10 DATA1.csv
 wc -l DATA1.csv
 ```
 
-For the dataset provided in a `.csv` or `.parquet` file, you can easily analyze the dataset using the following commands. Plots will be automatically saved.
+For the dataset provided in a `.csv` or `.parquet` file, you can easily analyze the dataset using the following
+commands. Plots will be automatically saved.
 
 ```python
 pyhton -m tools.datasets.analyze DATA_info.csv

@@ -27,11 +27,11 @@ model:
           alpha: 1.0
           shared_noise_across_chunks: True  # if true, shared noise between all chunks of a video
           forward_steps: 850 # number of DDPM forward steps
-          radius: [2,2,2]  # radius for time, width and height
+          radius: [ 2,2,2 ]  # radius for time, width and height
 n_predictions: 300
 data:
   class_path: t2v_enhanced.model.datasets.prompt_reader.PromptReader
   init_args:
-    prompt_cfg: 
+    prompt_cfg:
       type: file
       content: /home/roberto.henschel/T2V-Enhanced/repo/training_code/t2v_enhanced/evaluation_prompts/prompts_long_eval.txt

@@ -1,16 +1,17 @@
-import os, io, csv, math, random
 import json
-import numpy as np
-from einops import rearrange
-from decord import VideoReader
+import math
+import os
+import random
 
+import numpy as np
 import torch
 import torchvision.transforms as transforms
+from decord import VideoReader
+from diffusers.utils import logging
 from torch.utils.data.dataset import Dataset
 
-from diffusers.utils import logging
-
 logger = logging.get_logger(__name__)
+
 
 class WebVid10M(Dataset):
     def __init__(
@@ -19,7 +20,7 @@ class WebVid10M(Dataset):
             sample_size=256, sample_stride=4, sample_n_frames=16,
             is_image=False,
             **kwargs,
-        ):
+    ):
         logger.info(f"loading annotations from {json_path} ...")
         with open(json_path, 'rb') as json_file:
             json_list = list(json_file)
@@ -27,11 +28,11 @@ class WebVid10M(Dataset):
         self.length = len(self.dataset)
         logger.info(f"data scale: {self.length}")
 
-        self.video_folder    = video_folder
-        self.sample_stride   = sample_stride if isinstance(sample_stride, int) else tuple(sample_stride)
+        self.video_folder = video_folder
+        self.sample_stride = sample_stride if isinstance(sample_stride, int) else tuple(sample_stride)
         self.sample_n_frames = sample_n_frames
-        self.is_image        = is_image
-        
+        self.is_image = is_image
+
         sample_size = tuple(sample_size) if not isinstance(sample_size, int) else (sample_size, sample_size)
         self.pixel_transforms = transforms.Compose([
             transforms.RandomHorizontalFlip(),
@@ -39,11 +40,11 @@ class WebVid10M(Dataset):
             transforms.CenterCrop(sample_size),
             transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], inplace=True),
         ])
-    
+
     def get_batch(self, idx):
         video_dict = self.dataset[idx]
         video_relative_path, name = video_dict['file'], video_dict['text']
-        
+
         if self.video_folder is not None:
             if video_relative_path[0] == '/':
                 video_dir = os.path.join(self.video_folder, os.path.basename(video_relative_path))
@@ -53,14 +54,14 @@ class WebVid10M(Dataset):
             video_dir = video_relative_path
         video_reader = VideoReader(video_dir)
         video_length = len(video_reader)
-        
+
         if not self.is_image:
             if isinstance(self.sample_stride, int):
                 stride = self.sample_stride
             elif isinstance(self.sample_stride, tuple):
                 stride = random.randint(self.sample_stride[0], self.sample_stride[1])
             clip_length = min(video_length, (self.sample_n_frames - 1) * stride + 1)
-            start_idx   = random.randint(0, video_length - clip_length)
+            start_idx = random.randint(0, video_length - clip_length)
             batch_index = np.linspace(start_idx, start_idx + clip_length - 1, self.sample_n_frames, dtype=int)
         else:
             frame_difference = random.randint(2, self.sample_n_frames)
@@ -71,7 +72,7 @@ class WebVid10M(Dataset):
         pixel_values = torch.from_numpy(video_reader.get_batch(batch_index).asnumpy()).permute(0, 3, 1, 2).contiguous()
         pixel_values = pixel_values / 255.
         del video_reader
-        
+
         return pixel_values, name
 
     def __len__(self):
@@ -84,7 +85,7 @@ class WebVid10M(Dataset):
                 break
 
             except Exception as e:
-                idx = random.randint(0, self.length-1)
+                idx = random.randint(0, self.length - 1)
 
         pixel_values = self.pixel_transforms(pixel_values)
         sample = dict(pixel_values=pixel_values, text=name)
@@ -98,12 +99,12 @@ class Pexels(Dataset):
             sample_size=256, sample_duration=1, sample_fps=8,
             is_image=False,
             **kwargs,
-        ):
+    ):
         logger.info(f"loading captions from {caption_json_path} ...")
         with open(caption_json_path, 'rb') as caption_json_file:
             caption_json_list = list(caption_json_file)
         self.caption_dict = {json.loads(json_str)['id']: json.loads(json_str)['text'] for json_str in caption_json_list}
-        
+
         logger.info(f"loading annotations from {json_path} ...")
         with open(json_path, 'rb') as json_file:
             json_list = list(json_file)
@@ -117,12 +118,12 @@ class Pexels(Dataset):
         self.length = len(self.dataset)
         logger.info(f"data scale: {self.length}")
 
-        self.video_folder    = video_folder
+        self.video_folder = video_folder
         self.sample_duration = sample_duration
-        self.sample_fps      = sample_fps
+        self.sample_fps = sample_fps
         self.sample_n_frames = sample_duration * sample_fps
-        self.is_image        = is_image
-        
+        self.is_image = is_image
+
         sample_size = tuple(sample_size) if not isinstance(sample_size, int) else (sample_size, sample_size)
         self.pixel_transforms = transforms.Compose([
             transforms.RandomHorizontalFlip(),
@@ -130,12 +131,12 @@ class Pexels(Dataset):
             transforms.CenterCrop(sample_size),
             transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], inplace=True),
         ])
-    
+
     def get_batch(self, idx):
         video_dict = self.dataset[idx]
         video_relative_path, name = video_dict['file'], video_dict['text']
         fps = video_dict['fps']
-        
+
         if self.video_folder is not None:
             if video_relative_path[0] == '/':
                 video_dir = os.path.join(self.video_folder, os.path.basename(video_relative_path))
@@ -145,10 +146,10 @@ class Pexels(Dataset):
             video_dir = video_relative_path
         video_reader = VideoReader(video_dir)
         video_length = len(video_reader)
-        
+
         if not self.is_image:
             clip_length = min(video_length, math.ceil(fps * self.sample_duration))
-            start_idx   = random.randint(0, video_length - clip_length)
+            start_idx = random.randint(0, video_length - clip_length)
             batch_index = np.linspace(start_idx, start_idx + clip_length - 1, self.sample_n_frames, dtype=int)
         else:
             frame_difference = random.randint(2, self.sample_n_frames)
@@ -160,7 +161,7 @@ class Pexels(Dataset):
         pixel_values = torch.from_numpy(video_reader.get_batch(batch_index).asnumpy()).permute(0, 3, 1, 2).contiguous()
         pixel_values = pixel_values / 255.
         del video_reader
-        
+
         return pixel_values, name
 
     def __len__(self):
@@ -173,7 +174,7 @@ class Pexels(Dataset):
                 break
 
             except Exception as e:
-                idx = random.randint(0, self.length-1)
+                idx = random.randint(0, self.length - 1)
 
         pixel_values = self.pixel_transforms(pixel_values)
         sample = dict(pixel_values=pixel_values, text=name)
@@ -188,8 +189,9 @@ class JointDataset(Dataset):
             sample_duration=None, sample_fps=None, sample_stride=None, sample_n_frames=None,
             is_image=False,
             **kwargs,
-        ):
-        assert (sample_duration is None and sample_fps is None) or (sample_duration is not None and sample_fps is not None), "sample_duration and sample_fps should be both None or not None"
+    ):
+        assert (sample_duration is None and sample_fps is None) or (
+                sample_duration is not None and sample_fps is not None), "sample_duration and sample_fps should be both None or not None"
         if sample_duration is not None and sample_fps is not None:
             assert sample_stride is None, "when sample_duration and sample_fps are not None, sample_stride should be None"
         if sample_stride is not None:
@@ -202,8 +204,9 @@ class JointDataset(Dataset):
             logger.info(f"loading captions from {pexels_config.caption_json_path} ...")
             with open(pexels_config.caption_json_path, 'rb') as caption_json_file:
                 caption_json_list = list(caption_json_file)
-            self.caption_dict = {json.loads(json_str)['id']: json.loads(json_str)['text'] for json_str in caption_json_list}
-            
+            self.caption_dict = {json.loads(json_str)['id']: json.loads(json_str)['text'] for json_str in
+                                 caption_json_list}
+
             logger.info(f"loading annotations from {pexels_config.json_path} ...")
             with open(pexels_config.json_path, 'rb') as json_file:
                 json_list = list(json_file)
@@ -214,7 +217,7 @@ class JointDataset(Dataset):
                 data['dataset'] = 'pexels'
                 if data['height'] / data['width'] < 0.625:
                     self.dataset.append(data)
-        
+
         if webvid_config.enable:
             logger.info(f"loading webvid dataset")
             logger.info(f"loading annotations from {webvid_config.json_path} ...")
@@ -228,14 +231,15 @@ class JointDataset(Dataset):
         self.length = len(self.dataset)
         logger.info(f"data scale: {self.length}")
 
-        self.pexels_folder   = pexels_config.video_folder
-        self.webvid_folder   = webvid_config.video_folder
+        self.pexels_folder = pexels_config.video_folder
+        self.webvid_folder = webvid_config.video_folder
         self.sample_duration = sample_duration
-        self.sample_fps      = sample_fps
+        self.sample_fps = sample_fps
         self.sample_n_frames = sample_duration * sample_fps if sample_n_frames is None else sample_n_frames
-        self.sample_stride   = sample_stride if (sample_stride is None) or (sample_stride is not None and isinstance(sample_stride, int)) else tuple(sample_stride)
-        self.is_image        = is_image
-        
+        self.sample_stride = sample_stride if (sample_stride is None) or (
+                sample_stride is not None and isinstance(sample_stride, int)) else tuple(sample_stride)
+        self.is_image = is_image
+
         sample_size = tuple(sample_size) if not isinstance(sample_size, int) else (sample_size, sample_size)
         self.pixel_transforms = transforms.Compose([
             transforms.RandomHorizontalFlip(),
@@ -243,7 +247,7 @@ class JointDataset(Dataset):
             transforms.CenterCrop(sample_size),
             transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], inplace=True),
         ])
-    
+
     def get_batch(self, idx):
         video_dict = self.dataset[idx]
         video_relative_path, name = video_dict['file'], video_dict['text']
@@ -254,7 +258,7 @@ class JointDataset(Dataset):
             video_folder = self.webvid_folder
         else:
             raise NotImplementedError
-        
+
         if video_folder is not None:
             if video_relative_path[0] == '/':
                 video_dir = os.path.join(video_folder, os.path.basename(video_relative_path))
@@ -264,7 +268,7 @@ class JointDataset(Dataset):
             video_dir = video_relative_path
         video_reader = VideoReader(video_dir)
         video_length = len(video_reader)
-        
+
         stride = None
         if not self.is_image:
             if self.sample_duration is not None:
@@ -277,7 +281,7 @@ class JointDataset(Dataset):
                     stride = random.randint(self.sample_stride[0], self.sample_stride[1])
                 clip_length = min(video_length, (self.sample_n_frames - 1) * stride + 1)
 
-            start_idx   = random.randint(0, video_length - clip_length)
+            start_idx = random.randint(0, video_length - clip_length)
             batch_index = np.linspace(start_idx, start_idx + clip_length - 1, self.sample_n_frames, dtype=int)
 
         else:
@@ -287,7 +291,7 @@ class JointDataset(Dataset):
                 sample_stride = math.ceil((fps * self.sample_duration) / (self.sample_n_frames - 1) - 1)
             elif self.sample_stride is not None:
                 sample_stride = self.sample_stride
-            
+
             clip_length = min(video_length, (frame_difference - 1) * sample_stride + 1)
             start_idx = random.randint(0, video_length - clip_length)
             batch_index = [start_idx, start_idx + clip_length - 1]
@@ -295,7 +299,7 @@ class JointDataset(Dataset):
         pixel_values = torch.from_numpy(video_reader.get_batch(batch_index).asnumpy()).permute(0, 3, 1, 2).contiguous()
         pixel_values = pixel_values / 255.
         del video_reader
-        
+
         return pixel_values, name, stride
 
     def __len__(self):
@@ -308,7 +312,7 @@ class JointDataset(Dataset):
                 break
 
             except Exception as e:
-                idx = random.randint(0, self.length-1)
+                idx = random.randint(0, self.length - 1)
 
         pixel_values = self.pixel_transforms(pixel_values)
         sample = dict(pixel_values=pixel_values, text=name, stride=stride)

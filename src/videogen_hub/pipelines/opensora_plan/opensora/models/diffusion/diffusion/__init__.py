@@ -3,21 +3,22 @@
 #     ADM:   https://github.com/openai/guided-diffusion/blob/main/guided_diffusion
 #     IDDPM: https://github.com/openai/improved-diffusion/blob/main/improved_diffusion/gaussian_diffusion.py
 
-from .respace import SpacedDiffusion, space_timesteps, SpacedDiffusion_T
+from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.diffusion.respace import SpacedDiffusion, \
+    space_timesteps, SpacedDiffusion_T
 
 
 def create_diffusion(
-    timestep_respacing,
-    noise_schedule="linear", 
-    use_kl=False,
-    sigma_small=False,
-    predict_xstart=False,
-    learn_sigma=True,
-    # learn_sigma=False,
-    rescale_learned_sigmas=False,
-    diffusion_steps=1000
+        timestep_respacing,
+        noise_schedule="linear",
+        use_kl=False,
+        sigma_small=False,
+        predict_xstart=False,
+        learn_sigma=True,
+        # learn_sigma=False,
+        rescale_learned_sigmas=False,
+        diffusion_steps=1000
 ):
-    from . import gaussian_diffusion as gd
+    from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.diffusion import gaussian_diffusion as gd
     betas = gd.get_named_beta_schedule(noise_schedule, diffusion_steps)
     if use_kl:
         loss_type = gd.LossType.RESCALED_KL
@@ -46,18 +47,19 @@ def create_diffusion(
         # rescale_timesteps=rescale_timesteps,
     )
 
+
 def create_diffusion_T(
-    timestep_respacing,
-    noise_schedule="linear", 
-    use_kl=False,
-    sigma_small=False,
-    predict_xstart=False,
-    learn_sigma=True,
-    # learn_sigma=False,
-    rescale_learned_sigmas=False,
-    diffusion_steps=1000
+        timestep_respacing,
+        noise_schedule="linear",
+        use_kl=False,
+        sigma_small=False,
+        predict_xstart=False,
+        learn_sigma=True,
+        # learn_sigma=False,
+        rescale_learned_sigmas=False,
+        diffusion_steps=1000
 ):
-    from . import gaussian_diffusion_t2v as gd
+    from videogen_hub.pipelines.opensora_plan.opensora.models.diffusion.diffusion import gaussian_diffusion_t2v as gd
     betas = gd.get_named_beta_schedule(noise_schedule, diffusion_steps)
     if use_kl:
         loss_type = gd.LossType.RESCALED_KL

@@ -1,8 +1,9 @@
 from pathlib import Path
+
 import PIL
-from PIL import Image
 import numpy as np
-from dataclasses import dataclass
+from PIL import Image
+
 
 # TODO add register new converter so that it is accessible via converters.to_x
 

@@ -1,7 +1,6 @@
 import os
-from typing import Union, List, Optional
-from urllib.parse import urlparse
-import requests
+from typing import Union
+
 
 def get_file_path(filename: Union[str, os.PathLike], search_from: Union[str, os.PathLike] = "."):
     """

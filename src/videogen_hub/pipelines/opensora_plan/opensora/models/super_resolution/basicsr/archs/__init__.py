@@ -2,8 +2,8 @@ import importlib
 from copy import deepcopy
 from os import path as osp
 
-from basicsr.utils import get_root_logger, scandir
-from basicsr.utils.registry import ARCH_REGISTRY
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils import get_root_logger, scandir
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.registry import ARCH_REGISTRY
 
 __all__ = ['build_network']
 

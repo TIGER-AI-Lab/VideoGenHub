@@ -1,13 +1,15 @@
 from collections import defaultdict
-import torch
-from torchvision.utils import make_grid
-from torchvision.transforms import ToPILImage
-import numpy as np
-from PIL import Image, ImageDraw, ImageFont
-import matplotlib.pyplot as plt
+
 import matplotlib.patches as mpatches
-from matplotlib.colors import Normalize
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+from PIL import Image, ImageDraw, ImageFont
 from matplotlib import cm
+from matplotlib.colors import Normalize
+from torchvision.transforms import ToPILImage
+from torchvision.utils import make_grid
+
 
 def pil_concat_v(images):
     width = images[0].width
@@ -19,6 +21,7 @@ def pil_concat_v(images):
         h += image.height
     return dst
 
+
 def pil_concat_h(images):
     width = sum([image.width for image in images])
     height = images[0].height
@@ -29,23 +32,26 @@ def pil_concat_h(images):
         w += image.width
     return dst
 
+
 def add_label(image, text, fontsize=12):
-    dst = Image.new('RGB', (image.width, image.height + fontsize*3))
+    dst = Image.new('RGB', (image.width, image.height + fontsize * 3))
     dst.paste(image, (0, 0))
     draw = ImageDraw.Draw(dst)
     font = ImageFont.truetype("../misc/fonts/OpenSans.ttf", fontsize)
-    draw.text((fontsize, image.height + fontsize),text,(255,255,255),font=font)    
+    draw.text((fontsize, image.height + fontsize), text, (255, 255, 255), font=font)
     return dst
+
 
 def pil_concat(images, labels=None, col=8, fontsize=12):
     col = min(col, len(images))
     if labels is not None:
-        labeled_images = [add_label(image, labels[image_idx], fontsize=fontsize) for image_idx, image in enumerate(images)]
+        labeled_images = [add_label(image, labels[image_idx], fontsize=fontsize) for image_idx, image in
+                          enumerate(images)]
     else:
         labeled_images = images
     labeled_images_rows = []
     for row_idx in range(int(np.ceil(len(labeled_images) / col))):
-        labeled_images_rows.append(pil_concat_h(labeled_images[col*row_idx:col*(row_idx+1)]))
+        labeled_images_rows.append(pil_concat_h(labeled_images[col * row_idx:col * (row_idx + 1)]))
     return pil_concat_v(labeled_images_rows)
 
 
@@ -68,8 +74,8 @@ def draw_panoptic_segmentation(model, segmentation, segments_info):
     ax.legend(handles=handles)
 
 
-
 rescale_ = lambda x: (x + 1.) / 2.
+
 
 def pil_grid_display(x, mask=None, nrow=4, rescale=True):
     if rescale:
@@ -80,11 +86,13 @@ def pil_grid_display(x, mask=None, nrow=4, rescale=True):
     grid = make_grid(torch.clip(x, 0, 1), nrow=nrow)
     return ToPILImage()(grid)
 
+
 def pil_display(x, rescale=True):
     if rescale:
         x = rescale_(x)
     image = torch.clip(rescale_(x), 0, 1)
     return ToPILImage()(image)
+
 
 def mask_to_3_channel(mask):
     if mask.dim() == 3:
@@ -93,13 +101,13 @@ def mask_to_3_channel(mask):
         mask_c_idx = 1
     else:
         raise Exception("mask should be a 3d or 4d tensor")
-    
+
     if mask.shape[mask_c_idx] == 3:
         return mask
     elif mask.shape[mask_c_idx] == 1:
         sizes = [1] * mask.dim()
         sizes[mask_c_idx] = 3
-        mask = mask.repeat(*sizes) 
+        mask = mask.repeat(*sizes)
     else:
         raise Exception("mask should have size 1 in channel dim")
     return mask
@@ -119,6 +127,7 @@ def get_first_k_token_head_att_maps(atts_normed, k, h, w, output_h=256, output_w
             att_images.append(att_image)
     return pil_concat(att_images, col=k, labels=None)
 
+
 def get_first_k_token_att_maps(atts_normed, k, h, w, output_h=256, output_w=256, labels=None, max_scale=False):
     att_images = []
     atts_head = atts_normed.mean(0)[:, :k].reshape(h, w, k).movedim(2, 0)
@@ -131,9 +140,10 @@ def get_first_k_token_att_maps(atts_normed, k, h, w, output_h=256, output_w=256,
         att_images.append(att_image)
     return pil_concat(att_images, col=k, labels=None)
 
+
 def draw_bbox(image, bbox):
     image = image.copy()
     left, top, right, bottom = bbox
     image_draw = ImageDraw.Draw(image)
-    image_draw.rectangle(((left, top),(right, bottom)), outline='Red')
+    image_draw.rectangle(((left, top), (right, bottom)), outline='Red')
     return image

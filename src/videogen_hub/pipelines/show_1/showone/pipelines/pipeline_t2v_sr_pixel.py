@@ -4,14 +4,12 @@ import re
 import urllib.parse as ul
 from typing import Any, Callable, Dict, List, Optional, Union
 
-import numpy as np
-from einops import rearrange
 import PIL
+import numpy as np
 import torch
 import torch.nn.functional as F
-from transformers import CLIPImageProcessor, T5EncoderModel, T5Tokenizer
-
 from diffusers.loaders import LoraLoaderMixin
+from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 from diffusers.schedulers import DDPMScheduler
 from diffusers.utils import (
     BACKENDS_MAPPING,
@@ -22,11 +20,11 @@ from diffusers.utils import (
     logging,
 )
 from diffusers.utils.torch_utils import randn_tensor
-from diffusers.pipelines.pipeline_utils import DiffusionPipeline
+from einops import rearrange
+from transformers import CLIPImageProcessor, T5EncoderModel, T5Tokenizer
 
-from ..models import UNet3DConditionModel
-from . import TextToVideoPipelineOutput
-
+from videogen_hub.pipelines.show_1.showone.models import UNet3DConditionModel
+from videogen_hub.pipelines.show_1.showone.pipelines import TextToVideoPipelineOutput
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 
@@ -75,13 +73,13 @@ class TextToVideoIFSuperResolutionPipeline(DiffusionPipeline, LoraLoaderMixin):
     _optional_components = ["tokenizer", "text_encoder", "safety_checker", "feature_extractor", "watermarker"]
 
     def __init__(
-        self,
-        tokenizer: T5Tokenizer,
-        text_encoder: T5EncoderModel,
-        unet: UNet3DConditionModel,
-        scheduler: DDPMScheduler,
-        image_noising_scheduler: DDPMScheduler,
-        feature_extractor: Optional[CLIPImageProcessor],
+            self,
+            tokenizer: T5Tokenizer,
+            text_encoder: T5EncoderModel,
+            unet: UNet3DConditionModel,
+            scheduler: DDPMScheduler,
+            image_noising_scheduler: DDPMScheduler,
+            feature_extractor: Optional[CLIPImageProcessor],
     ):
         super().__init__()
 
@@ -186,24 +184,24 @@ class TextToVideoIFSuperResolutionPipeline(DiffusionPipeline, LoraLoaderMixin):
             return self.device
         for module in self.unet.modules():
             if (
-                hasattr(module, "_hf_hook")
-                and hasattr(module._hf_hook, "execution_device")
-                and module._hf_hook.execution_device is not None
+                    hasattr(module, "_hf_hook")
+                    and hasattr(module._hf_hook, "execution_device")
+                    and module._hf_hook.execution_device is not None
             ):
                 return torch.device(module._hf_hook.execution_device)
         return self.device
 
     @torch.no_grad()
     def encode_prompt(
-        self,
-        prompt,
-        do_classifier_free_guidance=True,
-        num_images_per_prompt=1,
-        device=None,
-        negative_prompt=None,
-        prompt_embeds: Optional[torch.FloatTensor] = None,
-        negative_prompt_embeds: Optional[torch.FloatTensor] = None,
-        clean_caption: bool = False,
+            self,
+            prompt,
+            do_classifier_free_guidance=True,
+            num_images_per_prompt=1,
+            device=None,
+            negative_prompt=None,
+            prompt_embeds: Optional[torch.FloatTensor] = None,
+            negative_prompt_embeds: Optional[torch.FloatTensor] = None,
+            clean_caption: bool = False,
     ):
         r"""
         Encodes the prompt into text encoder hidden states.
@@ -263,9 +261,9 @@ class TextToVideoIFSuperResolutionPipeline(DiffusionPipeline, LoraLoaderMixin):
             untruncated_ids = self.tokenizer(prompt, padding="longest", return_tensors="pt").input_ids
 
             if untruncated_ids.shape[-1] >= text_input_ids.shape[-1] and not torch.equal(
-                text_input_ids, untruncated_ids
+                    text_input_ids, untruncated_ids
             ):
-                removed_text = self.tokenizer.batch_decode(untruncated_ids[:, max_length - 1 : -1])
+                removed_text = self.tokenizer.batch_decode(untruncated_ids[:, max_length - 1: -1])
                 logger.warning(
                     "The following part of your input was truncated because CLIP can only handle sequences up to"
                     f" {max_length} tokens: {removed_text}"
@@ -364,18 +362,18 @@ class TextToVideoIFSuperResolutionPipeline(DiffusionPipeline, LoraLoaderMixin):
         return extra_step_kwargs
 
     def check_inputs(
-        self,
-        prompt,
-        image,
-        batch_size,
-        noise_level,
-        callback_steps,
-        negative_prompt=None,
-        prompt_embeds=None,
-        negative_prompt_embeds=None,
+            self,
+            prompt,
+            image,
+            batch_size,
+            noise_level,
+            callback_steps,
+            negative_prompt=None,
+            prompt_embeds=None,
+            negative_prompt_embeds=None,
     ):
         if (callback_steps is None) or (
-            callback_steps is not None and (not isinstance(callback_steps, int) or callback_steps <= 0)
+                callback_steps is not None and (not isinstance(callback_steps, int) or callback_steps <= 0)
         ):
             raise ValueError(
                 f"`callback_steps` has to be a positive integer but is {callback_steps} of type"
@@ -419,9 +417,9 @@ class TextToVideoIFSuperResolutionPipeline(DiffusionPipeline, LoraLoaderMixin):
             check_image_type = image
 
         if (
-            not isinstance(check_image_type, torch.Tensor)
-            and not isinstance(check_image_type, PIL.Image.Image)
-            and not isinstance(check_image_type, np.ndarray)
+                not isinstance(check_image_type, torch.Tensor)
+                and not isinstance(check_image_type, PIL.Image.Image)
+                and not isinstance(check_image_type, np.ndarray)
         ):
             raise ValueError(
                 "`image` has to be of type `torch.FloatTensor`, `PIL.Image.Image`, `np.ndarray`, or List[...] but is"
@@ -442,7 +440,8 @@ class TextToVideoIFSuperResolutionPipeline(DiffusionPipeline, LoraLoaderMixin):
         if batch_size != image_batch_size:
             raise ValueError(f"image batch size: {image_batch_size} must be same as prompt batch size {batch_size}")
 
-    def prepare_intermediate_images(self, batch_size, num_channels, num_frames, height, width, dtype, device, generator):
+    def prepare_intermediate_images(self, batch_size, num_channels, num_frames, height, width, dtype, device,
+                                    generator):
         shape = (batch_size, num_channels, num_frames, height, width)
         if isinstance(generator, list) and len(generator) != batch_size:
             raise ValueError(
@@ -518,12 +517,14 @@ class TextToVideoIFSuperResolutionPipeline(DiffusionPipeline, LoraLoaderMixin):
         caption = re.sub("<person>", "person", caption)
         # urls:
         caption = re.sub(
-            r"\b((?:https?:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",  # noqa
+            r"\b((?:https?:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",
+            # noqa
             "",
             caption,
         )  # regex for urls
         caption = re.sub(
-            r"\b((?:www:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",  # noqa
+            r"\b((?:www:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",
+            # noqa
             "",
             caption,
         )  # regex for urls
@@ -551,7 +552,8 @@ class TextToVideoIFSuperResolutionPipeline(DiffusionPipeline, LoraLoaderMixin):
 
         # все виды тире / all types of dash --> "-"
         caption = re.sub(
-            r"[\u002D\u058A\u05BE\u1400\u1806\u2010-\u2015\u2E17\u2E1A\u2E3A\u2E3B\u2E40\u301C\u3030\u30A0\uFE31\uFE32\uFE58\uFE63\uFF0D]+",  # noqa
+            r"[\u002D\u058A\u05BE\u1400\u1806\u2010-\u2015\u2E17\u2E1A\u2E3A\u2E3B\u2E40\u301C\u3030\u30A0\uFE31\uFE32\uFE58\uFE63\uFF0D]+",
+            # noqa
             "-",
             caption,
         )
@@ -627,27 +629,27 @@ class TextToVideoIFSuperResolutionPipeline(DiffusionPipeline, LoraLoaderMixin):
 
     @torch.no_grad()
     def __call__(
-        self,
-        prompt: Union[str, List[str]] = None,
-        height: Optional[int] = None,
-        width: Optional[int] = None,
-        image: Union[PIL.Image.Image, np.ndarray, torch.FloatTensor] = None,
-        num_inference_steps: int = 50,
-        timesteps: List[int] = None,
-        guidance_scale: float = 4.0,
-        negative_prompt: Optional[Union[str, List[str]]] = None,
-        num_images_per_prompt: Optional[int] = 1,
-        eta: float = 0.0,
-        generator: Optional[Union[torch.Generator, List[torch.Generator]]] = None,
-        prompt_embeds: Optional[torch.FloatTensor] = None,
-        negative_prompt_embeds: Optional[torch.FloatTensor] = None,
-        output_type: Optional[str] = "np",
-        return_dict: bool = True,
-        callback: Optional[Callable[[int, int, torch.FloatTensor], None]] = None,
-        callback_steps: int = 1,
-        cross_attention_kwargs: Optional[Dict[str, Any]] = None,
-        noise_level: int = 20,
-        clean_caption: bool = True,
+            self,
+            prompt: Union[str, List[str]] = None,
+            height: Optional[int] = None,
+            width: Optional[int] = None,
+            image: Union[PIL.Image.Image, np.ndarray, torch.FloatTensor] = None,
+            num_inference_steps: int = 50,
+            timesteps: List[int] = None,
+            guidance_scale: float = 4.0,
+            negative_prompt: Optional[Union[str, List[str]]] = None,
+            num_images_per_prompt: Optional[int] = 1,
+            eta: float = 0.0,
+            generator: Optional[Union[torch.Generator, List[torch.Generator]]] = None,
+            prompt_embeds: Optional[torch.FloatTensor] = None,
+            negative_prompt_embeds: Optional[torch.FloatTensor] = None,
+            output_type: Optional[str] = "np",
+            return_dict: bool = True,
+            callback: Optional[Callable[[int, int, torch.FloatTensor], None]] = None,
+            callback_steps: int = 1,
+            cross_attention_kwargs: Optional[Dict[str, Any]] = None,
+            noise_level: int = 20,
+            clean_caption: bool = True,
     ):
         """
         Function invoked when calling the pipeline for generation.
@@ -843,7 +845,8 @@ class TextToVideoIFSuperResolutionPipeline(DiffusionPipeline, LoraLoaderMixin):
 
                 # reshape latents
                 bsz, channel, frames, height, width = intermediate_images.shape
-                intermediate_images = intermediate_images.permute(0, 2, 1, 3, 4).reshape(bsz * frames, channel, height, width)
+                intermediate_images = intermediate_images.permute(0, 2, 1, 3, 4).reshape(bsz * frames, channel, height,
+                                                                                         width)
                 noise_pred = noise_pred.permute(0, 2, 1, 3, 4).reshape(bsz * frames, -1, height, width)
 
                 # compute the previous noisy sample x_t -> x_t-1
@@ -852,7 +855,8 @@ class TextToVideoIFSuperResolutionPipeline(DiffusionPipeline, LoraLoaderMixin):
                 ).prev_sample
 
                 # reshape latents back
-                intermediate_images = intermediate_images[None, :].reshape(bsz, frames, channel, height, width).permute(0, 2, 1, 3, 4)
+                intermediate_images = intermediate_images[None, :].reshape(bsz, frames, channel, height, width).permute(
+                    0, 2, 1, 3, 4)
 
                 # call the callback, if provided
                 if i == len(timesteps) - 1 or ((i + 1) > num_warmup_steps and (i + 1) % self.scheduler.order == 0):

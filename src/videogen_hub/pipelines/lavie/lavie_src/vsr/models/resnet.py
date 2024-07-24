@@ -1,12 +1,12 @@
 # Adapted from https://github.com/huggingface/diffusers/blob/main/src/diffusers/models/resnet.py
-import os
-import sys
-sys.path.append(os.path.split(sys.path[0])[0])
+
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 from einops import rearrange
+
 
 def zero_module(module):
     """
@@ -16,9 +16,11 @@ def zero_module(module):
         p.detach().zero_()
     return module
 
+
 class Mish(torch.nn.Module):
     def forward(self, hidden_states):
         return hidden_states * torch.tanh(torch.nn.functional.softplus(hidden_states))
+
 
 class InflatedConv3d(nn.Conv2d):
     def forward(self, x):
@@ -122,21 +124,21 @@ class Downsample3D(nn.Module):
 
 class ResnetBlock3D(nn.Module):
     def __init__(
-        self,
-        *,
-        in_channels,
-        out_channels=None,
-        conv_shortcut=False,
-        dropout=0.0,
-        temb_channels=512,
-        groups=32,
-        groups_out=None,
-        pre_norm=True,
-        eps=1e-6,
-        non_linearity="swish",
-        time_embedding_norm="default",
-        output_scale_factor=1.0,
-        use_in_shortcut=None,
+            self,
+            *,
+            in_channels,
+            out_channels=None,
+            conv_shortcut=False,
+            dropout=0.0,
+            temb_channels=512,
+            groups=32,
+            groups_out=None,
+            pre_norm=True,
+            eps=1e-6,
+            non_linearity="swish",
+            time_embedding_norm="default",
+            output_scale_factor=1.0,
+            use_in_shortcut=None,
     ):
         super().__init__()
         self.pre_norm = pre_norm
@@ -215,26 +217,26 @@ class ResnetBlock3D(nn.Module):
         output_tensor = (input_tensor + hidden_states) / self.output_scale_factor
 
         return output_tensor
-    
-    
+
+
 class ResnetBlock3DCNN(nn.Module):
     def __init__(
-        self,
-        *,
-        in_channels,
-        out_channels=None,
-        kernel=(3,1,1),
-        conv_shortcut=False,
-        dropout=0.0,
-        temb_channels=512,
-        groups=32,
-        groups_out=None,
-        pre_norm=True,
-        eps=1e-6,
-        non_linearity="swish",
-        time_embedding_norm="default",
-        output_scale_factor=1.0,
-        use_in_shortcut=None,
+            self,
+            *,
+            in_channels,
+            out_channels=None,
+            kernel=(3, 1, 1),
+            conv_shortcut=False,
+            dropout=0.0,
+            temb_channels=512,
+            groups=32,
+            groups_out=None,
+            pre_norm=True,
+            eps=1e-6,
+            non_linearity="swish",
+            time_embedding_norm="default",
+            output_scale_factor=1.0,
+            use_in_shortcut=None,
     ):
         super().__init__()
         self.pre_norm = pre_norm
@@ -251,8 +253,8 @@ class ResnetBlock3DCNN(nn.Module):
 
         self.norm1 = torch.nn.GroupNorm(num_groups=groups, num_channels=in_channels, eps=eps, affine=True)
 
-        padding = ((kernel[i]-1)//2 for i in range(3))
-        self.conv1 = nn.Conv3d(in_channels, out_channels, kernel_size=kernel, stride=(1,1,1), padding=padding)
+        padding = ((kernel[i] - 1) // 2 for i in range(3))
+        self.conv1 = nn.Conv3d(in_channels, out_channels, kernel_size=kernel, stride=(1, 1, 1), padding=padding)
 
         if temb_channels is not None:
             if self.time_embedding_norm == "default":
@@ -268,7 +270,7 @@ class ResnetBlock3DCNN(nn.Module):
 
         self.norm2 = torch.nn.GroupNorm(num_groups=groups_out, num_channels=out_channels, eps=eps, affine=True)
         self.dropout = torch.nn.Dropout(dropout)
-        self.conv2 = nn.Conv3d(out_channels, out_channels, kernel_size=(3,1,1), stride=(1,1,1), padding=(1,0,0))
+        self.conv2 = nn.Conv3d(out_channels, out_channels, kernel_size=(3, 1, 1), stride=(1, 1, 1), padding=(1, 0, 0))
 
         if non_linearity == "swish":
             self.nonlinearity = lambda x: F.silu(x)
@@ -281,7 +283,8 @@ class ResnetBlock3DCNN(nn.Module):
 
         self.conv_shortcut = None
         if self.use_in_shortcut:
-            self.conv_shortcut = nn.Conv3d(in_channels, out_channels, kernel_size=(1,1,1), stride=(1,1,1), padding=(0,0,0))
+            self.conv_shortcut = nn.Conv3d(in_channels, out_channels, kernel_size=(1, 1, 1), stride=(1, 1, 1),
+                                           padding=(0, 0, 0))
 
     def forward(self, input_tensor, temb=None):
         hidden_states = input_tensor

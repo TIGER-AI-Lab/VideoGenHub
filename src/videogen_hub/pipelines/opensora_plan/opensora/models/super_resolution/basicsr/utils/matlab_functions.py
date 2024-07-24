@@ -1,4 +1,5 @@
 import math
+
 import numpy as np
 import torch
 
@@ -6,8 +7,8 @@ import torch
 def cubic(x):
     """cubic function used for calculate_weights_indices."""
     absx = torch.abs(x)
-    absx2 = absx**2
-    absx3 = absx**3
+    absx2 = absx ** 2
+    absx3 = absx ** 3
     return (1.5 * absx3 - 2.5 * absx2 + 1) * (
         (absx <= 1).type_as(absx)) + (-0.5 * absx3 + 2.5 * absx2 - 4 * absx + 2) * (((absx > 1) *
                                                                                      (absx <= 2)).type_as(absx))

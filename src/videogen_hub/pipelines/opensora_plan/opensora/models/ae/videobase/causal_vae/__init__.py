@@ -1,7 +1,9 @@
-from .modeling_causalvae import CausalVAEModel
-
 from einops import rearrange
 from torch import nn
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vae.modeling_causalvae import \
+    CausalVAEModel
+
 
 class CausalVAEModelWrapper(nn.Module):
     def __init__(self, model_path, subfolder=None, cache_dir=None, **kwargs):
@@ -9,10 +11,12 @@ class CausalVAEModelWrapper(nn.Module):
         # if os.path.exists(ckpt):
         # self.vae = CausalVAEModel.load_from_checkpoint(ckpt)
         self.vae = CausalVAEModel.from_pretrained(model_path, subfolder=subfolder, cache_dir=cache_dir, **kwargs)
+
     def encode(self, x):  # b c t h w
         # x = self.vae.encode(x).sample()
         x = self.vae.encode(x).sample().mul_(0.18215)
         return x
+
     def decode(self, x):
         # x = self.vae.decode(x)
         x = self.vae.decode(x / 0.18215)

@@ -11,7 +11,7 @@ model:
     cond_stage_key: caption
     cond_stage_trainable: False
     conditioning_key: hybrid
-    image_size: [72, 128]
+    image_size: [ 72, 128 ]
     channels: 4
     scale_by_std: False
     scale_factor: 0.18215
@@ -28,15 +28,15 @@ model:
         out_channels: 4
         model_channels: 320
         attention_resolutions:
-        - 4
-        - 2
-        - 1
+          - 4
+          - 2
+          - 1
         num_res_blocks: 2
         channel_mult:
-        - 1
-        - 2
-        - 4
-        - 4
+          - 1
+          - 2
+          - 4
+          - 4
         dropout: 0.1
         num_head_channels: 64
         transformer_depth: 1
@@ -67,12 +67,12 @@ model:
           out_ch: 3
           ch: 128
           ch_mult:
-          - 1
-          - 2
-          - 4
-          - 4
+            - 1
+            - 2
+            - 4
+            - 4
           num_res_blocks: 2
-          attn_resolutions: []
+          attn_resolutions: [ ]
           dropout: 0.0
         lossconfig:
           target: torch.nn.Identity

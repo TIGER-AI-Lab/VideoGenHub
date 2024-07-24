@@ -1,28 +1,26 @@
 # General
+# For Stage-3
 import sys
-from pathlib import Path
-import torch
-from pytorch_lightning import LightningDataModule
-
-# For Stage-1
-from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler
-from diffusers import AnimateDiffPipeline, DDIMScheduler, MotionAdapter
-from diffusers import StableVideoDiffusionPipeline, AutoPipelineForText2Image
-
 # For Stage-2
 import tempfile
+from pathlib import Path
+
+import torch
 import yaml
-from videogen_hub.pipelines.streamingt2v.model.video_ldm import VideoLDM
-from videogen_hub.pipelines.streamingt2v.model.callbacks import SaveConfigCallback
+from diffusers import AnimateDiffPipeline, DDIMScheduler, MotionAdapter
+# For Stage-1
+from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler
+from diffusers import StableVideoDiffusionPipeline, AutoPipelineForText2Image
+from pytorch_lightning import LightningDataModule
+
 from videogen_hub.pipelines.streamingt2v.inference_utils import (
     legacy_transformation,
     remove_value,
     CustomCLI,
     v2v_to_device,
 )
-
-# For Stage-3
-import sys
+from videogen_hub.pipelines.streamingt2v.model.callbacks import SaveConfigCallback
+from videogen_hub.pipelines.streamingt2v.model.video_ldm import VideoLDM
 
 sys.path.append(Path(__file__).parent / "thirdparty")
 

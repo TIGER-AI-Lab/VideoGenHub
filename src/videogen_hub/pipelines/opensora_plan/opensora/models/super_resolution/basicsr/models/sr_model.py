@@ -1,14 +1,16 @@
-import torch
 from collections import OrderedDict
 from os import path as osp
+
+import torch
 from tqdm import tqdm
 
-from basicsr.archs import build_network
-from basicsr.losses import build_loss
-from basicsr.metrics import calculate_metric
-from basicsr.utils import get_root_logger, imwrite, tensor2img
-from basicsr.utils.registry import MODEL_REGISTRY
-from .base_model import BaseModel
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.archs import build_network
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.losses import build_loss
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.metrics import calculate_metric
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.models.base_model import BaseModel
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils import get_root_logger, \
+    imwrite, tensor2img
+from videogen_hub.pipelines.opensora_plan.opensora.models.super_resolution.basicsr.utils.registry import MODEL_REGISTRY
 
 
 @MODEL_REGISTRY.register()
@@ -156,7 +158,7 @@ class SRModel(BaseModel):
             img_name = osp.splitext(osp.basename(val_data['lq_path'][0]))[0]
             self.feed_data(val_data)
             self.test()
-            
+
             # this is img data 
             visuals = self.get_current_visuals()
             sr_img = tensor2img([visuals['result']])

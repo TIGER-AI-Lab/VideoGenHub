@@ -6,11 +6,11 @@ import torch.distributed as dist
 # All-To-All
 # ====================
 def _all_to_all(
-    input_: torch.Tensor,
-    world_size: int,
-    group: dist.ProcessGroup,
-    scatter_dim: int,
-    gather_dim: int,
+        input_: torch.Tensor,
+        world_size: int,
+        group: dist.ProcessGroup,
+        scatter_dim: int,
+        gather_dim: int,
 ):
     input_list = [t.contiguous() for t in torch.tensor_split(input_, world_size, scatter_dim)]
     output_list = [torch.empty_like(input_list[0]) for _ in range(world_size)]
@@ -55,19 +55,20 @@ class _AllToAll(torch.autograd.Function):
 
 
 def all_to_all(
-    input_: torch.Tensor,
-    process_group: dist.ProcessGroup,
-    scatter_dim: int = 2,
-    gather_dim: int = 1,
+        input_: torch.Tensor,
+        process_group: dist.ProcessGroup,
+        scatter_dim: int = 2,
+        gather_dim: int = 1,
 ):
     return _AllToAll.apply(input_, process_group, scatter_dim, gather_dim)
 
 
 def _gather(
-    input_: torch.Tensor,
-    world_size: int,
-    group: dist.ProcessGroup,
-    gather_dim: int,
+        input_: torch.Tensor,
+        world_size: int,
+        group: dist.ProcessGroup,
+        gather_dim: int,
+        gather_list=None
 ):
     if gather_list is None:
         gather_list = [torch.empty_like(input_) for _ in range(world_size)]

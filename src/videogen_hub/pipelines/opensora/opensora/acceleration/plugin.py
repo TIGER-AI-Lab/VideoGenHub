@@ -3,7 +3,9 @@ from typing import Optional
 
 import numpy as np
 import torch
+# noinspection PyUnresolvedReferences
 from colossalai.booster.plugin import LowLevelZeroPlugin
+# noinspection PyUnresolvedReferences
 from colossalai.cluster import ProcessGroupMesh
 from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
@@ -13,25 +15,25 @@ DP_AXIS, SP_AXIS = 0, 1
 
 class ZeroSeqParallelPlugin(LowLevelZeroPlugin):
     def __init__(
-        self,
-        sp_size: int = 1,
-        stage: int = 2,
-        precision: str = "fp16",
-        initial_scale: float = 2**32,
-        min_scale: float = 1,
-        growth_factor: float = 2,
-        backoff_factor: float = 0.5,
-        growth_interval: int = 1000,
-        hysteresis: int = 2,
-        max_scale: float = 2**32,
-        max_norm: float = 0.0,
-        norm_type: float = 2.0,
-        reduce_bucket_size_in_m: int = 12,
-        communication_dtype: Optional[torch.dtype] = None,
-        overlap_communication: bool = True,
-        cpu_offload: bool = False,
-        master_weights: bool = True,
-        verbose: bool = False,
+            self,
+            sp_size: int = 1,
+            stage: int = 2,
+            precision: str = "fp16",
+            initial_scale: float = 2 ** 32,
+            min_scale: float = 1,
+            growth_factor: float = 2,
+            backoff_factor: float = 0.5,
+            growth_interval: int = 1000,
+            hysteresis: int = 2,
+            max_scale: float = 2 ** 32,
+            max_norm: float = 0.0,
+            norm_type: float = 2.0,
+            reduce_bucket_size_in_m: int = 12,
+            communication_dtype: Optional[torch.dtype] = None,
+            overlap_communication: bool = True,
+            cpu_offload: bool = False,
+            master_weights: bool = True,
+            verbose: bool = False,
     ) -> None:
         super().__init__(
             stage=stage,
@@ -66,16 +68,16 @@ class ZeroSeqParallelPlugin(LowLevelZeroPlugin):
         self.pg_mesh.destroy_mesh_process_groups()
 
     def prepare_dataloader(
-        self,
-        dataset,
-        batch_size,
-        shuffle=False,
-        seed=1024,
-        drop_last=False,
-        pin_memory=False,
-        num_workers=0,
-        distributed_sampler_cls=None,
-        **kwargs,
+            self,
+            dataset,
+            batch_size,
+            shuffle=False,
+            seed=1024,
+            drop_last=False,
+            pin_memory=False,
+            num_workers=0,
+            distributed_sampler_cls=None,
+            **kwargs,
     ):
         _kwargs = kwargs.copy()
         distributed_sampler_cls = distributed_sampler_cls or DistributedSampler

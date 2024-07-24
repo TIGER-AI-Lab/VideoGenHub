@@ -12,4 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .unet_3d_condition import UNet3DConditionModel
+from videogen_hub.pipelines.show_1.showone.models.unet_3d_condition import UNet3DConditionModel

@@ -83,17 +83,17 @@ class SmallUpdateBlock(nn.Module):
 
 class BasicUpdateBlock(nn.Module):
     def __init__(
-        self,
-        cdim,
-        hidden_dim,
-        flow_dim,
-        corr_dim,
-        corr_dim2,
-        fc_dim,
-        corr_levels=4,
-        radius=3,
-        scale_factor=None,
-        out_num=1,
+            self,
+            cdim,
+            hidden_dim,
+            flow_dim,
+            corr_dim,
+            corr_dim2,
+            fc_dim,
+            corr_levels=4,
+            radius=3,
+            scale_factor=None,
+            out_num=1,
     ):
         super(BasicUpdateBlock, self).__init__()
         cor_planes = corr_levels * (2 * radius + 1) ** 2
@@ -186,8 +186,8 @@ class BidirCorrBlock:
             delta = torch.stack(torch.meshgrid(dy, dx, indexing="ij"), axis=-1)
             delta_lvl = delta.view(1, 2 * r + 1, 2 * r + 1, 2)
 
-            centroid_lvl_0 = coords0.reshape(batch * h1 * w1, 1, 1, 2) / 2**i
-            centroid_lvl_1 = coords1.reshape(batch * h1 * w1, 1, 1, 2) / 2**i
+            centroid_lvl_0 = coords0.reshape(batch * h1 * w1, 1, 1, 2) / 2 ** i
+            centroid_lvl_1 = coords1.reshape(batch * h1 * w1, 1, 1, 2) / 2 ** i
             coords_lvl_0 = centroid_lvl_0 + delta_lvl
             coords_lvl_1 = centroid_lvl_1 + delta_lvl
 

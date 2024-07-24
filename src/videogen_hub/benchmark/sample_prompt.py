@@ -1,7 +1,9 @@
-import os
 import json
-import numpy as np
+import os
 import random
+
+import numpy as np
+
 
 # Randomly sample a subset of prompts for benchmarking
 def main(prompt_path, overwrite_inputs=False):
@@ -59,11 +61,12 @@ def main(prompt_path, overwrite_inputs=False):
         #     os.makedirs(os.path.join(result_folder, experiment_name))
         with open(save_path, "w") as f:
             json.dump(sampled_prompts, f, indent=4)
-            
+
         with open(remaing_data_save_path, "w") as f:
             json.dump(remaining_prompts, f, indent=4)
     else:
         print("Dataset already exists, skipping generation")
+
 
 if __name__ == "__main__":
     # main(prompt_path="VBench_full_info.json")

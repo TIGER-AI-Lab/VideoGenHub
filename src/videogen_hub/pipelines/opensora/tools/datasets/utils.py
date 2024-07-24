@@ -1,6 +1,7 @@
 import os
 
 import cv2
+import numpy as np
 from PIL import Image
 
 IMG_EXTENSIONS = (".jpg", ".jpeg", ".png", ".ppm", ".bmp", ".pgm", ".tif", ".tiff", ".webp")
@@ -13,12 +14,12 @@ def is_video(filename):
 
 
 def extract_frames(
-    video_path,
-    frame_inds=None,
-    points=None,
-    backend="opencv",
-    return_length=False,
-    num_frames=None,
+        video_path,
+        frame_inds=None,
+        points=None,
+        backend="opencv",
+        return_length=False,
+        num_frames=None,
 ):
     """
     Args:

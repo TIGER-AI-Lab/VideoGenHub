@@ -6,8 +6,7 @@ from typing import Any, Callable, Dict, List, Optional, Union
 
 import numpy as np
 import torch
-from transformers import CLIPImageProcessor, T5EncoderModel, T5Tokenizer
-
+from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 from diffusers.schedulers import DDPMScheduler
 from diffusers.utils import (
     BACKENDS_MAPPING,
@@ -16,14 +15,12 @@ from diffusers.utils import (
     is_bs4_available,
     is_ftfy_available,
     logging,
-    replace_example_docstring,
 )
 from diffusers.utils.torch_utils import randn_tensor
-from diffusers.pipelines.pipeline_utils import DiffusionPipeline
+from transformers import CLIPImageProcessor, T5EncoderModel, T5Tokenizer
 
-from ..models import UNet3DConditionModel
-from . import TextToVideoPipelineOutput
-
+from videogen_hub.pipelines.show_1.showone.models import UNet3DConditionModel
+from videogen_hub.pipelines.show_1.showone.pipelines import TextToVideoPipelineOutput
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 
@@ -71,12 +68,12 @@ class TextToVideoIFInterpPipeline(DiffusionPipeline):
     _optional_components = ["tokenizer", "text_encoder", "safety_checker", "feature_extractor", "watermarker"]
 
     def __init__(
-        self,
-        tokenizer: T5Tokenizer,
-        text_encoder: T5EncoderModel,
-        unet: UNet3DConditionModel,
-        scheduler: DDPMScheduler,
-        feature_extractor: Optional[CLIPImageProcessor],
+            self,
+            tokenizer: T5Tokenizer,
+            text_encoder: T5EncoderModel,
+            unet: UNet3DConditionModel,
+            scheduler: DDPMScheduler,
+            feature_extractor: Optional[CLIPImageProcessor],
     ):
         super().__init__()
 
@@ -126,7 +123,6 @@ class TextToVideoIFInterpPipeline(DiffusionPipeline):
             raise ImportError("`enable_model_cpu_offload` requires `accelerate v0.17.0` or higher.")
 
         device = torch.device(f"cuda:{gpu_id}")
-      
 
         if self.device.type != "cpu":
             self.to("cpu", silence_dtype_warnings=True)
@@ -181,24 +177,24 @@ class TextToVideoIFInterpPipeline(DiffusionPipeline):
             return self.device
         for module in self.unet.modules():
             if (
-                hasattr(module, "_hf_hook")
-                and hasattr(module._hf_hook, "execution_device")
-                and module._hf_hook.execution_device is not None
+                    hasattr(module, "_hf_hook")
+                    and hasattr(module._hf_hook, "execution_device")
+                    and module._hf_hook.execution_device is not None
             ):
                 return torch.device(module._hf_hook.execution_device)
         return self.device
 
     @torch.no_grad()
     def encode_prompt(
-        self,
-        prompt,
-        do_classifier_free_guidance=True,
-        num_images_per_prompt=1,
-        device=None,
-        negative_prompt=None,
-        prompt_embeds: Optional[torch.FloatTensor] = None,
-        negative_prompt_embeds: Optional[torch.FloatTensor] = None,
-        clean_caption: bool = False,
+            self,
+            prompt,
+            do_classifier_free_guidance=True,
+            num_images_per_prompt=1,
+            device=None,
+            negative_prompt=None,
+            prompt_embeds: Optional[torch.FloatTensor] = None,
+            negative_prompt_embeds: Optional[torch.FloatTensor] = None,
+            clean_caption: bool = False,
     ):
         r"""
         Encodes the prompt into text encoder hidden states.
@@ -258,9 +254,9 @@ class TextToVideoIFInterpPipeline(DiffusionPipeline):
             untruncated_ids = self.tokenizer(prompt, padding="longest", return_tensors="pt").input_ids
 
             if untruncated_ids.shape[-1] >= text_input_ids.shape[-1] and not torch.equal(
-                text_input_ids, untruncated_ids
+                    text_input_ids, untruncated_ids
             ):
-                removed_text = self.tokenizer.batch_decode(untruncated_ids[:, max_length - 1 : -1])
+                removed_text = self.tokenizer.batch_decode(untruncated_ids[:, max_length - 1: -1])
                 logger.warning(
                     "The following part of your input was truncated because CLIP can only handle sequences up to"
                     f" {max_length} tokens: {removed_text}"
@@ -359,15 +355,15 @@ class TextToVideoIFInterpPipeline(DiffusionPipeline):
         return extra_step_kwargs
 
     def check_inputs(
-        self,
-        prompt,
-        callback_steps,
-        negative_prompt=None,
-        prompt_embeds=None,
-        negative_prompt_embeds=None,
+            self,
+            prompt,
+            callback_steps,
+            negative_prompt=None,
+            prompt_embeds=None,
+            negative_prompt_embeds=None,
     ):
         if (callback_steps is None) or (
-            callback_steps is not None and (not isinstance(callback_steps, int) or callback_steps <= 0)
+                callback_steps is not None and (not isinstance(callback_steps, int) or callback_steps <= 0)
         ):
             raise ValueError(
                 f"`callback_steps` has to be a positive integer but is {callback_steps} of type"
@@ -400,7 +396,8 @@ class TextToVideoIFInterpPipeline(DiffusionPipeline):
                     f" {negative_prompt_embeds.shape}."
                 )
 
-    def prepare_intermediate_images(self, batch_size, num_channels, num_frames, height, width, dtype, device, generator):
+    def prepare_intermediate_images(self, batch_size, num_channels, num_frames, height, width, dtype, device,
+                                    generator):
         shape = (batch_size, num_channels, num_frames, height, width)
         if isinstance(generator, list) and len(generator) != batch_size:
             raise ValueError(
@@ -445,12 +442,14 @@ class TextToVideoIFInterpPipeline(DiffusionPipeline):
         caption = re.sub("<person>", "person", caption)
         # urls:
         caption = re.sub(
-            r"\b((?:https?:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",  # noqa
+            r"\b((?:https?:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",
+            # noqa
             "",
             caption,
         )  # regex for urls
         caption = re.sub(
-            r"\b((?:www:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",  # noqa
+            r"\b((?:www:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",
+            # noqa
             "",
             caption,
         )  # regex for urls
@@ -478,7 +477,8 @@ class TextToVideoIFInterpPipeline(DiffusionPipeline):
 
         # все виды тире / all types of dash --> "-"
         caption = re.sub(
-            r"[\u002D\u058A\u05BE\u1400\u1806\u2010-\u2015\u2E17\u2E1A\u2E3A\u2E3B\u2E40\u301C\u3030\u30A0\uFE31\uFE32\uFE58\uFE63\uFF0D]+",  # noqa
+            r"[\u002D\u058A\u05BE\u1400\u1806\u2010-\u2015\u2E17\u2E1A\u2E3A\u2E3B\u2E40\u301C\u3030\u30A0\uFE31\uFE32\uFE58\uFE63\uFF0D]+",
+            # noqa
             "-",
             caption,
         )
@@ -554,29 +554,29 @@ class TextToVideoIFInterpPipeline(DiffusionPipeline):
 
     @torch.no_grad()
     def __call__(
-        self,
-        pixel_values,
-        prompt: Union[str, List[str]] = None,
-        num_inference_steps: int = 100,
-        timesteps: List[int] = None,
-        guidance_scale: float = 7.0,
-        negative_prompt: Optional[Union[str, List[str]]] = None,
-        num_images_per_prompt: Optional[int] = 1,
-        height: Optional[int] = None,
-        width: Optional[int] = None,
-        num_frames: int = 16,
-        eta: float = 0.0,
-        generator: Optional[Union[torch.Generator, List[torch.Generator]]] = None,
-        prompt_embeds: Optional[torch.FloatTensor] = None,
-        negative_prompt_embeds: Optional[torch.FloatTensor] = None,
-        output_type: Optional[str] = "np",
-        return_dict: bool = True,
-        callback: Optional[Callable[[int, int, torch.FloatTensor], None]] = None,
-        callback_steps: int = 1,
-        clean_caption: bool = True,
-        cross_attention_kwargs: Optional[Dict[str, Any]] = None,
-        init_noise = None,
-        cond_interpolation = False,
+            self,
+            pixel_values,
+            prompt: Union[str, List[str]] = None,
+            num_inference_steps: int = 100,
+            timesteps: List[int] = None,
+            guidance_scale: float = 7.0,
+            negative_prompt: Optional[Union[str, List[str]]] = None,
+            num_images_per_prompt: Optional[int] = 1,
+            height: Optional[int] = None,
+            width: Optional[int] = None,
+            num_frames: int = 16,
+            eta: float = 0.0,
+            generator: Optional[Union[torch.Generator, List[torch.Generator]]] = None,
+            prompt_embeds: Optional[torch.FloatTensor] = None,
+            negative_prompt_embeds: Optional[torch.FloatTensor] = None,
+            output_type: Optional[str] = "np",
+            return_dict: bool = True,
+            callback: Optional[Callable[[int, int, torch.FloatTensor], None]] = None,
+            callback_steps: int = 1,
+            clean_caption: bool = True,
+            cross_attention_kwargs: Optional[Dict[str, Any]] = None,
+            init_noise=None,
+            cond_interpolation=False,
     ):
         """
         Function invoked when calling the pipeline for generation.
@@ -712,7 +712,8 @@ class TextToVideoIFInterpPipeline(DiffusionPipeline):
             )
 
         bsz = intermediate_images.shape[0]
-        interp_mask = torch.zeros(bsz, 1, *intermediate_images.shape[2:], device=device, dtype=intermediate_images.dtype)
+        interp_mask = torch.zeros(bsz, 1, *intermediate_images.shape[2:], device=device,
+                                  dtype=intermediate_images.dtype)
         interp_mask[:, :, 0, :, :] = 1
         interp_mask[:, :, -1, :, :] = 1
 
@@ -740,7 +741,8 @@ class TextToVideoIFInterpPipeline(DiffusionPipeline):
             for i, t in enumerate(timesteps):
                 intermediate_images_input = torch.cat((intermediate_images, pixel_values_condition), dim=1)
                 model_input = (
-                    torch.cat([intermediate_images_input] * 2) if do_classifier_free_guidance else intermediate_images_input
+                    torch.cat(
+                        [intermediate_images_input] * 2) if do_classifier_free_guidance else intermediate_images_input
                 )
                 model_input = self.scheduler.scale_model_input(model_input, t)
 
@@ -764,7 +766,8 @@ class TextToVideoIFInterpPipeline(DiffusionPipeline):
 
                 # reshape latents
                 bsz, channel, frames, width, height = intermediate_images.shape
-                intermediate_images = intermediate_images.permute(0, 2, 1, 3, 4).reshape(bsz * frames, channel, width, height)
+                intermediate_images = intermediate_images.permute(0, 2, 1, 3, 4).reshape(bsz * frames, channel, width,
+                                                                                         height)
                 noise_pred = noise_pred.permute(0, 2, 1, 3, 4).reshape(bsz * frames, -1, width, height)
 
                 # compute the previous noisy sample x_t -> x_t-1
@@ -773,7 +776,8 @@ class TextToVideoIFInterpPipeline(DiffusionPipeline):
                 ).prev_sample
 
                 # reshape latents back
-                intermediate_images = intermediate_images[None, :].reshape(bsz, frames, channel, width, height).permute(0, 2, 1, 3, 4)
+                intermediate_images = intermediate_images[None, :].reshape(bsz, frames, channel, width, height).permute(
+                    0, 2, 1, 3, 4)
 
                 # call the callback, if provided
                 if i == len(timesteps) - 1 or ((i + 1) > num_warmup_steps and (i + 1) % self.scheduler.order == 0):

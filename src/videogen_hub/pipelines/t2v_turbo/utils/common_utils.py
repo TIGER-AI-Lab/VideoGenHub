@@ -1,12 +1,10 @@
 import ast
 import gc
+
 import torch
-
-from collections import OrderedDict
-
-from diffusers.models.attention_processor import AttnProcessor2_0
-from diffusers.models.attention import BasicTransformerBlock
 import wandb
+from diffusers.models.attention import BasicTransformerBlock
+from diffusers.models.attention_processor import AttnProcessor2_0
 
 
 def extract_into_tensor(a, t, x_shape):
@@ -81,14 +79,14 @@ def append_dims(x, target_dims):
 # From LCMScheduler.get_scalings_for_boundary_condition_discrete
 def scalings_for_boundary_conditions(timestep, sigma_data=0.5, timestep_scaling=10.0):
     scaled_timestep = timestep_scaling * timestep
-    c_skip = sigma_data**2 / (scaled_timestep**2 + sigma_data**2)
-    c_out = scaled_timestep / (scaled_timestep**2 + sigma_data**2) ** 0.5
+    c_skip = sigma_data ** 2 / (scaled_timestep ** 2 + sigma_data ** 2)
+    c_out = scaled_timestep / (scaled_timestep ** 2 + sigma_data ** 2) ** 0.5
     return c_skip, c_out
 
 
 # Compare LCMScheduler.step, Step 4
 def get_predicted_original_sample(
-    model_output, timesteps, sample, prediction_type, alphas, sigmas
+        model_output, timesteps, sample, prediction_type, alphas, sigmas
 ):
     alphas = extract_into_tensor(alphas, timesteps, sample.shape)
     sigmas = extract_into_tensor(sigmas, timesteps, sample.shape)
@@ -109,7 +107,7 @@ def get_predicted_original_sample(
 
 # Based on step 4 in DDIMScheduler.step
 def get_predicted_noise(
-    model_output, timesteps, sample, prediction_type, alphas, sigmas
+        model_output, timesteps, sample, prediction_type, alphas, sigmas
 ):
     alphas = extract_into_tensor(alphas, timesteps, sample.shape)
     sigmas = extract_into_tensor(sigmas, timesteps, sample.shape)
@@ -171,14 +169,14 @@ def append_dims(x, target_dims):
 # From LCMScheduler.get_scalings_for_boundary_condition_discrete
 def scalings_for_boundary_conditions(timestep, sigma_data=0.5, timestep_scaling=10.0):
     scaled_timestep = timestep_scaling * timestep
-    c_skip = sigma_data**2 / (scaled_timestep**2 + sigma_data**2)
-    c_out = scaled_timestep / (scaled_timestep**2 + sigma_data**2) ** 0.5
+    c_skip = sigma_data ** 2 / (scaled_timestep ** 2 + sigma_data ** 2)
+    c_out = scaled_timestep / (scaled_timestep ** 2 + sigma_data ** 2) ** 0.5
     return c_skip, c_out
 
 
 # Compare LCMScheduler.step, Step 4
 def get_predicted_original_sample(
-    model_output, timesteps, sample, prediction_type, alphas, sigmas
+        model_output, timesteps, sample, prediction_type, alphas, sigmas
 ):
     alphas = extract_into_tensor(alphas, timesteps, sample.shape)
     sigmas = extract_into_tensor(sigmas, timesteps, sample.shape)
@@ -199,7 +197,7 @@ def get_predicted_original_sample(
 
 # Based on step 4 in DDIMScheduler.step
 def get_predicted_noise(
-    model_output, timesteps, sample, prediction_type, alphas, sigmas
+        model_output, timesteps, sample, prediction_type, alphas, sigmas
 ):
     alphas = extract_into_tensor(alphas, timesteps, sample.shape)
     sigmas = extract_into_tensor(sigmas, timesteps, sample.shape)
@@ -274,7 +272,7 @@ def create_optimizer_params(model_list, lr):
 
 
 def handle_trainable_modules(
-    model, trainable_modules=None, is_enabled=True, negation=None
+        model, trainable_modules=None, is_enabled=True, negation=None
 ):
     acc = []
     unfrozen_params = 0
@@ -295,7 +293,7 @@ def handle_trainable_modules(
 
 
 def huber_loss(pred, target, huber_c=0.001):
-    loss = torch.sqrt((pred.float() - target.float()) ** 2 + huber_c**2) - huber_c
+    loss = torch.sqrt((pred.float() - target.float()) ** 2 + huber_c ** 2) - huber_c
     return loss.mean()
 
 

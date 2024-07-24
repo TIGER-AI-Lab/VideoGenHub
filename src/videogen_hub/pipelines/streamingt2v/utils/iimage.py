@@ -1,25 +1,22 @@
 import io
 import math
 import os
-import PIL.Image
-import numpy as np
-import imageio.v3 as iio
+import re
 import warnings
 
-
+import PIL.Image
+import cv2
+import imageio.v3 as iio
+import matplotlib.pyplot as plt
+import numpy as np
 import torch
 import torchvision.transforms.functional as TF
-from scipy.ndimage import binary_dilation, binary_erosion
-import cv2
-
-import re
-
-import matplotlib.pyplot as plt
+from IPython.display import display
 from matplotlib import animation
-from IPython.display import HTML, Image, display
-
+from scipy.ndimage import binary_dilation, binary_erosion
 
 IMG_THUMBSIZE = None
+
 
 def torch2np(x, vmin=-1, vmax=1):
     if x.ndim != 4:
@@ -47,6 +44,7 @@ class IImage:
     Stores data as a numpy array by default.
     Can be viewed in a jupyter notebook.
     '''
+
     @staticmethod
     def open(path):
 
@@ -72,7 +70,8 @@ class IImage:
             (x.amax(dims, True) - x.amin(dims, True))
         return IImage(x, 0)
 
-    def numpy(self): return self.data
+    def numpy(self):
+        return self.data
 
     def torch(self, vmin=-1, vmax=1):
         if self.data.ndim == 3:
@@ -104,9 +103,12 @@ class IImage:
         return True
 
     @property
-    def shape(self): return self.data.shape
+    def shape(self):
+        return self.data.shape
+
     @property
-    def size(self): return (self.data.shape[-2], self.data.shape[-3])
+    def size(self):
+        return (self.data.shape[-2], self.data.shape[-3])
 
     def setFps(self, fps):
         self.fps = fps
@@ -141,10 +143,10 @@ class IImage:
         if IMG_THUMBSIZE is not None:
             if self.size[1] < self.size[0]:
                 thumb = self.resize(
-                    (self.size[1]*IMG_THUMBSIZE//self.size[0], IMG_THUMBSIZE))
+                    (self.size[1] * IMG_THUMBSIZE // self.size[0], IMG_THUMBSIZE))
             else:
                 thumb = self.resize(
-                    (IMG_THUMBSIZE, self.size[0]*IMG_THUMBSIZE//self.size[1]))
+                    (IMG_THUMBSIZE, self.size[0] * IMG_THUMBSIZE // self.size[1]))
         else:
             thumb = self
         if self.is_video():
@@ -196,24 +198,24 @@ class IImage:
 
     def pad2wh(self, w=0, h=0, **kwargs):
         cw, ch = self.size
-        return self.pad([0, 0, max(0, w - cw), max(0, h-ch)], **kwargs)
+        return self.pad([0, 0, max(0, w - cw), max(0, h - ch)], **kwargs)
 
     def pad2square(self, *args, **kwargs):
         if self.size[0] > self.size[1]:
             dx = self.size[0] - self.size[1]
-            return self.pad([0, dx//2, 0, dx-dx//2], *args, **kwargs)
+            return self.pad([0, dx // 2, 0, dx - dx // 2], *args, **kwargs)
         elif self.size[0] < self.size[1]:
             dx = self.size[1] - self.size[0]
-            return self.pad([dx//2, 0, dx-dx//2, 0], *args, **kwargs)
+            return self.pad([dx // 2, 0, dx - dx // 2, 0], *args, **kwargs)
         return self
 
     def crop2square(self, *args, **kwargs):
         if self.size[0] > self.size[1]:
             dx = self.size[0] - self.size[1]
-            return self.crop([dx//2, 0, self.size[1], self.size[1]], *args, **kwargs)
+            return self.crop([dx // 2, 0, self.size[1], self.size[1]], *args, **kwargs)
         elif self.size[0] < self.size[1]:
             dx = self.size[1] - self.size[0]
-            return self.crop([0, dx//2, self.size[0], self.size[0]], *args, **kwargs)
+            return self.crop([0, dx // 2, self.size[0], self.size[0]], *args, **kwargs)
         return self
 
     def alpha(self):
@@ -269,10 +271,10 @@ class IImage:
     def dilate(self, iterations=1, *args, **kwargs):
         if iterations == 0:
             return IImage(self.data)
-        return IImage((binary_dilation(self.data, iterations=iterations, *args, *kwargs)*255.).astype(np.uint8))
+        return IImage((binary_dilation(self.data, iterations=iterations, *args, *kwargs) * 255.).astype(np.uint8))
 
     def erode(self, iterations=1, *args, **kwargs):
-        return IImage((binary_erosion(self.data, iterations=iterations, *args, *kwargs)*255.).astype(np.uint8))
+        return IImage((binary_erosion(self.data, iterations=iterations, *args, *kwargs) * 255.).astype(np.uint8))
 
     def hull(self):
         convex_hulls = []
@@ -330,10 +332,11 @@ class IImage:
         if not isinstance(text, list):
             text = [text for _ in self.data]
         data = np.stack([cv2.putText(x.copy(), t, center, cv2.FONT_HERSHEY_COMPLEX,
-                        font_scale, color, thickness) for x, t in zip(self.data, text)])
+                                     font_scale, color, thickness) for x, t in zip(self.data, text)])
         return IImage(data)
 
-    def append_text(self, text, padding, font_scale=0.8, color=(255, 255, 255), thickness=2, scale_factor=0.9, center=(0, 0), fill=0):
+    def append_text(self, text, padding, font_scale=0.8, color=(255, 255, 255), thickness=2, scale_factor=0.9,
+                    center=(0, 0), fill=0):
 
         assert np.count_nonzero(padding) == 1
         axis_padding = np.nonzero(padding)[0][0]
@@ -354,7 +357,7 @@ class IImage:
         elif axis_padding == 3:
             width = self.shape[2]
             y_0 = self.shape[1]
-            y_max = self.shape[1]+scale_padding
+            y_max = self.shape[1] + scale_padding
 
         width -= center[0]
         x_0 += center[0]
@@ -374,10 +377,12 @@ class IImage:
                 pos = text.find(start_word, start_idx)
                 pos += len(start_word)
                 sep_list.append(text[pos])
-                start_idx = pos+1
+                start_idx = pos + 1
 
             for word, separator in zip(words[1:], sep_list):
-                if cv2.getTextSize(current_line + separator + word, cv2.FONT_HERSHEY_COMPLEX, _font_scale, thickness)[0][0] <= width:
+                if \
+                cv2.getTextSize(current_line + separator + word, cv2.FONT_HERSHEY_COMPLEX, _font_scale, thickness)[0][
+                    0] <= width:
                     current_line += separator + word
                 else:
                     if cv2.getTextSize(current_line, cv2.FONT_HERSHEY_COMPLEX, _font_scale, thickness)[0][0] <= width:
@@ -393,12 +398,12 @@ class IImage:
             return lines
 
         def wrap_text_and_scale(text, width, _font_scale, y_0, y_max):
-            height = y_max+1
+            height = y_max + 1
             while height > y_max:
                 text_lines = wrap_text(text, width, _font_scale)
                 if len(text) > 0 and len(text_lines) == 0:
 
-                    height = y_max+1
+                    height = y_max + 1
                 else:
                     line_height = cv2.getTextSize(
                         text_lines[0], cv2.FONT_HERSHEY_COMPLEX, _font_scale, thickness)[0][1]
@@ -423,7 +428,7 @@ class IImage:
             y = line_height
             for line in text_lines:
                 x = cv2.putText(
-                    x, line, (x_0, y_0+y), cv2.FONT_HERSHEY_COMPLEX, _font_scale, color, thickness)
+                    x, line, (x_0, y_0 + y), cv2.FONT_HERSHEY_COMPLEX, _font_scale, color, thickness)
                 y += line_height
             result.append(x)
         data = np.stack(result)
@@ -456,6 +461,7 @@ class IImage:
 
     def __invert__(self):
         return IImage(255 - self.data)
+
     __rmul__ = __mul__
 
     def bbox(self):
@@ -465,7 +471,7 @@ class IImage:
         data = self.data.copy()
         for bbox in bbox_list:
             x, y, w, h = bbox
-            data[:, y:y+h, x:x+w, :] = fill
+            data[:, y:y + h, x:x + w, :] = fill
         return IImage(data)
 
     def crop(self, bbox):
@@ -475,36 +481,40 @@ class IImage:
             w, h = bbox
         elif len(bbox) == 4:
             x, y, w, h = bbox
-        return IImage(self.data[:, y:y+h, x:x+w, :])
+        return IImage(self.data[:, y:y + h, x:x + w, :])
 
-def stack(images, axis = 0):
+
+def stack(images, axis=0):
     return IImage(np.concatenate([x.data for x in images], axis))
+
 
 class Animation:
     JS = 0
     HTML = 1
     ANIMATION_MODE = HTML
-    def __init__(self, frames, fps = 30):
+
+    def __init__(self, frames, fps=30):
         """_summary_
 
         Args:
             frames (np.ndarray): _description_
-        """        
+        """
         self.frames = frames
         self.fps = fps
         self.anim_obj = None
         self.anim_str = None
+
     def render(self):
-        size = (self.frames.shape[2],self.frames.shape[1])
-        self.fig = plt.figure(figsize = size, dpi = 1)
+        size = (self.frames.shape[2], self.frames.shape[1])
+        self.fig = plt.figure(figsize=size, dpi=1)
         plt.axis('off')
-        img = plt.imshow(self.frames[0], cmap = 'gray')
-        self.fig.subplots_adjust(0,0,1,1)
+        img = plt.imshow(self.frames[0], cmap='gray')
+        self.fig.subplots_adjust(0, 0, 1, 1)
         self.anim_obj = animation.FuncAnimation(
-            self.fig, 
-            lambda i: img.set_data(self.frames[i,:,:,:]),
-            frames=self.frames.shape[0], 
-            interval = 1000 / self.fps
+            self.fig,
+            lambda i: img.set_data(self.frames[i, :, :, :]),
+            frames=self.frames.shape[0],
+            interval=1000 / self.fps
         )
         plt.close()
         if Animation.ANIMATION_MODE == Animation.HTML:
@@ -512,6 +522,7 @@ class Animation:
         elif Animation.ANIMATION_MODE == Animation.JS:
             self.anim_str = self.anim_obj.to_jshtml()
         return self.anim_obj
+
     def _repr_html_(self):
         if self.anim_obj is None: self.render()
         return self.anim_str

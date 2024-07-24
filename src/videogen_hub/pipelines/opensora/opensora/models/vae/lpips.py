@@ -159,7 +159,7 @@ class vgg16(torch.nn.Module):
 
 
 def normalize_tensor(x, eps=1e-10):
-    norm_factor = torch.sqrt(torch.sum(x**2, dim=1, keepdim=True))
+    norm_factor = torch.sqrt(torch.sum(x ** 2, dim=1, keepdim=True))
     return x / (norm_factor + eps)
 
 

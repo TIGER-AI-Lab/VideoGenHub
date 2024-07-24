@@ -3,9 +3,10 @@ import os
 import re
 
 import torch
+from PIL.Image import Image
 
 from videogen_hub.pipelines.opensora.opensora.datasets import IMG_FPS
-from videogen_hub.pipelines.opensora.opensora.datasets.utils import read_from_path
+from videogen_hub.pipelines.opensora.opensora.datasets.utils import read_from_path, get_transforms_image
 
 
 def prepare_multi_resolution_info(info_type, batch_size, image_size, num_frames, fps, device, dtype):
@@ -35,13 +36,13 @@ def load_prompts(prompt_path, start_idx=None, end_idx=None):
 
 
 def get_save_path_name(
-    save_dir,
-    sample_name=None,  # prefix
-    sample_idx=None,  # sample index
-    prompt=None,  # used prompt
-    prompt_as_path=False,  # use prompt as path
-    num_sample=1,  # number of samples to generate for one prompt
-    k=None,  # kth sample
+        save_dir,
+        sample_name=None,  # prefix
+        sample_idx=None,  # sample index
+        prompt=None,  # used prompt
+        prompt_as_path=False,  # use prompt as path
+        num_sample=1,  # number of samples to generate for one prompt
+        k=None,  # kth sample
 ):
     if sample_name is None:
         sample_name = "" if prompt_as_path else "sample"
@@ -83,6 +84,27 @@ def extract_json_from_prompts(prompts, reference, mask_strategy):
     return ret_prompts, reference, mask_strategy
 
 
+def handle_reference(reference, vae, image_size):
+    if isinstance(reference, str):
+        r = read_from_path(reference, image_size, transform_name="resize_crop")
+    elif isinstance(reference, Image):
+        transform = get_transforms_image(image_size=image_size, name="resize_crop")
+        r = transform(reference)
+        r = r.unsqueeze(0).repeat(1, 1, 1, 1)  # add batch and temporal dimension
+        r = r.permute(1, 0, 2, 3)  # Change to (C, T, H, W)
+    elif isinstance(reference, torch.Tensor):
+        r = reference
+        if r.dim() == 3:  # If it's a single image tensor (C, H, W)
+            r = r.unsqueeze(0).repeat(1, 1, 1, 1)  # add batch and temporal dimension
+            r = r.permute(1, 0, 2, 3)  # Change to (C, T, H, W)
+        elif r.dim() == 4:  # If it's a video tensor (C, T, H, W)
+            r = r.permute(1, 0, 2, 3)  # Change to (C, T, H, W)
+    else:
+        raise ValueError("Unsupported reference type")
+    r_x = vae.encode(r.unsqueeze(0).to(vae.device, vae.dtype))
+    return r_x.squeeze(0)
+
+
 def collect_references_batch(reference_paths, vae, image_size):
     refs_x = []  # refs_x: [batch, ref_num, C, T, H, W]
     for reference_path in reference_paths:
@@ -92,9 +114,7 @@ def collect_references_batch(reference_paths, vae, image_size):
         ref_path = reference_path.split(";")
         ref = []
         for r_path in ref_path:
-            r = read_from_path(r_path, image_size, transform_name="resize_crop")
-            r_x = vae.encode(r.unsqueeze(0).to(vae.device, vae.dtype))
-            r_x = r_x.squeeze(0)
+            r_x = handle_reference(r_path, vae, image_size)
             ref.append(r_x)
         refs_x.append(ref)
     return refs_x
@@ -195,8 +215,8 @@ def apply_mask_strategy(z, refs_x, mask_strategys, loop_i, align=None):
                 m_ref_start = find_nearest_point(m_ref_start, align, ref.shape[1])
                 m_target_start = find_nearest_point(m_target_start, align, z.shape[2])
             m_length = min(m_length, z.shape[2] - m_target_start, ref.shape[1] - m_ref_start)
-            z[i, :, m_target_start : m_target_start + m_length] = ref[:, m_ref_start : m_ref_start + m_length]
-            mask[m_target_start : m_target_start + m_length] = edit_ratio
+            z[i, :, m_target_start: m_target_start + m_length] = ref[:, m_ref_start: m_ref_start + m_length]
+            mask[m_target_start: m_target_start + m_length] = edit_ratio
         masks.append(mask)
     if no_mask:
         return None
@@ -217,7 +237,7 @@ def append_generated(vae, generated_video, refs_x, mask_strategy, loop_i, condit
             mask_strategy[j] += ";"
         mask_strategy[
             j
-        ] += f"{loop_i},{len(refs)-1},-{condition_frame_length},0,{condition_frame_length},{condition_frame_edit}"
+        ] += f"{loop_i},{len(refs) - 1},-{condition_frame_length},0,{condition_frame_length},{condition_frame_edit}"
     return refs_x, mask_strategy
 
 
@@ -310,7 +330,7 @@ def refine_prompts_by_openai(prompts):
 
 
 def add_watermark(
-    input_video_path, watermark_image_path="./assets/images/watermark/watermark.png", output_video_path=None
+        input_video_path, watermark_image_path="./assets/images/watermark/watermark.png", output_video_path=None
 ):
     # execute this command in terminal with subprocess
     # return if the process is successful

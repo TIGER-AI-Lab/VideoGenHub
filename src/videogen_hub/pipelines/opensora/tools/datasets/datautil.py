@@ -13,7 +13,7 @@ import pandas as pd
 import torchvision
 from tqdm import tqdm
 
-from .utils import IMG_EXTENSIONS
+from videogen_hub.pipelines.opensora.tools.datasets.utils import IMG_EXTENSIONS
 
 tqdm.pandas()
 
@@ -22,6 +22,7 @@ try:
 
     PANDA_USE_PARALLEL = True
 except ImportError:
+    pandarallel = None
     PANDA_USE_PARALLEL = False
 
 
@@ -32,6 +33,7 @@ def apply(df, func, **kwargs):
 
 
 TRAIN_COLUMNS = ["path", "text", "num_frames", "fps", "height", "width", "aspect_ratio", "resolution", "text_len"]
+
 
 # ======================================================
 # --info
@@ -112,7 +114,7 @@ LLAVA_PREFIX = [
 def remove_caption_prefix(caption):
     for prefix in LLAVA_PREFIX:
         if caption.startswith(prefix) or caption.startswith(prefix.lower()):
-            caption = caption[len(prefix) :].strip()
+            caption = caption[len(prefix):].strip()
             if caption[0].islower():
                 caption = caption[0].upper() + caption[1:]
             return caption
@@ -210,12 +212,14 @@ def clean_caption(caption):
     caption = re.sub("<person>", "person", caption)
     # urls:
     caption = re.sub(
-        r"\b((?:https?:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",  # noqa
+        r"\b((?:https?:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",
+        # noqa
         "",
         caption,
     )  # regex for urls
     caption = re.sub(
-        r"\b((?:www:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",  # noqa
+        r"\b((?:www:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",
+        # noqa
         "",
         caption,
     )  # regex for urls
@@ -243,7 +247,8 @@ def clean_caption(caption):
 
     # все виды тире / all types of dash --> "-"
     caption = re.sub(
-        r"[\u002D\u058A\u05BE\u1400\u1806\u2010-\u2015\u2E17\u2E1A\u2E3A\u2E3B\u2E40\u301C\u3030\u30A0\uFE31\uFE32\uFE58\uFE63\uFF0D]+",  # noqa
+        r"[\u002D\u058A\u05BE\u1400\u1806\u2010-\u2015\u2E17\u2E1A\u2E3A\u2E3B\u2E40\u301C\u3030\u30A0\uFE31\uFE32\uFE58\uFE63\uFF0D]+",
+        # noqa
         "-",
         caption,
     )

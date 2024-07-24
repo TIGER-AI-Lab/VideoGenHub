@@ -11,26 +11,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import math
-from typing import Callable, Optional
+from typing import Optional
 
 import torch
 import torch.nn.functional as F
-from torch import nn
-
+from diffusers.models.activations import GELU, ApproximateGELU
+from diffusers.models.normalization import AdaLayerNorm, AdaLayerNormZero
 from diffusers.utils.import_utils import is_xformers_available
+from torch import nn
 
 # from diffusers.models.attention_processor import Attention
 # from t2v_enhanced.model.diffusers_conditional.models.controlnet.attention import Attention
-from .attention_processor import Attention
-from diffusers.models.embeddings import CombinedTimestepLabelEmbeddings
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.attention_processor import \
+    Attention
 
 # from t2v_enhanced.model.diffusers_conditional.models.controlnet.attention_processor import Attention
 
 
 if is_xformers_available():
-    import xformers
-    import xformers.ops
+    pass
 else:
     xformers = None
 
@@ -57,35 +56,35 @@ class BasicTransformerBlock(nn.Module):
     """
 
     def __init__(
-        self,
-        dim: int,
-        num_attention_heads: int,
-        attention_head_dim: int,
-        is_spatial_attention: bool = False,
-        dropout=0.0,
-        cross_attention_dim: Optional[int] = None,
-        activation_fn: str = "geglu",
-        num_embeds_ada_norm: Optional[int] = None,
-        attention_bias: bool = False,
-        only_cross_attention: bool = False,
-        double_self_attention: bool = False,
-        upcast_attention: bool = False,
-        norm_elementwise_affine: bool = True,
-        norm_type: str = "layer_norm",
-        final_dropout: bool = False,
-        use_image_embedding: bool = False,
-        unet_params=None,
+            self,
+            dim: int,
+            num_attention_heads: int,
+            attention_head_dim: int,
+            is_spatial_attention: bool = False,
+            dropout=0.0,
+            cross_attention_dim: Optional[int] = None,
+            activation_fn: str = "geglu",
+            num_embeds_ada_norm: Optional[int] = None,
+            attention_bias: bool = False,
+            only_cross_attention: bool = False,
+            double_self_attention: bool = False,
+            upcast_attention: bool = False,
+            norm_elementwise_affine: bool = True,
+            norm_type: str = "layer_norm",
+            final_dropout: bool = False,
+            use_image_embedding: bool = False,
+            unet_params=None,
     ):
         super().__init__()
 
         self.only_cross_attention = only_cross_attention
 
         self.use_ada_layer_norm_zero = (
-            num_embeds_ada_norm is not None
-        ) and norm_type == "ada_norm_zero"
+                                               num_embeds_ada_norm is not None
+                                       ) and norm_type == "ada_norm_zero"
         self.use_ada_layer_norm = (
-            num_embeds_ada_norm is not None
-        ) and norm_type == "ada_norm"
+                                          num_embeds_ada_norm is not None
+                                  ) and norm_type == "ada_norm"
 
         if norm_type in ("ada_norm", "ada_norm_zero") and num_embeds_ada_norm is None:
             raise ValueError(
@@ -152,14 +151,14 @@ class BasicTransformerBlock(nn.Module):
         )
 
     def forward(
-        self,
-        hidden_states,
-        attention_mask=None,
-        encoder_hidden_states=None,
-        encoder_attention_mask=None,
-        timestep=None,
-        cross_attention_kwargs=None,
-        class_labels=None,
+            self,
+            hidden_states,
+            attention_mask=None,
+            encoder_hidden_states=None,
+            encoder_attention_mask=None,
+            timestep=None,
+            cross_attention_kwargs=None,
+            class_labels=None,
     ):
         # Notice that normalization is always applied before the real computation in the following blocks.
         # 1. Self-Attention
@@ -211,7 +210,7 @@ class BasicTransformerBlock(nn.Module):
 
         if self.use_ada_layer_norm_zero:
             norm_hidden_states = (
-                norm_hidden_states * (1 + scale_mlp[:, None]) + shift_mlp[:, None]
+                    norm_hidden_states * (1 + scale_mlp[:, None]) + shift_mlp[:, None]
             )
 
         ff_output = self.ff(norm_hidden_states)
@@ -238,13 +237,13 @@ class FeedForward(nn.Module):
     """
 
     def __init__(
-        self,
-        dim: int,
-        dim_out: Optional[int] = None,
-        mult: int = 4,
-        dropout: float = 0.0,
-        activation_fn: str = "geglu",
-        final_dropout: bool = False,
+            self,
+            dim: int,
+            dim_out: Optional[int] = None,
+            mult: int = 4,
+            dropout: float = 0.0,
+            activation_fn: str = "geglu",
+            final_dropout: bool = False,
     ):
         super().__init__()
         inner_dim = int(dim * mult)

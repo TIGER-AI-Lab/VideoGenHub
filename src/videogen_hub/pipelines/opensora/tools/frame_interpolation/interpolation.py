@@ -8,9 +8,8 @@ import numpy as np
 import torch
 
 from videogen_hub.pipelines.opensora.opensora.utils.ckpt_utils import download_model
-
-from .networks.amt_g import Model
-from .utils.utils import InputPadder, img2tensor, tensor2img
+from videogen_hub.pipelines.opensora.tools.frame_interpolation.networks.amt_g import Model
+from videogen_hub.pipelines.opensora.tools.frame_interpolation.utils.utils import InputPadder, img2tensor, tensor2img
 
 hf_endpoint = os.environ.get("HF_ENDPOINT")
 if hf_endpoint is None:
@@ -33,10 +32,10 @@ def init():
 
     if device == "cuda":
         anchor_resolution = 1024 * 512
-        anchor_memory = 1500 * 1024**2
-        anchor_memory_bias = 2500 * 1024**2
+        anchor_memory = 1500 * 1024 ** 2
+        anchor_memory_bias = 2500 * 1024 ** 2
         vram_avail = torch.cuda.get_device_properties(device).total_memory
-        print("VRAM available: {:.1f} MB".format(vram_avail / 1024**2))
+        print("VRAM available: {:.1f} MB".format(vram_avail / 1024 ** 2))
     else:
         # Do not resize in cpu mode
         anchor_resolution = 8192 * 8192
@@ -119,7 +118,7 @@ def interpolater(model, inputs, scale, padder, iters=1):
     embt = torch.tensor(1 / 2).float().view(1, 1, 1, 1).to(device)
 
     for i in range(iters):
-        print(f"Iter {i+1}. input_frames={len(inputs)} output_frames={2*len(inputs)-1}")
+        print(f"Iter {i + 1}. input_frames={len(inputs)} output_frames={2 * len(inputs) - 1}")
         outputs = [inputs[0]]
         for in_0, in_1 in zip(inputs[:-1], inputs[1:]):
             in_0 = in_0.to(device)
@@ -160,11 +159,11 @@ def write(outputs, input_path, output_path, fps=30):
 
 
 def process(
-    model,
-    image_path,
-    output_path,
-    fps,
-    iters,
+        model,
+        image_path,
+        output_path,
+        fps,
+        iters,
 ):
     inputs, scale, padder = get_input_video_from_path(image_path)
     outputs = interpolater(model, inputs, scale, padder, iters)
@@ -186,7 +185,7 @@ def parse_args():
     parser.add_argument("--folder", action="store_true", help="If the input is a folder, set this flag.")
     args = parser.parse_args()
 
-    times_frame = 2**args.niters
+    times_frame = 2 ** args.niters
     old_fps = args.fps
     args.fps = args.fps * times_frame
     print(f"Interpolation will turn {old_fps}fps video to {args.fps}fps video.")

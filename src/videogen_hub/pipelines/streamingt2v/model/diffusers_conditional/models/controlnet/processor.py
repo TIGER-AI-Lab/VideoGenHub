@@ -1,14 +1,16 @@
-from einops import repeat, rearrange
-from typing import Callable, Optional, Union
-from .attention_processor import Attention
+from typing import Callable, Optional
 
+import torch
+import torch.nn.functional as F
 # from t2v_enhanced.model.diffusers_conditional.controldiffusers.models.attention import Attention
 from diffusers.utils.import_utils import is_xformers_available
+from einops import repeat, rearrange
+
+from videogen_hub.pipelines.streamingt2v.model.diffusers_conditional.models.controlnet.attention_processor import \
+    Attention
 from videogen_hub.pipelines.streamingt2v.model.pl_module_params_controlnet import (
     AttentionMaskParams,
 )
-import torch
-import torch.nn.functional as F
 
 if is_xformers_available():
     import xformers
@@ -18,19 +20,18 @@ else:
 
 
 def set_use_memory_efficient_attention_xformers(
-    model,
-    num_frame_conditioning: int,
-    num_frames: int,
-    attention_mask_params: AttentionMaskParams,
-    valid: bool = True,
-    attention_op: Optional[Callable] = None,
+        model,
+        num_frame_conditioning: int,
+        num_frames: int,
+        attention_mask_params: AttentionMaskParams,
+        valid: bool = True,
+        attention_op: Optional[Callable] = None,
 ) -> None:
     # Recursively walk through all the children.
     # Any children which exposes the set_use_memory_efficient_attention_xformers method
     # gets the message
     def fn_recursive_set_mem_eff(module: torch.nn.Module):
         if hasattr(module, "set_processor"):
-
             module.set_processor(
                 XFormersAttnProcessor(
                     attention_op=attention_op,
@@ -50,12 +51,12 @@ def set_use_memory_efficient_attention_xformers(
 
 class XFormersAttnProcessor:
     def __init__(
-        self,
-        attention_mask_params: AttentionMaskParams,
-        attention_op: Optional[Callable] = None,
-        num_frame_conditioning: int = None,
-        num_frames: int = None,
-        use_image_embedding: bool = False,
+            self,
+            attention_mask_params: AttentionMaskParams,
+            attention_op: Optional[Callable] = None,
+            num_frame_conditioning: int = None,
+            num_frames: int = None,
+            use_image_embedding: bool = False,
     ):
         self.attention_op = attention_op
         self.num_frame_conditioning = num_frame_conditioning
@@ -69,13 +70,13 @@ class XFormersAttnProcessor:
         self.use_image_embedding = use_image_embedding
 
     def __call__(
-        self,
-        attn: Attention,
-        hidden_states,
-        hidden_state_height=None,
-        hidden_state_width=None,
-        encoder_hidden_states=None,
-        attention_mask=None,
+            self,
+            attn: Attention,
+            hidden_states,
+            hidden_state_height=None,
+            hidden_state_width=None,
+            encoder_hidden_states=None,
+            attention_mask=None,
     ):
         batch_size, sequence_length, _ = (
             hidden_states.shape
@@ -131,7 +132,7 @@ class XFormersAttnProcessor:
             encoder_hidden_states_mixed = attn.conv(encoder_hidden_states)
             encoder_hidden_states_mixed = attn.conv_ln(encoder_hidden_states_mixed)
             encoder_hidden_states = (
-                encoder_hidden_states_txt + encoder_hidden_states_mixed * F.silu(alpha)
+                    encoder_hidden_states_txt + encoder_hidden_states_mixed * F.silu(alpha)
             )
 
             key = attn.to_k(encoder_hidden_states)
@@ -141,10 +142,10 @@ class XFormersAttnProcessor:
             value = attn.to_v(encoder_hidden_states)
 
         if (
-            not default_attention
-            and not is_spatial_attention
-            and self.temp_attend_on_neighborhood_of_condition_frames
-            and not attn.cross_attention_mode
+                not default_attention
+                and not is_spatial_attention
+                and self.temp_attend_on_neighborhood_of_condition_frames
+                and not attn.cross_attention_mode
         ):
             # normal attention
             query_condition = query[:, : self.num_frame_conditioning]
@@ -164,7 +165,7 @@ class XFormersAttnProcessor:
             hidden_states_condition = hidden_states_condition.to(query.dtype)
             hidden_states_condition = attn.batch_to_head_dim(hidden_states_condition)
             #
-            query_uncondition = query[:, self.num_frame_conditioning :]
+            query_uncondition = query[:, self.num_frame_conditioning:]
 
             key = key[:, : self.num_frame_conditioning]
             value = value[:, : self.num_frame_conditioning]
@@ -214,10 +215,10 @@ class XFormersAttnProcessor:
             hidden_states = attn.batch_to_head_dim(hidden_states)
             hidden_states = torch.cat([hidden_states_condition, hidden_states], dim=1)
         elif (
-            not default_attention
-            and is_spatial_attention
-            and self.spatial_attend_on_condition_frames
-            and not attn.cross_attention_mode
+                not default_attention
+                and is_spatial_attention
+                and self.spatial_attend_on_condition_frames
+                and not attn.cross_attention_mode
         ):
             # (B F) W H C -> B F W H C
             query_condition = rearrange(
@@ -253,15 +254,15 @@ class XFormersAttnProcessor:
             query_uncondition = rearrange(
                 query, "(B F) S C -> B F S C", F=self.num_frames
             )
-            query_uncondition = query_uncondition[:, self.num_frame_conditioning :]
+            query_uncondition = query_uncondition[:, self.num_frame_conditioning:]
             key_uncondition = rearrange(key, "(B F) S C -> B F S C", F=self.num_frames)
             value_uncondition = rearrange(
                 value, "(B F) S C -> B F S C", F=self.num_frames
             )
             key_uncondition = key_uncondition[:, self.num_frame_conditioning - 1, None]
             value_uncondition = value_uncondition[
-                :, self.num_frame_conditioning - 1, None
-            ]
+                                :, self.num_frame_conditioning - 1, None
+                                ]
             # if self.trainer.training:
             # import pdb
             # pdb.set_trace()

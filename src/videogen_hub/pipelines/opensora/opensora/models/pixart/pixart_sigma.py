@@ -53,17 +53,17 @@ class PixArtBlock(nn.Module):
     """
 
     def __init__(
-        self,
-        hidden_size,
-        num_heads,
-        mlp_ratio=4.0,
-        drop_path=0.0,
-        enable_flash_attn=False,
-        enable_layernorm_kernel=False,
-        enable_sequence_parallelism=False,
-        qk_norm=False,
-        sampling="conv",
-        sr_ratio=1,
+            self,
+            hidden_size,
+            num_heads,
+            mlp_ratio=4.0,
+            drop_path=0.0,
+            enable_flash_attn=False,
+            enable_layernorm_kernel=False,
+            enable_sequence_parallelism=False,
+            qk_norm=False,
+            sampling="conv",
+            sr_ratio=1,
     ):
         super().__init__()
         self.hidden_size = hidden_size
@@ -91,7 +91,7 @@ class PixArtBlock(nn.Module):
             in_features=hidden_size, hidden_features=int(hidden_size * mlp_ratio), act_layer=approx_gelu, drop=0
         )
         self.drop_path = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
-        self.scale_shift_table = nn.Parameter(torch.randn(6, hidden_size) / hidden_size**0.5)
+        self.scale_shift_table = nn.Parameter(torch.randn(6, hidden_size) / hidden_size ** 0.5)
         self.sampling = sampling
         self.sr_ratio = sr_ratio
 
@@ -99,7 +99,7 @@ class PixArtBlock(nn.Module):
         B, N, C = x.shape
 
         shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = (
-            self.scale_shift_table[None] + t.reshape(B, 6, -1)
+                self.scale_shift_table[None] + t.reshape(B, 6, -1)
         ).chunk(6, dim=1)
         x = x + self.drop_path(
             gate_msa * self.attn(t2i_modulate(self.norm1(x), shift_msa, scale_msa), HW=hw).reshape(B, N, C)
@@ -117,29 +117,29 @@ class PixArt_Sigma(nn.Module):
     """
 
     def __init__(
-        self,
-        input_size=(1, 32, 32),
-        in_channels=4,
-        patch_size=(1, 2, 2),
-        hidden_size=1152,
-        depth=28,
-        num_heads=16,
-        mlp_ratio=4.0,
-        class_dropout_prob=0.1,
-        pred_sigma=True,
-        drop_path: float = 0.0,
-        no_temporal_pos_emb=False,
-        caption_channels=4096,
-        model_max_length=120,
-        dtype=torch.float32,
-        freeze=None,
-        qk_norm=False,
-        space_scale=1.0,
-        time_scale=1.0,
-        enable_flash_attn=False,
-        enable_layernorm_kernel=False,
-        enable_sequence_parallelism=False,
-        kv_compress_config=None,
+            self,
+            input_size=(1, 32, 32),
+            in_channels=4,
+            patch_size=(1, 2, 2),
+            hidden_size=1152,
+            depth=28,
+            num_heads=16,
+            mlp_ratio=4.0,
+            class_dropout_prob=0.1,
+            pred_sigma=True,
+            drop_path: float = 0.0,
+            no_temporal_pos_emb=False,
+            caption_channels=4096,
+            model_max_length=120,
+            dtype=torch.float32,
+            freeze=None,
+            qk_norm=False,
+            space_scale=1.0,
+            time_scale=1.0,
+            enable_flash_attn=False,
+            enable_layernorm_kernel=False,
+            enable_sequence_parallelism=False,
+            kv_compress_config=None,
     ):
         super().__init__()
         assert enable_sequence_parallelism is False, "Sequence parallelism is not supported in this version."

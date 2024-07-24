@@ -1,15 +1,19 @@
-from ..modeling_videobase import VideoBaseAE
-import torch
-from torch import nn, Tensor
-import numpy as np
-import torch.distributed as dist
-import torch.nn.functional as F
+import json
 import math
 import os
-import json
 from typing import Tuple, Dict, Union
-from .configuration_causalvqvae import CausalVQVAEConfiguration
+
+import numpy as np
+import torch
+import torch.distributed as dist
+import torch.nn.functional as F
 from einops import rearrange, pack, unpack
+from torch import nn, Tensor
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.causal_vqvae.configuration_causalvqvae import \
+    CausalVQVAEConfiguration
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modeling_videobase import VideoBaseAE
+
 
 # Copied from https://github.com/wilson1yan/VideoGPT
 def view_range(x, i, j, shape):
@@ -72,41 +76,45 @@ def scaled_dot_product_attention(q, k, v, mask=None, attn_dropout=0.0, training=
 
     return a
 
+
 def is_odd(n):
     return not n % 2 == 0
+
 
 def maybe_del_attr_(o, attr):
     if hasattr(o, attr):
         delattr(o, attr)
 
-def cast_tuple(t, length = 1):
+
+def cast_tuple(t, length=1):
     return t if isinstance(t, tuple) else ((t,) * length)
+
 
 class SpatialDownsample2x(torch.nn.Module):
     def __init__(
-        self,
-        chan_in,
-        chan_out,
-        kernel_size: Union[int, Tuple[int]] = (4,4),
-        stride: Union[int, Tuple[int]] = (2,2)
+            self,
+            chan_in,
+            chan_out,
+            kernel_size: Union[int, Tuple[int]] = (4, 4),
+            stride: Union[int, Tuple[int]] = (2, 2)
     ):
         super().__init__()
         kernel_size = cast_tuple(kernel_size, 2)
         stride = cast_tuple(stride, 2)
-        
+
         self.chan_in = chan_in
         self.chan_out = chan_out
         self.kernel_size = kernel_size
-        
+
         total_pad = tuple([k - s for k, s in zip(kernel_size, stride)])
         pad_input = []
         for p in total_pad[::-1]:
             pad_input.append((p // 2 + p % 2, p // 2))
         pad_input = sum(pad_input, tuple())
         self.pad_input = pad_input
-        
+
         self.conv = torch.nn.Conv2d(self.chan_in, self.chan_out, self.kernel_size, stride=stride)
-        
+
     def forward(self, x):
         x = F.pad(x, self.pad_input)
         x = rearrange(x, "b c f h w -> b f c h w")
@@ -116,20 +124,22 @@ class SpatialDownsample2x(torch.nn.Module):
         x = rearrange(x, "b f c h w -> b c f h w")
         return x
 
+
 class SpatialUpsample2x(torch.nn.Module):
     def __init__(
-        self,
-        chan_in,
-        chan_out,
-        kernel_size: Union[int, Tuple[int]] = (3,3),
-        stride: Union[int, Tuple[int]] = (1,1)
+            self,
+            chan_in,
+            chan_out,
+            kernel_size: Union[int, Tuple[int]] = (3, 3),
+            stride: Union[int, Tuple[int]] = (1, 1)
     ):
         super().__init__()
         self.chan_in = chan_in
         self.chan_out = chan_out
         self.kernel_size = kernel_size
-        self.conv = torch.nn.Conv2d(self.chan_in, self.chan_out, self.kernel_size, stride=stride, padding=tuple([(k - 1) // 2 for k in kernel_size]))
-        
+        self.conv = torch.nn.Conv2d(self.chan_in, self.chan_out, self.kernel_size, stride=stride,
+                                    padding=tuple([(k - 1) // 2 for k in kernel_size]))
+
     def forward(self, x):
         x = rearrange(x, "b c f h w -> b f c h w")
         x, ps = pack([x], "* c h w")
@@ -139,40 +149,42 @@ class SpatialUpsample2x(torch.nn.Module):
         x = rearrange(x, "b f c h w -> b c f h w")
         return x
 
+
 class TimeDownsample2x(nn.Module):
     def __init__(
-        self,
-        chan_in,
-        chan_out,
-        kernel_size: int = 4,
+            self,
+            chan_in,
+            chan_out,
+            kernel_size: int = 4,
     ):
         super().__init__()
         self.chan_in = chan_in
         self.chan_out = chan_out
         self.kernel_size = kernel_size
         self.conv = CausalConv3d(chan_in, chan_out, kernel_size, stride=2)
-        
+
     def forward(self, x):
         return self.conv(x)
 
+
 class TimeUpsample2x(nn.Module):
     def __init__(
-        self,
-        chan_in,
-        chan_out,
-        kernel_size: int = 3,
+            self,
+            chan_in,
+            chan_out,
+            kernel_size: int = 3,
     ):
         super().__init__()
         self.chan_in = chan_in
         self.chan_out = chan_out
         self.kernel_size = kernel_size
         self.conv = CausalConv3d(chan_in, chan_out, kernel_size, stride=1)
-        
+
     def forward(self, x):
         x = rearrange(x, "b c f h w -> b c h w f")
         x, ps = pack([x], "b * f")
         if x.size(-1) > 1:
-            x = torch.concat((x[:,:,:1], F.interpolate(x[:,:,1:], scale_factor=2.0, mode="linear")), dim=-1)
+            x = torch.concat((x[:, :, :1], F.interpolate(x[:, :, 1:], scale_factor=2.0, mode="linear")), dim=-1)
         else:
             x = x
         x = unpack(x, ps, "b * f")[0]
@@ -180,13 +192,14 @@ class TimeUpsample2x(nn.Module):
         x = self.conv(x)
         return x
 
+
 class CausalConv3d(nn.Module):
     def __init__(
-        self,
-        chan_in,
-        chan_out,
-        kernel_size: Union[int, Tuple[int, int, int]],
-        **kwargs
+            self,
+            chan_in,
+            chan_out,
+            kernel_size: Union[int, Tuple[int, int, int]],
+            **kwargs
     ):
         super().__init__()
         kernel_size = cast_tuple(kernel_size, 3)
@@ -200,13 +213,14 @@ class CausalConv3d(nn.Module):
         pad_input = sum(pad_input, tuple())
         pad_input += (0, 0)
         self.padding = pad_input
-        self.conv = nn.Conv3d(chan_in, chan_out, kernel_size, stride = stride, **kwargs)
+        self.conv = nn.Conv3d(chan_in, chan_out, kernel_size, stride=stride, **kwargs)
 
     def forward(self, x):
         x = F.pad(x, self.padding)
-        first_frame_pad = x[:, :, :1, : ,:].repeat((1,1,self.time_kernel_size - 1,1,1))
+        first_frame_pad = x[:, :, :1, :, :].repeat((1, 1, self.time_kernel_size - 1, 1, 1))
         x = torch.concatenate((first_frame_pad, x), dim=2)
         return self.conv(x)
+
 
 # Modified from https://github.com/wilson1yan/VideoGPT
 class AxialBlock(nn.Module):
@@ -232,6 +246,7 @@ class AxialBlock(nn.Module):
         x = shift_dim(x, -1, 1)
         return x
 
+
 # Copied from https://github.com/wilson1yan/VideoGPT
 class AttentionResidualBlock(nn.Module):
     def __init__(self, n_hiddens, n_heads: int = 2):
@@ -250,6 +265,7 @@ class AttentionResidualBlock(nn.Module):
 
     def forward(self, x):
         return x + self.block(x)
+
 
 # Copied from https://github.com/wilson1yan/VideoGPT
 class Codebook(nn.Module):
@@ -292,9 +308,9 @@ class Codebook(nn.Module):
             self._init_embeddings(z)
         flat_inputs = shift_dim(z, 1, -1).flatten(end_dim=-2)
         distances = (
-            (flat_inputs**2).sum(dim=1, keepdim=True)
-            - 2 * flat_inputs @ self.embeddings.t()
-            + (self.embeddings.t() ** 2).sum(dim=0, keepdim=True)
+                (flat_inputs ** 2).sum(dim=1, keepdim=True)
+                - 2 * flat_inputs @ self.embeddings.t()
+                + (self.embeddings.t() ** 2).sum(dim=0, keepdim=True)
         )
 
         encoding_indices = torch.argmin(distances, dim=1)
@@ -346,6 +362,7 @@ class Codebook(nn.Module):
         embeddings = F.embedding(encodings, self.embeddings)
         return embeddings
 
+
 # Modified from https://github.com/wilson1yan/VideoGPT
 class Encoder(nn.Module):
     def __init__(self, n_hiddens, n_res_layers, time_downsample, spatial_downsample):
@@ -382,10 +399,11 @@ class Encoder(nn.Module):
         h = self.time_res_stack(h)
         return h
 
+
 # Copied from https://github.com/wilson1yan/VideoGPT
 class MultiHeadAttention(nn.Module):
     def __init__(
-        self, shape, dim_q, dim_kv, n_head, n_layer, causal, attn_type, attn_kwargs
+            self, shape, dim_q, dim_kv, n_head, n_layer, causal, attn_type, attn_kwargs
     ):
         super().__init__()
         self.causal = causal
@@ -469,6 +487,7 @@ class MultiHeadAttention(nn.Module):
 
         return a
 
+
 # Copied from https://github.com/wilson1yan/VideoGPT
 class Decoder(nn.Module):
     def __init__(self, n_hiddens, n_res_layers, time_downsample, spatial_downsample):
@@ -506,6 +525,7 @@ class Decoder(nn.Module):
                 h = F.relu(h)
         return h
 
+
 # Copied from https://github.com/wilson1yan/VideoGPT
 class FullAttention(nn.Module):
     def __init__(self, shape, causal, attn_dropout):
@@ -533,6 +553,7 @@ class FullAttention(nn.Module):
 
         return view_range(out, 2, 3, old_shape)
 
+
 # Copied from https://github.com/wilson1yan/VideoGPT
 class AxialAttention(nn.Module):
     def __init__(self, n_dim, axial_dim, causal=False):
@@ -549,10 +570,10 @@ class AxialAttention(nn.Module):
         q = shift_dim(q, self.axial_dim, -2).flatten(end_dim=-3)
         k = shift_dim(k, self.axial_dim, -2).flatten(end_dim=-3)
         v = shift_dim(v, self.axial_dim, -2)
-        
+
         old_shape = list(v.shape)
         v = v.flatten(end_dim=-3)
-        
+
         if self.causal:
             mask = torch.tril(torch.ones(q.shape[-2], q.shape[-2])) if self.causal else None
             if decode_step is not None and mask is not None:
@@ -560,11 +581,12 @@ class AxialAttention(nn.Module):
             mask = mask.to(q.device)
         else:
             mask = None
-            
+
         out = scaled_dot_product_attention(q, k, v, mask=mask, training=self.training)
         out = out.view(*old_shape)
         out = shift_dim(out, -2, self.axial_dim)
         return out
+
 
 # Copied from https://github.com/wilson1yan/VideoGPT
 class StridedSparsityConfig(object):
@@ -599,7 +621,7 @@ class StridedSparsityConfig(object):
         for row in range(0, num_blocks):
             end = min(row + self.num_local_blocks, num_blocks)
             for col in range(
-                max(0, row - self.num_local_blocks), (row + 1 if self.causal else end)
+                    max(0, row - self.num_local_blocks), (row + 1 if self.causal else end)
             ):
                 layout[:, row, col] = 1
         return layout
@@ -655,7 +677,7 @@ class StridedSparsityConfig(object):
         block_row = row // self.block
         block_row = block_layout[:, [block_row]]  # n_head x 1 x n_blocks
         block_row = block_row.repeat_interleave(self.block, dim=-1)
-        block_row[:, :, row + 1 :] = 0.0
+        block_row[:, :, row + 1:] = 0.0
         return block_row
 
     ############# Helper functions ##########################
@@ -695,6 +717,7 @@ class StridedSparsityConfig(object):
             flat_idx %= self._block_shape_cum[i]
         return tuple(idx)
 
+
 # Copied from https://github.com/wilson1yan/VideoGPT
 class SparseAttention(nn.Module):
     ops = dict()
@@ -702,7 +725,7 @@ class SparseAttention(nn.Module):
     block_layout = dict()
 
     def __init__(
-        self, shape, n_head, causal, num_local_blocks=4, block=32, attn_dropout=0.0
+            self, shape, n_head, causal, num_local_blocks=4, block=32, attn_dropout=0.0
     ):  # does not use attn_dropout
         super().__init__()
         self.causal = causal
@@ -727,6 +750,7 @@ class SparseAttention(nn.Module):
 
     def get_ops(self):
         try:
+            # noinspection PyUnresolvedReferences
             from deepspeed.ops.sparse_attention import MatMul, Softmax
         except:
             raise Exception(
@@ -801,6 +825,7 @@ class SparseAttention(nn.Module):
 
         return view_range(out, 2, 3, old_shape)
 
+
 class CausalVQVAEModel(VideoBaseAE):
 
     def __init__(self, config: CausalVQVAEConfiguration):
@@ -842,7 +867,7 @@ class CausalVQVAEModel(VideoBaseAE):
         model = cls(config=CausalVQVAEConfiguration(**config))
         model.load_state_dict(state_dict)
         return model
-            
+
     @classmethod
     def download_and_load_model(cls, model_name, cache_dir=None):
         raise NotImplementedError()

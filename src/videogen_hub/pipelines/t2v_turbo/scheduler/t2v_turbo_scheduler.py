@@ -21,7 +21,6 @@ from typing import List, Optional, Tuple, Union
 
 import numpy as np
 import torch
-
 from diffusers import ConfigMixin, SchedulerMixin
 from diffusers.configuration_utils import register_to_config
 from diffusers.utils import BaseOutput
@@ -53,9 +52,9 @@ class T2VTurboSchedulerOutput(BaseOutput):
 
 # Copied from diffusers.schedulers.scheduling_ddpm.betas_for_alpha_bar
 def betas_for_alpha_bar(
-    num_diffusion_timesteps,
-    max_beta=0.999,
-    alpha_transform_type="cosine",
+        num_diffusion_timesteps,
+        max_beta=0.999,
+        alpha_transform_type="cosine",
 ):
     """
     Create a beta schedule that discretizes the given alpha_t_bar function, which defines the cumulative product of
@@ -117,7 +116,7 @@ def rescale_zero_terminal_snr(betas):
     alphas_bar_sqrt *= alphas_bar_sqrt_0 / (alphas_bar_sqrt_0 - alphas_bar_sqrt_T)
 
     # Convert alphas_bar_sqrt to betas
-    alphas_bar = alphas_bar_sqrt**2  # Revert sqrt
+    alphas_bar = alphas_bar_sqrt ** 2  # Revert sqrt
     alphas = alphas_bar[1:] / alphas_bar[:-1]  # Revert cumprod
     alphas = torch.cat([alphas_bar[0:1], alphas])
     betas = 1 - alphas
@@ -180,22 +179,22 @@ class T2VTurboScheduler(SchedulerMixin, ConfigMixin):
 
     @register_to_config
     def __init__(
-        self,
-        num_train_timesteps: int = 1000,
-        linear_start: float = 0.00085,
-        linear_end: float = 0.012,
-        beta_schedule: str = "scaled_linear",
-        trained_betas: Optional[Union[np.ndarray, List[float]]] = None,
-        clip_sample: bool = True,
-        set_alpha_to_one: bool = True,
-        steps_offset: int = 0,
-        prediction_type: str = "epsilon",
-        thresholding: bool = False,
-        dynamic_thresholding_ratio: float = 0.995,
-        clip_sample_range: float = 1.0,
-        sample_max_value: float = 1.0,
-        timestep_spacing: str = "leading",
-        rescale_betas_zero_snr: bool = False,
+            self,
+            num_train_timesteps: int = 1000,
+            linear_start: float = 0.00085,
+            linear_end: float = 0.012,
+            beta_schedule: str = "scaled_linear",
+            trained_betas: Optional[Union[np.ndarray, List[float]]] = None,
+            clip_sample: bool = True,
+            set_alpha_to_one: bool = True,
+            steps_offset: int = 0,
+            prediction_type: str = "epsilon",
+            thresholding: bool = False,
+            dynamic_thresholding_ratio: float = 0.995,
+            clip_sample_range: float = 1.0,
+            sample_max_value: float = 1.0,
+            timestep_spacing: str = "leading",
+            rescale_betas_zero_snr: bool = False,
     ):
         assert beta_schedule == "scaled_linear"
         assert trained_betas is None
@@ -208,13 +207,13 @@ class T2VTurboScheduler(SchedulerMixin, ConfigMixin):
         elif beta_schedule == "scaled_linear":
             # this schedule is very specific to the latent diffusion model.
             self.betas = (
-                torch.linspace(
-                    linear_start**0.5,
-                    linear_end**0.5,
-                    num_train_timesteps,
-                    dtype=torch.float32,
-                )
-                ** 2
+                    torch.linspace(
+                        linear_start ** 0.5,
+                        linear_end ** 0.5,
+                        num_train_timesteps,
+                        dtype=torch.float32,
+                    )
+                    ** 2
             )
         elif beta_schedule == "squaredcos_cap_v2":
             # Glide cosine schedule
@@ -249,7 +248,7 @@ class T2VTurboScheduler(SchedulerMixin, ConfigMixin):
         )
 
     def scale_model_input(
-        self, sample: torch.FloatTensor, timestep: Optional[int] = None
+            self, sample: torch.FloatTensor, timestep: Optional[int] = None
     ) -> torch.FloatTensor:
         """
         Ensures interchangeability with schedulers that need to scale the denoising model input depending on the
@@ -276,7 +275,7 @@ class T2VTurboScheduler(SchedulerMixin, ConfigMixin):
         beta_prod_t_prev = 1 - alpha_prod_t_prev
 
         variance = (beta_prod_t_prev / beta_prod_t) * (
-            1 - alpha_prod_t / alpha_prod_t_prev
+                1 - alpha_prod_t / alpha_prod_t_prev
         )
 
         return variance
@@ -311,7 +310,7 @@ class T2VTurboScheduler(SchedulerMixin, ConfigMixin):
 
         s = s.unsqueeze(1)  # (batch_size, 1) because clamp will broadcast along dim=0
         sample = (
-            torch.clamp(sample, -s, s) / s
+                torch.clamp(sample, -s, s) / s
         )  # "we threshold xt0 to the range [-s, s] and then divide by s"
 
         sample = sample.reshape(batch_size, channels, height, width)
@@ -320,10 +319,10 @@ class T2VTurboScheduler(SchedulerMixin, ConfigMixin):
         return sample
 
     def set_timesteps(
-        self,
-        num_inference_steps: int,
-        lcm_origin_steps: int,
-        device: Union[str, torch.device] = None,
+            self,
+            num_inference_steps: int,
+            lcm_origin_steps: int,
+            device: Union[str, torch.device] = None,
     ):
         """
         Sets the discrete timesteps used for the diffusion chain (to be run before inference).
@@ -344,12 +343,12 @@ class T2VTurboScheduler(SchedulerMixin, ConfigMixin):
         # LCM Timesteps Setting:  # Linear Spacing
         c = self.config.num_train_timesteps // lcm_origin_steps
         lcm_origin_timesteps = (
-            np.asarray(list(range(1, lcm_origin_steps + 1))) * c - 1
+                np.asarray(list(range(1, lcm_origin_steps + 1))) * c - 1
         )  # LCM Training  Steps Schedule
         skipping_step = len(lcm_origin_timesteps) // num_inference_steps
         timesteps = lcm_origin_timesteps[::-skipping_step][
-            :num_inference_steps
-        ]  # LCM Inference Steps Schedule
+                    :num_inference_steps
+                    ]  # LCM Inference Steps Schedule
 
         self.timesteps = torch.from_numpy(timesteps.copy()).to(device)
 
@@ -359,21 +358,21 @@ class T2VTurboScheduler(SchedulerMixin, ConfigMixin):
         self.sigma_data = 0.5  # Default: 0.5
 
         # By dividing 0.1: This is almost a delta function at t=0.
-        c_skip = self.sigma_data**2 / ((t / 0.1) ** 2 + self.sigma_data**2)
-        c_out = (t / 0.1) / ((t / 0.1) ** 2 + self.sigma_data**2) ** 0.5
+        c_skip = self.sigma_data ** 2 / ((t / 0.1) ** 2 + self.sigma_data ** 2)
+        c_out = (t / 0.1) / ((t / 0.1) ** 2 + self.sigma_data ** 2) ** 0.5
         return c_skip, c_out
 
     def step(
-        self,
-        model_output: torch.FloatTensor,
-        timeindex: int,
-        timestep: int,
-        sample: torch.FloatTensor,
-        eta: float = 0.0,
-        use_clipped_model_output: bool = False,
-        generator=None,
-        variance_noise: Optional[torch.FloatTensor] = None,
-        return_dict: bool = True,
+            self,
+            model_output: torch.FloatTensor,
+            timeindex: int,
+            timestep: int,
+            sample: torch.FloatTensor,
+            eta: float = 0.0,
+            use_clipped_model_output: bool = False,
+            generator=None,
+            variance_noise: Optional[torch.FloatTensor] = None,
+            return_dict: bool = True,
     ) -> Union[T2VTurboSchedulerOutput, Tuple]:
         """
         Predict the sample from the previous timestep by reversing the SDE. This function propagates the diffusion
@@ -450,7 +449,7 @@ class T2VTurboScheduler(SchedulerMixin, ConfigMixin):
         if len(self.timesteps) > 1:
             noise = torch.randn(model_output.shape).to(model_output.device)
             prev_sample = (
-                alpha_prod_t_prev.sqrt() * denoised + beta_prod_t_prev.sqrt() * noise
+                    alpha_prod_t_prev.sqrt() * denoised + beta_prod_t_prev.sqrt() * noise
             )
         else:
             prev_sample = denoised
@@ -462,10 +461,10 @@ class T2VTurboScheduler(SchedulerMixin, ConfigMixin):
 
     # Copied from diffusers.schedulers.scheduling_ddpm.DDPMScheduler.add_noise
     def add_noise(
-        self,
-        original_samples: torch.FloatTensor,
-        noise: torch.FloatTensor,
-        timesteps: torch.IntTensor,
+            self,
+            original_samples: torch.FloatTensor,
+            noise: torch.FloatTensor,
+            timesteps: torch.IntTensor,
     ) -> torch.FloatTensor:
         # Make sure alphas_cumprod and timestep have same device and dtype as original_samples
         alphas_cumprod = self.alphas_cumprod.to(
@@ -484,16 +483,16 @@ class T2VTurboScheduler(SchedulerMixin, ConfigMixin):
             sqrt_one_minus_alpha_prod = sqrt_one_minus_alpha_prod.unsqueeze(-1)
 
         noisy_samples = (
-            sqrt_alpha_prod * original_samples + sqrt_one_minus_alpha_prod * noise
+                sqrt_alpha_prod * original_samples + sqrt_one_minus_alpha_prod * noise
         )
         return noisy_samples
 
     # Copied from diffusers.schedulers.scheduling_ddpm.DDPMScheduler.get_velocity
     def get_velocity(
-        self,
-        sample: torch.FloatTensor,
-        noise: torch.FloatTensor,
-        timesteps: torch.IntTensor,
+            self,
+            sample: torch.FloatTensor,
+            noise: torch.FloatTensor,
+            timesteps: torch.IntTensor,
     ) -> torch.FloatTensor:
         # Make sure alphas_cumprod and timestep have same device and dtype as sample
         alphas_cumprod = self.alphas_cumprod.to(

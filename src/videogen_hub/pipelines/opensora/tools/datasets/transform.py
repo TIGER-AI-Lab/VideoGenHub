@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from .utils import IMG_EXTENSIONS, extract_frames
+from videogen_hub.pipelines.opensora.tools.datasets.utils import IMG_EXTENSIONS, extract_frames
 
 tqdm.pandas()
 
@@ -61,11 +61,11 @@ def rand_crop(path, input_dir, output):
     if pos == 0:
         img_cropped = img[: width // 2, : height // 2]
     elif pos == 1:
-        img_cropped = img[width // 2 :, : height // 2]
+        img_cropped = img[width // 2:, : height // 2]
     elif pos == 2:
-        img_cropped = img[: width // 2, height // 2 :]
+        img_cropped = img[: width // 2, height // 2:]
     else:
-        img_cropped = img[width // 2 :, height // 2 :]
+        img_cropped = img[width // 2:, height // 2:]
     cv2.imwrite(path_new, img_cropped)
     return path_new
 

@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
-from .block import Block
+
+from videogen_hub.pipelines.opensora_plan.opensora.models.ae.videobase.modules.block import Block
+
 
 class GroupNorm(Block):
     def __init__(self, num_channels, num_groups=32, eps=1e-6, *args, **kwargs) -> None:
@@ -8,13 +10,16 @@ class GroupNorm(Block):
         self.norm = torch.nn.GroupNorm(
             num_groups=num_groups, num_channels=num_channels, eps=1e-6, affine=True
         )
+
     def forward(self, x):
         return self.norm(x)
+
 
 def Normalize(in_channels, num_groups=32):
     return torch.nn.GroupNorm(
         num_groups=num_groups, num_channels=in_channels, eps=1e-6, affine=True
     )
+
 
 class ActNorm(nn.Module):
     def __init__(self, num_features, logdet=False, affine=True,
@@ -53,7 +58,7 @@ class ActNorm(nn.Module):
         if reverse:
             return self.reverse(input)
         if len(input.shape) == 2:
-            input = input[:,:,None,None]
+            input = input[:, :, None, None]
             squeeze = True
         else:
             squeeze = False
@@ -71,7 +76,7 @@ class ActNorm(nn.Module):
 
         if self.logdet:
             log_abs = torch.log(torch.abs(self.scale))
-            logdet = height*width*torch.sum(log_abs)
+            logdet = height * width * torch.sum(log_abs)
             logdet = logdet * torch.ones(input.shape[0]).to(input)
             return h, logdet
 
@@ -89,7 +94,7 @@ class ActNorm(nn.Module):
                 self.initialized.fill_(1)
 
         if len(output.shape) == 2:
-            output = output[:,:,None,None]
+            output = output[:, :, None, None]
             squeeze = True
         else:
             squeeze = False
