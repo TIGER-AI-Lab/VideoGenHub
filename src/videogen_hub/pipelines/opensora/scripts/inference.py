@@ -183,7 +183,7 @@ def main(config=None):
                 device=device,
                 additional_args=model_args,
             )
-            samples = vae.decode(samples.to(dtype))
+            samples = vae.decode(samples.to(dtype), model_args["num_frames"])
 
             # 4.4. save samples
             if not use_dist or coordinator.is_master():

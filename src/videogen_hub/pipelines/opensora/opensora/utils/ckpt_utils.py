@@ -158,6 +158,10 @@ def load_from_sharded_state_dict(model, ckpt_path, model_name="model", strict=Fa
         if colossal_imported:
             ckpt_io = GeneralCheckpointIO()
             ckpt_io.load_model(model, ckpt_path)
+        elif os.path.exists(os.path.join(ckpt_path, 'model' + ".safetensors")):
+            import safetensors.torch
+            state_dict = safetensors.torch.load_file(os.path.join(ckpt_path, 'model' + ".safetensors"))
+            model.load_state_dict(state_dict)
         else:
             model.load_state_dict(torch_load(os.path.join(ckpt_path, 'model')))
 
