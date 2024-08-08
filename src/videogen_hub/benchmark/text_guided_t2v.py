@@ -70,7 +70,6 @@ def infer_text_guided_vg_bench(
         if overwrite_model_outputs or not os.path.exists(dest_file):
             print("========> Inferencing", dest_file)
             frames = model.infer_one_video(prompt=prompt["prompt_en"])
-            print("======> frames.shape", frames.shape)
 
             #special_treated_list = ["LaVie", "ModelScope", "T2VTurbo"]
             special_treated_list = []
