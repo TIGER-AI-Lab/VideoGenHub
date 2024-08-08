@@ -89,6 +89,12 @@ We included more than 10 Models in video generation.
 |    Consisti2v 	   |    - 	    |   Image-To_Video Generation 	   |
 |      I2VGenXL      |    - 	    |   Image-To_Video Generation 	   |
 
+## TODO
+
+* [ ] Add ComfyUI Support 
+* [ ] Add Metrics Support
+* [ ] Add Visualization Support (Similar to [ImagenHub](https://chromaica.github.io/#imagen-museum))
+* [ ] Add Video Editing Task
 
 ## 🎫 License [🔝](#-table-of-contents)
 
