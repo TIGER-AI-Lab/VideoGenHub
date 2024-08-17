@@ -135,7 +135,8 @@ class VideoCrafterPipeline():
                     layer: penultimate
             """
 
-        config = OmegaConf.load(inference_t2v_512_v2_config)
+        config = OmegaConf.create(inference_t2v_512_v2_config)
+        #config = OmegaConf.load(self.args.config)
 
         # data_config = config.pop("data", OmegaConf.create())
         model_config = config.pop("model", OmegaConf.create())
