@@ -78,8 +78,7 @@ class VideoCrafterPipeline():
             use_scale: true
             scale_b: 0.7
             unet_config:
-                target: 
-                    lvdm.modules.networks.openaimodel3d.UNetModel
+                target: lvdm.modules.networks.openaimodel3d.UNetModel
                 params:
                     in_channels: 4
                     out_channels: 4
