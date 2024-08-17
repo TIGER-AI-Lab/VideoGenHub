@@ -78,61 +78,62 @@ class VideoCrafterPipeline():
             use_scale: true
             scale_b: 0.7
             unet_config:
-            target: lvdm.modules.networks.openaimodel3d.UNetModel
-            params:
-                in_channels: 4
-                out_channels: 4
-                model_channels: 320
-                attention_resolutions:
-                - 4
-                - 2
-                - 1
-                num_res_blocks: 2
-                channel_mult:
-                - 1
-                - 2
-                - 4
-                - 4
-                num_head_channels: 64
-                transformer_depth: 1
-                context_dim: 1024
-                use_linear: true
-                use_checkpoint: true
-                temporal_conv: true
-                temporal_attention: true
-                temporal_selfatt_only: true
-                use_relative_position: false
-                use_causal_attention: false
-                temporal_length: 16
-                addition_attention: true
-                fps_cond: true
-            first_stage_config:
-            target: lvdm.models.autoencoder.AutoencoderKL
-            params:
-                embed_dim: 4
-                monitor: val/rec_loss
-                ddconfig:
-                double_z: true
-                z_channels: 4
-                resolution: 512
-                in_channels: 3
-                out_ch: 3
-                ch: 128
-                ch_mult:
+                target: 
+                    lvdm.modules.networks.openaimodel3d.UNetModel
+                params:
+                    in_channels: 4
+                    out_channels: 4
+                    model_channels: 320
+                    attention_resolutions:
+                    - 4
+                    - 2
+                    - 1
+                    num_res_blocks: 2
+                    channel_mult:
                     - 1
                     - 2
                     - 4
                     - 4
-                num_res_blocks: 2
-                attn_resolutions: []
-                dropout: 0.0
-                lossconfig:
-                    target: torch.nn.Identity
+                    num_head_channels: 64
+                    transformer_depth: 1
+                    context_dim: 1024
+                    use_linear: true
+                    use_checkpoint: true
+                    temporal_conv: true
+                    temporal_attention: true
+                    temporal_selfatt_only: true
+                    use_relative_position: false
+                    use_causal_attention: false
+                    temporal_length: 16
+                    addition_attention: true
+                    fps_cond: true
+            first_stage_config:
+                target: lvdm.models.autoencoder.AutoencoderKL
+                params:
+                    embed_dim: 4
+                    monitor: val/rec_loss
+                    ddconfig:
+                        double_z: true
+                        z_channels: 4
+                        resolution: 512
+                        in_channels: 3
+                        out_ch: 3
+                        ch: 128
+                        ch_mult:
+                            - 1
+                            - 2
+                            - 4
+                            - 4
+                        num_res_blocks: 2
+                        attn_resolutions: []
+                        dropout: 0.0
+                    lossconfig:
+                        target: torch.nn.Identity
             cond_stage_config:
-            target: lvdm.modules.encoders.condition.FrozenOpenCLIPEmbedder
-            params:
-                freeze: true
-                layer: penultimate
+                target: lvdm.modules.encoders.condition.FrozenOpenCLIPEmbedder
+                params:
+                    freeze: true
+                    layer: penultimate
         """
 
         config = OmegaConf.create(inference_t2v_512_v2_config)
