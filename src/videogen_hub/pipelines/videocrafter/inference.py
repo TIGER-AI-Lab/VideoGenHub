@@ -68,8 +68,8 @@ class VideoCrafterPipeline():
             cond_stage_trainable: false
             conditioning_key: crossattn
             image_size:
-            - 40
-            - 64
+                - 40
+                - 64
             channels: 4
             scale_by_std: false
             scale_factor: 0.18215
@@ -84,15 +84,15 @@ class VideoCrafterPipeline():
                     out_channels: 4
                     model_channels: 320
                     attention_resolutions:
-                    - 4
-                    - 2
-                    - 1
+                        - 4
+                        - 2
+                        - 1
                     num_res_blocks: 2
                     channel_mult:
-                    - 1
-                    - 2
-                    - 4
-                    - 4
+                        - 1
+                        - 2
+                        - 4
+                        - 4
                     num_head_channels: 64
                     transformer_depth: 1
                     context_dim: 1024
