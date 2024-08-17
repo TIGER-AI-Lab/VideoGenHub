@@ -1,1 +1,1 @@
-__version__ = "0.1.4_arena"
+__version__ = "0.1.4.arena"
