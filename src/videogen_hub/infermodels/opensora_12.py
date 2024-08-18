@@ -41,7 +41,7 @@ class OpenSora12:
             "vae": {
                 "type": "OpenSoraVAE_V1_2",  # Type of the autoencoder
                 "from_pretrained": "hpcai-tech/OpenSora-VAE-v1.2",  # Pretrained model from Hugging Face
-                "cache_dir": os.path.join(MODEL_PATH, "OpenSora-VAE-v1.2"),  # Local cache directory for model weights
+                #"cache_dir": os.path.join(MODEL_PATH, "OpenSora-VAE-v1.2"),  # Local cache directory for model weights
                 "micro_frame_size": 17,
                 "micro_batch_size": 4,  # Batch size for processing
             },
@@ -89,7 +89,7 @@ class OpenSora12:
         hf_hub_download(
             repo_id="hpcai-tech/OpenSora-VAE-v1.2",
             filename="model.safetensors",
-            local_dir=self.config.vae.cache_dir,
+            local_dir=os.path.join(MODEL_PATH, "OpenSora-VAE-v1.2"),
         )
 
         hf_hub_download(

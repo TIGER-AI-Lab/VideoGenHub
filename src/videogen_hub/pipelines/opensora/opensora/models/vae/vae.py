@@ -203,6 +203,8 @@ class VideoAutoencoderPipeline(PreTrainedModel):
             x_z_list = []
             for i in range(0, z.size(2), self.micro_z_frame_size):
                 z_bs = z[:, :, i : i + self.micro_z_frame_size]
+                print("self.micro_frame_size", self.micro_frame_size)
+                print("num_frames", num_frames)
                 x_z_bs = self.temporal_vae.decode(z_bs, num_frames=min(self.micro_frame_size, num_frames))
                 x_z_list.append(x_z_bs)
                 num_frames -= self.micro_frame_size
