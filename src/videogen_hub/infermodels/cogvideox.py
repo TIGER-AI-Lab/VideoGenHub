@@ -10,7 +10,8 @@ class CogVideoX:
         """
         from diffusers import CogVideoXPipeline
 
-        self.pipe = CogVideoXPipeline.from_pretrained(weight).to("cuda")
+        self.pipe = CogVideoXPipeline.from_pretrained(weight)
+        self.device = device
 
     def infer_one_video(
         self,
@@ -33,7 +34,7 @@ class CogVideoX:
         Returns:
             torch.Tensor: The generated video as a tensor.
         """
-
+        self.pipe.to(self.device)
         video = self.pipe(prompt=prompt, 
                         guidance_scale=6,
                         num_frames=seconds * fps, 
