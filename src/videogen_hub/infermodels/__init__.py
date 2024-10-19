@@ -10,6 +10,7 @@ from .opensora_plan import OpenSoraPlan
 from .t2v_turbo import T2VTurbo
 from .opensora_12 import OpenSora12
 from .cogvideox import CogVideoX, CogVideoX5B
+from .pyramid_flow import PyramidFlow
 
 # from .cogvideo import CogVideo # Not supporting CogVideo ATM
 

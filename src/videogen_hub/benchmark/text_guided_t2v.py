@@ -16,6 +16,7 @@ def infer_text_guided_vg_bench(
     overwrite_model_outputs: bool = False,
     overwrite_inputs: bool = False,
     limit_videos_amount: Optional[int] = None,
+    fps = 8,
 ):
     """
     Performs inference on the VideogenHub dataset using the provided text-guided video generation model.
@@ -76,7 +77,6 @@ def infer_text_guided_vg_bench(
             if model.__class__.__name__ in special_treated_list:
                 print("======> Saved through cv2.VideoWriter_fourcc")
                 # save the video
-                fps = 8
                 fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Codec
                 out = cv2.VideoWriter(
                     dest_file, fourcc, fps, (frames.shape[2], frames.shape[1])
@@ -119,7 +119,7 @@ def infer_text_guided_vg_bench(
                     frames = frames.permute(0, 3, 1, 2)
                     print("======> corrected frames.shape", frames.shape)
 
-                tensor_to_video(frames, dest_file)
+                tensor_to_video(frames, dest_file, fps=fps)
         else:
             print("========> Skipping", dest_file, ", it already exists")
 
@@ -131,7 +131,8 @@ def infer_text_guided_vg_bench(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Load a model by name")
     parser.add_argument("--model_name", type=str, required=True, help="Name of the model to load")
+    parser.add_argument("--fps", type=int, default=8, help="frame per second")
     args = parser.parse_args()
     
     model = load_model(args.model_name)
-    infer_text_guided_vg_bench(model)
+    infer_text_guided_vg_bench(model, fps=args.fps)

@@ -6,7 +6,7 @@ from videogen_hub import MODEL_PATH
 
 
 class OpenSora:
-    def __init__(self, device="gpu"):
+    def __init__(self, device="cuda"):
         """
         1. Download the pretrained model and put it inside MODEL_PATH/modelscope
         2. Create Pipeline
