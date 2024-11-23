@@ -12,6 +12,7 @@ from .opensora_12 import OpenSora12
 from .cogvideox import CogVideoX, CogVideoX5B
 from .pyramid_flow import PyramidFlow
 from .allegro import Allegro
+from .ltxvideo import LTXVideo
 # from .mochi import Mochi1 # Not supporting Mochi1 ATM
 # from .cogvideo import CogVideo # Not supporting CogVideo ATM
 
