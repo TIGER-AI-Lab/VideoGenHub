@@ -117,7 +117,7 @@ def infer_text_guided_vg_bench(
                         fps (int): Frames per second for the output video.
                     """
                     # Ensure the tensor is on the CPU and convert to NumPy array
-                    tensor = tensor.cpu().numpy()
+                    tensor = tensor.float().cpu().numpy()
                     
                     # Normalize the tensor values to [0, 1]
                     tensor_min = tensor.min()
