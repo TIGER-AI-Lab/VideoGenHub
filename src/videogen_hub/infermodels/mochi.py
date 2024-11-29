@@ -18,13 +18,19 @@ class Mochi1():
                         prompt: str = None,
                         size: list = [480, 848],
                         seconds: int = 2,
-                        fps: int = 8,
+                        fps: int = 30,
                         seed: int = 42):
         frames = self.pipe(prompt, 
-                           num_inference_steps=28, 
+                           num_frames=84, # 30 fps * 2.8 seconds
+                           height=size[0],
+                           width=size[1],
+                           num_inference_steps=64, 
                            guidance_scale=3.5,
                            generator=torch.manual_seed(seed)).frames[0]
-        return frames
+        from videogen_hub.utils import images_to_tensor
+        video = images_to_tensor(frames) # parse it back to tensor (T, C, H, W)
+        
+        return video
 
 class Mochi1_source():
     def __init__(self, device="cuda"):
