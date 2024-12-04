@@ -50,7 +50,7 @@ class LTXVideo():
 
     def infer_one_video(self,
                         prompt: str = None,
-                        size: list = [480, 704],
+                        size: list = [512, 768],
                         seconds: int = 5,
                         fps: int = 24,
                         seed: int = 42):
