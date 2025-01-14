@@ -3,6 +3,7 @@
 from .lavie import LaVie
 from .videocrafter import VideoCrafter2
 from .modelscope import ModelScope
+from .hunyuan_video import HunyuanVideo
 from .streamingt2v import StreamingT2V
 from .show_one import ShowOne
 from .opensora import OpenSora
