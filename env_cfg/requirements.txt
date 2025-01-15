@@ -1,4 +1,6 @@
 deepspeed; platform_system != "Windows"
+loguru
+triton
 bitsandbytes
 flask
 flask_restful
