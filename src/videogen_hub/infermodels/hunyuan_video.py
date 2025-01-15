@@ -1,5 +1,5 @@
 import os
-
+import subprocess
 from huggingface_hub import snapshot_download, hf_hub_download
 
 from videogen_hub import MODEL_PATH
@@ -23,8 +23,9 @@ class HunyuanVideo:
                     local_dir=os.path.join(hunyuan_model_path, 'llava-llama-3-8b-v1_1-transformers'))
     encoder_path = os.path.join(hunyuan_model_path, 'text_encoder')
 
-    os.system('../pipelines/hunyuan_vodeo/hyvideo/utils/preprocess_text_encoder_tokenizer_utils.py', 
-    '--input_dir', llava_path, '--output_dir', encoder_path)
+    subprocess.run(['python',
+                    './src/videogen_hub/pipelines/hunyuan_video/hyvideo/utils/preprocess_text_encoder_tokenizer_utils.py',
+                    '--input_dir', llava_path, '--output_dir', encoder_path])
 
     model_path = snapshot_download("openai/clip-vit-large-patch14", 
                     local_dir=os.path.join(hunyuan_model_path, 'text_encoder_2'))
