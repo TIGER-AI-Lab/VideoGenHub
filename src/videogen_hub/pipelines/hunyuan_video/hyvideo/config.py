@@ -4,7 +4,7 @@ import re
 from .modules.models import HUNYUAN_VIDEO_CONFIG
 
 
-def parse_args(namespace=None):
+def parse_args(args, namespace=None):
     parser = argparse.ArgumentParser(description="HunyuanVideo inference script")
 
     parser = add_network_args(parser)
@@ -13,7 +13,7 @@ def parse_args(namespace=None):
     parser = add_inference_args(parser)
     parser = add_parallel_args(parser)
 
-    args = parser.parse_args(namespace=namespace)
+    args = parser.parse_args(args, namespace=namespace)
     args = sanity_check_args(args)
 
     return args

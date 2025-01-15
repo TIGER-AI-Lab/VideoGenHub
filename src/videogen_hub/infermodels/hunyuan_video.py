@@ -33,10 +33,13 @@ class HunyuanVideo:
     # Create the pipeline.
 
     # Use the default argument
-    args = parse_args()
+    args = []
+    args = parse_args(args)
     # Set model base path
     args.model_base = hunyuan_model_path
     args.dit_weight = os.path.join(hunyuan_model_path, 'hunyuan-video-t2v-720p/transformers/mp_rank_00_model_states.pt')
+    args.flow_reverse = True
+    args.use_cpu_offload = True
 
     self.pipeline = HunyuanVodeoPipeline(args)
 
