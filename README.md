@@ -6,6 +6,8 @@
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FTIGER-AI-Lab%2FVideoGenHub&count_bg=%23C83DB9&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=visitors&edge_flat=false)](https://hits.seeyoufarm.com)
 
 VideoGenHub is a one-stop library to standardize the inference and evaluation of all the conditional video generation models.
+![DALL·E 2025-02-13 03 26 01 - A highly detailed and ultra-high-quality image of a person sitting at a desk watching videos on a computer  The screen displays a video player with a ](https://github.com/user-attachments/assets/88d7268c-56f9-48bf-a8e4-19b223516b76)
+
 * We define 2 prominent generation tasks (Text-to-Video and Image-to-Video).
 * We built a unified inference pipeline to ensure fair comparison. We currently support around 10 models.
 
